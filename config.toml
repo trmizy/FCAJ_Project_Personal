@@ -1,0 +1,74 @@
+baseURL = "https://<YOUR_GITHUB_USERNAME>.github.io/<YOUR_REPOSITORY>/"
+relativeURLs = false
+canonifyURLs = false
+defaultContentLanguage = "en"
+
+# Change the default theme to be use when building the site with Hugo
+theme = "hugo-theme-learn"
+
+# For search functionality
+[outputs]
+home = [ "HTML", "RSS", "JSON"]
+
+[params]
+  # Change default color scheme with a variant one. Can be "red", "blue", "green".
+  themeVariant = "workshop"
+  # Git hub repo link
+  editURL = "https://github.com/<YOUR_GITHUB_USERNAME>/<YOUR_REPOSITORY>/edit/main/content/"
+  description = "Internship report for Cloud-Native AI Fitness Assistant on AWS."
+  author = "[TODO_FULL_NAME]"
+  showVisitedLinks = true
+  disableBreadcrumb = false
+  disableNextPrev = false
+
+[Languages]
+[Languages.en]
+title = "Cloud-Native AI Fitness Assistant – Internship Report"
+weight = 1
+languageName = "English"
+
+[[Languages.en.menu.shortcuts]]
+name = "<i class='fab fa-github'></i> Fitness Assistant Source Code"
+identifier = "Fitness Assistant Source"
+url = "https://github.com/trmizy/fitness-assistant"
+weight = 20
+
+[[Languages.en.menu.shortcuts]]
+name = "<i class='fab fa-aws'></i> AWS Study Group - Blog"
+identifier = "AWS Study Group"
+url = "https://awsstudygroup.com"
+weight = 30
+
+[[Languages.en.menu.shortcuts]]
+name = "<i class='fab fa-facebook'></i> AWS Study Group - FB Group"
+identifier = "AWS Study Group FB"
+url = "https://www.facebook.com/groups/awsstudygroupfcj"
+weight = 40
+
+[Languages.vi]
+title = "Trợ lý Thể hình AI trên AWS – Báo cáo thực tập"
+weight = 2
+languageName = "Tiếng Việt"
+
+[[Languages.vi.menu.shortcuts]]
+name = "<i class='fab fa-github'></i> Source code Fitness Assistant"
+identifier = "Fitness Assistant Source"
+url = "https://github.com/trmizy/fitness-assistant"
+weight = 20
+
+[[Languages.vi.menu.shortcuts]]
+name = "<i class='fab fa-aws'></i> AWS Study Group - Blog"
+identifier = "AWS Study Group"
+url = "http://awsstudygroup.com"
+weight = 30
+
+[[Languages.vi.menu.shortcuts]]
+name = "<i class='fab fa-facebook'></i> AWS Study Group - Nhóm FB"
+identifier = "AWS Study Group FB"
+url = "https://www.facebook.com/groups/awsstudygroupfcj"
+weight = 40
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true

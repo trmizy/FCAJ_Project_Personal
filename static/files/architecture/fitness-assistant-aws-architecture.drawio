@@ -1,0 +1,13 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Fitness Assistant AWS Architecture (PLACEHOLDER)" id="placeholder">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="placeholder-text" value="TODO: Replace this placeholder with the real Fitness Assistant AWS architecture diagram.&#10;See content/5-Workshop/5.2-Architecture/ for the required components:&#10;EC2 (frontend, application gateway, auth/user/fitness/ai services, Redis, Qdrant, Ollama),&#10;Amazon RDS for PostgreSQL (private subnet), Amazon ECR, IAM Role, Secrets Manager,&#10;CloudWatch, SNS. Clearly label backend/gateway as an application-level container,&#10;NOT Amazon API Gateway." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;align=left;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="120" y="120" width="640" height="260" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

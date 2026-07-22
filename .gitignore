@@ -1,0 +1,19 @@
+public/*
+
+# Hugo
+.hugo_build.lock
+resources/_gen/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
