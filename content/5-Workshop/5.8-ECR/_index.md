@@ -21,7 +21,7 @@ export IMAGE_TAG=$(date +%Y-%m-%d)
 One Amazon ECR repository per MVP service:
 
 ```bash
-for ECR_REPOSITORY in frontend gateway auth-service user-service fitness-service ai-service; do
+for ECR_REPOSITORY in frontend gateway auth-service user-service fitness-service ai-service payment-service gym-service; do
   aws ecr create-repository \
     --repository-name "fitness-assistant/${ECR_REPOSITORY}" \
     --region "$AWS_REGION" \
@@ -30,7 +30,7 @@ done
 ```
 
 {{% notice note %}}
-`gym-service` and `payment-service` are intentionally excluded here because they currently have no production Dockerfile in source (see [5.5 Production Containers](../5.5-Production-Containers/)).
+`chat-service` is intentionally excluded here — it's out of MVP scope (see [Proposal §9](../../2-Proposal/#9-out-of-mvp-scope)). `gym-service` and `payment-service` ARE included: both gained a production Dockerfile since this section was first drafted (see [5.5 Production Containers](../5.5-Production-Containers/)).
 {{% /notice %}}
 
 ### ECR Login

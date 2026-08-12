@@ -8,7 +8,7 @@ pre: " <b> 5.7. </b> "
 
 ### Vì sao RDS thay thế container `postgres`
 
-`infra/compose/docker-compose.dev.yml` chạy một container `postgres:15-alpine` duy nhất cho phát triển local, mỗi backend service (`auth-service`, `user-service`, `fitness-service`, `ai-service`, `chat-service`, `gym-service`, `payment-service`) trỏ `DATABASE_URL` riêng tới một database logic khác nhau trên cùng instance đó (database-per-service). Amazon RDS for PostgreSQL tái hiện đúng bố cục này trên một instance managed, có backup, thay vì một container local dùng-rồi-bỏ.
+`infra/compose/docker-compose.dev.yml` chạy một container `postgres:15-alpine` duy nhất cho phát triển local, mỗi backend service (`auth-service`, `user-service`, `fitness-service`, `ai-service`, `chat-service`, `gym-service`, `payment-service`) trỏ `DATABASE_URL` riêng tới một database logic khác nhau trên cùng instance đó (database-per-service). Amazon RDS for PostgreSQL tái hiện đúng bố cục này trên một instance managed, có backup, thay vì một container local dùng-rồi-bỏ — cho 6 service thuộc MVP (chat-service ngoài phạm vi, xem Proposal §9).
 
 ### Tạo DB Subnet Group
 
@@ -58,7 +58,10 @@ CREATE DATABASE gymcoach_auth;
 CREATE DATABASE gymcoach_user;
 CREATE DATABASE gymcoach_fitness;
 CREATE DATABASE gymcoach_ai;
--- Chỉ tạo database cho các service thuộc phạm vi MVP.
+CREATE DATABASE gymcoach_payment;
+CREATE DATABASE gymcoach_gym;
+-- KHÔNG tạo gymcoach_chat ở đây — chat-service ngoài phạm vi MVP (xem
+-- Proposal §9). Chỉ tạo database cho các service thuộc phạm vi MVP.
 ```
 
 ### Chạy migration Prisma
@@ -71,7 +74,7 @@ DATABASE_URL="postgresql://TODO_DATABASE_USER:PASSWORD@TODO_RDS_ENDPOINT:5432/gy
 ```
 
 {{% notice warning %}}
-Dockerfile production của `user-service` không tự động chạy `prisma migrate deploy` khi container khởi động, khác với `auth-service` và `ai-service`. Chạy migration của nó như một bước riêng, tường minh; không giả định nó tự xảy ra chỉ vì container đang chạy.
+**Cập nhật:** trong quá trình thực tập, phát hiện `user-service` là service duy nhất trong 6 backend service thuộc MVP mà Dockerfile production **không** tự động chạy `prisma migrate deploy` khi container khởi động (auth-service, fitness-service, ai-service, payment-service, và gym-service đều có). Phát hiện bằng cách so sánh dòng `CMD` trong Dockerfile của cả 6 service, sau đó sửa cho khớp với 5 service còn lại. Nếu bạn đang làm việc trên bản source **cũ hơn** thời điểm sửa này, hãy chạy migration của user-service như một bước riêng, tường minh trước — không giả định nó tự xảy ra chỉ vì container đang chạy. Xem [Worklog Tuần 3](../../1-Worklog/1.3-Week3/) để lấy bằng chứng phát hiện/sửa lỗi.
 {{% /notice %}}
 
 ### Seed data

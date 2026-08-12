@@ -57,3 +57,84 @@ Not implemented in the MVP; listed as future work. AWS Secrets Manager supports 
 ### Example Least-Privilege Policy
 
 See [`/files/policies/ec2-ecr-policy.example.json`](/files/policies/ec2-ecr-policy.example.json) — uses `<YOUR_AWS_ACCOUNT_ID>` and `<YOUR_AWS_REGION>` placeholders, never a real account ID.
+
+### Provisioning Commands
+
+**1. Trust policy and IAM Role:**
+
+```bash
+export AWS_ACCOUNT_ID=<YOUR_AWS_ACCOUNT_ID>
+export AWS_REGION=<YOUR_AWS_REGION>
+
+cat > /tmp/ec2-trust-policy.json <<'EOF'
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": { "Service": "ec2.amazonaws.com" },
+    "Action": "sts:AssumeRole"
+  }]
+}
+EOF
+
+aws iam create-role \
+  --role-name fitness-assistant-ec2-role \
+  --assume-role-policy-document file:///tmp/ec2-trust-policy.json
+```
+
+**2. Attach the least-privilege policy** (fill in the real account ID/region in [`/files/policies/ec2-ecr-policy.example.json`](/files/policies/ec2-ecr-policy.example.json) first, save as `ec2-ecr-policy.json`):
+
+```bash
+aws iam put-role-policy \
+  --role-name fitness-assistant-ec2-role \
+  --policy-name fitness-assistant-ecr-cloudwatch-secrets \
+  --policy-document file://ec2-ecr-policy.json
+```
+
+**3. Instance profile** (EC2 attaches an instance *profile*, not the role directly):
+
+```bash
+aws iam create-instance-profile --instance-profile-name fitness-assistant-ec2-profile
+aws iam add-role-to-instance-profile \
+  --instance-profile-name fitness-assistant-ec2-profile \
+  --role-name fitness-assistant-ec2-role
+```
+
+Attach `fitness-assistant-ec2-profile` when launching the EC2 instance (`aws ec2 run-instances --iam-instance-profile Name=fitness-assistant-ec2-profile ...`) — see [5.9 EC2 Deployment](../5.9-EC2-Deployment/).
+
+**4. Create the Secrets Manager secrets** (one secret per credential, or a single JSON blob — shown here as a single secret for simplicity; adjust to match how `docker-compose.aws.example.yml` reads them):
+
+```bash
+aws secretsmanager create-secret \
+  --name fitness-assistant/database \
+  --secret-string '{"username":"<TODO_DATABASE_USER>","password":"<TODO_REAL_PASSWORD>","host":"<TODO_RDS_ENDPOINT>"}' \
+  --region "$AWS_REGION"
+
+aws secretsmanager create-secret \
+  --name fitness-assistant/jwt \
+  --secret-string '{"JWT_SECRET":"<TODO_REAL_VALUE>","JWT_REFRESH_SECRET":"<TODO_REAL_VALUE>"}' \
+  --region "$AWS_REGION"
+
+aws secretsmanager create-secret \
+  --name fitness-assistant/anthropic \
+  --secret-string '{"ANTHROPIC_API_KEY":"<TODO_REAL_KEY>"}' \
+  --region "$AWS_REGION"
+```
+
+**5. Retrieve at deploy time** (run this on the EC2 instance, using the credentials the instance profile already provides — no access keys needed):
+
+```bash
+aws secretsmanager get-secret-value --secret-id fitness-assistant/database --region "$AWS_REGION" --query SecretString --output text
+```
+
+Use the retrieved JSON to populate the `.env` file consumed by `docker-compose.aws.example.yml` (see [5.9 EC2 Deployment](../5.9-EC2-Deployment/)), written with `chmod 600` and never committed.
+
+### Verify
+
+```bash
+aws iam get-role --role-name fitness-assistant-ec2-role
+aws iam list-role-policies --role-name fitness-assistant-ec2-role
+aws secretsmanager list-secrets --region "$AWS_REGION" --query 'SecretList[].Name'
+```
+
+TODO: attach a real IAM Role/policy screenshot (account ID redacted) and confirm the instance can actually retrieve each secret once deployed.

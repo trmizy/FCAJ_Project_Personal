@@ -1,5 +1,5 @@
-baseURL = "https://<YOUR_GITHUB_USERNAME>.github.io/<YOUR_REPOSITORY>/"
-relativeURLs = false
+baseURL = "/"
+relativeURLs = true
 canonifyURLs = false
 defaultContentLanguage = "en"
 

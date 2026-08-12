@@ -1,72 +1,64 @@
 ---
-title: "Tuần 1"
-date: 2026-07-15
+title: "Worklog Tuần 1"
+date: 2026-07-08
 weight: 1
 chapter: false
 pre: " <b> 1.1. </b> "
 ---
 
-{{% notice note %}}
-Các mốc thời gian trong trang này là placeholder (`[TODO_DATE]`) cho đến khi có lịch thực tập chính thức.
-{{% /notice %}}
+### Mục tiêu tuần 1:
 
-### Mục tiêu tuần
+- Đăng ký tài khoản AWS để thực hành, nghiên cứu về Free Tier và cách quản lý chi phí.
+- Học và thực hành 5 bài lab đầu tiên: IAM, VPC, EC2, RDS để nắm vững các dịch vụ nền tảng.
+- Chuẩn bị môi trường để tuần sau bắt đầu phân tích source code Fitness Assistant.
 
-- Đọc và nắm rõ quy định thực tập FCAJ (https://hcm-rules.awsfcaj.com/3-project/) và yêu cầu của template báo cáo.
-- Clone và phân tích tổng quan source code [Fitness Assistant](https://github.com/trmizy/fitness-assistant) (cấu trúc thư mục, các service, README).
-- Chạy thử project ở local để xác nhận chính xác những service nào thực sự tồn tại và cách chúng khởi động.
-- Xác định phạm vi MVP trên AWS dựa trên những gì source code thực sự hỗ trợ, không dựa trên suy đoán.
+### Các công việc cần triển khai trong tuần này:
 
-### Công việc đã thực hiện
+| Công việc | Ngày bắt đầu | Ngày hoàn thành | Workshop / Tài liệu tham khảo |
+|-----------|--------------|-----------------|-------------------------------|
+| - Đăng ký tài khoản AWS Free Tier <br/> - Cấu hình IAM user, enable MFA <br/> - Học và thực hành 5 bài lab đầu tiên | 08-07-2026 | 12-07-2026 | 1: https://000001.awsstudygroup.com/ <br/> 2: https://000002.awsstudygroup.com/ <br/> 3: https://000003.awsstudygroup.com/ <br/> 4: https://000004.awsstudygroup.com/ <br/> 5: https://000005.awsstudygroup.com/ |
 
-- Đọc quy định project FCAJ và cấu trúc template `fcj-workshop-template`.
-- Clone `fitness-assistant` và xem xét các thư mục cấp cao, `README.md`, và file `docker-compose.yml` (nếu có).
-- Thử chạy ứng dụng ở local theo đúng hướng dẫn của project.
-- Ghi chú lại stack công nghệ thực tế (frontend framework, backend, database, cache, auth).
-- Soạn danh sách sơ bộ (chưa xác nhận) các dịch vụ AWS có thể phù hợp với stack này.
+### Kết quả đạt được tuần 1:
 
-### Kết quả đạt được
+**Tổng quan:**
 
-- Hiểu rõ cấu trúc báo cáo FCAJ và quy định nộp bài.
-- Có bản kiểm kê sơ bộ cấu trúc repository Fitness Assistant.
-- TODO: Xác nhận việc chạy local có thành công toàn bộ hay không và ghi lại đúng các bước đã dùng.
+Tuần này mình đã setup xong môi trường AWS để bắt đầu học. Phần chính là làm quen với các dịch vụ cơ bản nhất như IAM, EC2, RDS thông qua 5 bài lab trên AWS Study Group. Ban đầu hơi choáng vì nhiều khái niệm mới nhưng làm theo từng bước thì cũng hiểu dần.
 
-### Khó khăn
+**Kiến thức đã học:**
 
-- Một số mô tả "microservices điển hình" tìm thấy trên mạng có thể không khớp với những gì thực sự có trong repository — cần kiểm chứng mọi thông tin trực tiếp từ source thay vì suy đoán theo mô hình chung.
+- **AWS Account & Free Tier:** Cách đăng ký tài khoản, hiểu rõ Free Tier có những gì free (EC2 750h/tháng, RDS 750h/tháng, S3 5GB). Quan trọng là phải setup Budget alert ngay từ đầu để tránh bị charge ngoài ý muốn.
 
-### Cách giải quyết
+- **IAM (Identity and Access Management):** Học cách tạo User, Group, Policy. Hiểu tại sao không nên dùng Root account cho công việc hàng ngày. Enable MFA cho cả Root và IAM user để bảo mật.
 
-- Đối chiếu từng thông tin về service/port/biến môi trường với các file thực tế (`package.json`, `docker-compose.yml`, `README.md`) thay vì dựa vào quy ước microservices thông thường.
+- **Amazon VPC:** Tìm hiểu về mạng ảo trên AWS, cách tạo VPC, Subnet, Security Group. Phần này hơi khó vì phải hiểu CIDR, routing table, nhưng cần thiết để sau này deploy app an toàn.
 
-### Kỹ năng / Dịch vụ AWS đã học
+- **Amazon EC2:** Tạo instance đầu tiên (t2.micro trong Free Tier), SSH vào server, cài nginx thử. Thấy EC2 giống như thuê VPS nhưng linh hoạt hơn nhiều.
 
-- Mô hình tài khoản AWS Free Tier và kiến thức IAM cơ bản.
-- Tổng quan các dịch vụ AWS có khả năng liên quan đến project (EC2, ECR, RDS, S3, CloudWatch) — mới ở mức khái niệm, chưa triển khai thực tế.
+- **Amazon RDS:** Khởi tạo PostgreSQL database trên RDS, kết nối từ EC2. Hiểu được RDS tự động backup, Multi-AZ để high availability nhưng giá cao hơn self-managed DB.
 
-### Bằng chứng cần bổ sung
+**Thực hành:**
 
-- TODO: Screenshot ứng dụng chạy ở local.
-- TODO: Output terminal khi build và chạy local.
-- TODO: Ghi chú/ảnh chụp xác nhận đã đọc quy định FCAJ và template.
+- Tạo tài khoản AWS thành công, verify bằng thẻ visa
+- Hoàn thành cả 5 bài lab trên AWS Study Group từ 000001 đến 000005  
+- Cài AWS CLI trên máy local (Windows), test được các lệnh cơ bản như `aws s3 ls`, `aws ec2 describe-instances`
+- Tạo EC2 instance + RDS PostgreSQL, kết nối 2 services với nhau qua Security Group
 
-### Bảng theo ngày / task
+**Khó khăn gặp phải:**
 
-| Ngày | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
-| --- | --- | --- | --- | --- |
-| 1 | Đọc quy định project FCAJ và template báo cáo | [TODO_DATE] | [TODO_DATE] | https://hcm-rules.awsfcaj.com/3-project/ |
-| 2 | Clone và xem xét cấu trúc repository `fitness-assistant` | [TODO_DATE] | [TODO_DATE] | https://github.com/trmizy/fitness-assistant |
-| 3 | Chạy thử project ở local theo README của project | [TODO_DATE] | [TODO_DATE] | README của project |
-| 4 | Soạn thảo phạm vi MVP ban đầu (bản nháp) | [TODO_DATE] | [TODO_DATE] | — |
+1. **Account verification pending:** Sau khi đăng ký xong, tài khoản bị pending verify gần 1 ngày. CloudShell không dùng được vì lỗi "Your account verification is in progress". Phải dùng AWS CLI làm workaround.
 
-### Checklist hoàn thành
+2. **IAM Policy JSON syntax:** Lần đầu viết custom policy bằng JSON khá rối vì nhiều field: Effect, Action, Resource, Condition. Dễ nhầm giữa `*` wildcard với ARN cụ thể.
 
-- [ ] Đã đọc quy định và template FCAJ
-- [ ] Đã clone `fitness-assistant` và ghi lại cấu trúc
-- [ ] Ứng dụng chạy được ở local kèm bằng chứng
-- [ ] Đã soạn thảo phạm vi MVP ban đầu
+3. **Security Group configuration:** Khái niệm Inbound/Outbound rules hơi confuse. Đặc biệt là hiểu khi nào dùng 0.0.0.0/0 (anywhere) và khi nào phải restrict theo IP cụ thể.
 
-### Liên kết Workshop tương ứng
+4. **RDS connection string:** Lúc đầu không connect được từ EC2 vào RDS vì quên config Security Group cho phép EC2 security group ID. Phải research thêm về security group chaining.
 
-- [5.1 Overview](../../5-Workshop/5.1-Overview/)
-- [5.3 Prerequisites](../../5-Workshop/5.3-Prerequisites/)
+**Cách giải quyết:**
+
+- **Account verify:** Chờ 24h tự động verify, không cần tạo support case. Trong lúc chờ thì dùng AWS CLI thay CloudShell.
+
+- **IAM Policy:** Dùng AWS Policy Generator UI thay vì viết JSON thủ công. Tham khảo AWS Managed Policies (AdministratorAccess, PowerUserAccess) để học cấu trúc.
+
+- **Security Group:** Vẽ diagram để hiểu luồng traffic: Internet → ALB → EC2 → RDS. Mỗi bước cần security group rule riêng. Practice principle of least privilege.
+
+- **RDS connection:** Thay vì dùng 0.0.0.0/0 cho RDS, config security group rule cho phép source là EC2's security group ID. An toàn hơn và đúng best practice.

@@ -40,8 +40,8 @@ Never commit the resulting `.env` file. It is already covered by this repository
 | `ai-service` | 3003 | Ollama + Qdrant RAG, AI coaching |
 | `user-service` | 3004 | Profiles, InBody records |
 | `chat-service` | 3005 | Chat and realtime messaging (not in MVP scope) |
-| `gym-service` | 3006 | Gym management (not in MVP scope) |
-| `payment-service` | 3007 | Payments/wallet (not in MVP scope) |
+| `gym-service` | 3006 | Gym/PT listings (in MVP scope) |
+| `payment-service` | 3007 | Payments/wallet (in MVP scope, `PAYMENT_PROVIDER=MOCK`) |
 | `postgres` | 5433→5432 | PostgreSQL 15 (database-per-service) |
 | `redis` | 6379 | Cache and BullMQ queues |
 | `qdrant` | 6333/6334 | Vector database for RAG |

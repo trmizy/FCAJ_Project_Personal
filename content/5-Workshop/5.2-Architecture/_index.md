@@ -12,12 +12,12 @@ pre: " <b> 5.2. </b> "
 
 ### Architecture Diagram
 
-![Fitness Assistant AWS architecture — TODO: replace with the real exported diagram](/images/workshop/architecture/fitness-assistant-aws-architecture.png)
+![Fitness Assistant AWS architecture — TODO: this PNG is still a placeholder; export it from the .drawio source below](/images/workshop/architecture/fitness-assistant-aws-architecture.png)
 
 Downloadable source: [fitness-assistant-aws-architecture.drawio](/files/architecture/fitness-assistant-aws-architecture.drawio)
 
-{{% notice warning %}}
-Both the image above and the `.drawio` file are currently **placeholders**. See `static/images/workshop/architecture/README.md` for what the real diagram must contain before this report is submitted.
+{{% notice note %}}
+The `.drawio` file is a real diagram (AWS4 icon set — EC2, RDS, Internet Gateway, ECR, IAM Role, Secrets Manager, CloudWatch, SNS — laid out across a custom VPC with public/private subnets, matching this section's Request/Data/Log flows). **Only the PNG export above is still a placeholder** — open the `.drawio` in draw.io, verify the icons rendered correctly, fill in the real AWS Region, and export it as PNG before this report is submitted. See `static/files/architecture/README.md` and `static/images/workshop/architecture/README.md`.
 {{% /notice %}}
 
 ### AWS Services Used (MVP)
@@ -29,12 +29,13 @@ Amazon EC2, Amazon ECR, Amazon RDS for PostgreSQL, Amazon VPC, AWS IAM, AWS Secr
 1. Browser → Nginx reverse proxy on the EC2 host.
 2. Static frontend assets served directly (built React/Vite app); API calls proxied to the `backend/gateway` container (port 3000).
 3. Gateway calls `auth-service`'s `/auth/verify` endpoint with the caller's JWT, then forwards the request downstream with `x-user-id` / `x-user-email` / `x-user-role` headers.
-4. The relevant downstream service (`user-service`, `fitness-service`, `ai-service`) handles the request.
+4. The relevant downstream service (`user-service`, `fitness-service`, `ai-service`, `payment-service`, `gym-service`) handles the request.
 
 ### Data Flow
 
-- Each backend service reads/writes its own logical database (`gymcoach_auth`, `gymcoach_user`, `gymcoach_fitness`, `gymcoach_ai`, …) on the single shared Amazon RDS PostgreSQL instance, via Prisma.
+- Each backend service reads/writes its own logical database (`gymcoach_auth`, `gymcoach_user`, `gymcoach_fitness`, `gymcoach_ai`, `gymcoach_payment`, `gymcoach_gym`) on the single shared Amazon RDS PostgreSQL instance, via Prisma.
 - `ai-service` additionally queries the Qdrant container for RAG context and calls the Ollama container's `/api/chat` / `/api/embeddings` endpoints.
+- `gym-service` calls `payment-service` for wallet/contract operations; `payment-service` runs with `PAYMENT_PROVIDER=MOCK` for this MVP (no real payment gateway credentials).
 - `user-service` calls the external Anthropic Claude API for InBody photo extraction (requires outbound internet access and the `ANTHROPIC_API_KEY` secret).
 - Uploaded files (InBody photos, profile photos, PT documents) are currently written to local disk on the EC2 host via `multer` — there is no S3 integration in the application source today.
 

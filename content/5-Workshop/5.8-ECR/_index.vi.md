@@ -21,7 +21,7 @@ export IMAGE_TAG=$(date +%Y-%m-%d)
 Một Amazon ECR repository cho mỗi service thuộc MVP:
 
 ```bash
-for ECR_REPOSITORY in frontend gateway auth-service user-service fitness-service ai-service; do
+for ECR_REPOSITORY in frontend gateway auth-service user-service fitness-service ai-service payment-service gym-service; do
   aws ecr create-repository \
     --repository-name "fitness-assistant/${ECR_REPOSITORY}" \
     --region "$AWS_REGION" \
@@ -30,7 +30,7 @@ done
 ```
 
 {{% notice note %}}
-`gym-service` và `payment-service` được cố tình loại trừ ở đây vì hiện chưa có Dockerfile production trong source (xem [5.5 Production Containers](../5.5-Production-Containers/)).
+`chat-service` được cố tình loại trừ ở đây — ngoài phạm vi MVP (xem [Proposal §9](../../2-Proposal/#9-thành-phần-không-nằm-trong-mvp)). `gym-service` và `payment-service` ĐƯỢC đưa vào: cả hai đã có Dockerfile production kể từ khi mục này được viết lần đầu (xem [5.5 Production Containers](../5.5-Production-Containers/)).
 {{% /notice %}}
 
 ### Đăng nhập ECR

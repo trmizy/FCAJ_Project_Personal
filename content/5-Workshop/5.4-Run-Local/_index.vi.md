@@ -40,8 +40,8 @@ Không bao giờ commit file `.env` kết quả. File này đã được liệt 
 | `ai-service` | 3003 | RAG dựa trên Ollama + Qdrant, huấn luyện AI |
 | `user-service` | 3004 | Hồ sơ, bản ghi InBody |
 | `chat-service` | 3005 | Chat và nhắn tin thời gian thực (không thuộc phạm vi MVP) |
-| `gym-service` | 3006 | Quản lý phòng gym (không thuộc phạm vi MVP) |
-| `payment-service` | 3007 | Thanh toán/ví (không thuộc phạm vi MVP) |
+| `gym-service` | 3006 | Danh sách phòng gym/PT (thuộc phạm vi MVP) |
+| `payment-service` | 3007 | Thanh toán/ví (thuộc phạm vi MVP, `PAYMENT_PROVIDER=MOCK`) |
 | `postgres` | 5433→5432 | PostgreSQL 15 (database-per-service) |
 | `redis` | 6379 | Cache và queue BullMQ |
 | `qdrant` | 6333/6334 | Vector database cho RAG |

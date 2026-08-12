@@ -21,7 +21,8 @@ Fitness Assistant là một ứng dụng mã nguồn mở có thật, đang đư
 - Quản lý hồ sơ, bao gồm tải lên bản ghi chỉ số cơ thể InBody với trích xuất hỗ trợ bởi AI (`user-service`).
 - Danh mục bài tập, lịch tập, và ghi log tập luyện (`fitness-service`).
 - Huấn luyện hỗ trợ AI: một LLM tự host (Ollama, `llama3.2:3b`) kết hợp pipeline Retrieval-Augmented Generation (RAG) dựa trên Qdrant (`ai-service`).
-- Chat thời gian thực (`chat-service`), quản lý phòng gym (`gym-service`) và thanh toán (`gym-service`/`payment-service`) cũng tồn tại trong source nhưng **không** thuộc phạm vi MVP này (xem bên dưới).
+- Danh sách phòng gym/PT (`gym-service`) và thanh toán ví/hợp đồng PT (`payment-service`, `PAYMENT_PROVIDER=MOCK` cho MVP này).
+- Chat thời gian thực (`chat-service`) cũng tồn tại trong source nhưng **không** thuộc phạm vi MVP này (xem bên dưới).
 
 {{% notice note %}}
 Tính năng huấn luyện AI là một hệ thống RAG dựa trên LLM thực sự (Ollama + Qdrant), không phải một recommendation engine thuần rule-based — dù vẫn có các lớp bảo vệ tất định (bộ tính toán dinh dưỡng, kiểm tra an toàn) chạy song song với LLM. Tính năng trích xuất ảnh InBody riêng biệt gọi Anthropic Claude API, là một tích hợp khác với chat huấn luyện dựa trên Ollama. Cả hai tính năng này đều không thay thế cho tư vấn y tế — xem thêm ở [5.17 Conclusion](../5.17-Conclusion/).
@@ -33,11 +34,11 @@ Một MVP hoạt động, truy cập được qua internet, dữ liệu lưu tr�
 
 ### Phạm vi MVP
 
-Xem đầy đủ ở [Proposal Mục 8](../../2-Proposal/#8-phạm-vi-mvp). Tóm tắt: frontend, application gateway, auth-service, user-service, fitness-service, ai-service (với Ollama và Qdrant dưới dạng container), và PostgreSQL được di chuyển sang Amazon RDS.
+Xem đầy đủ ở [Proposal Mục 8](../../2-Proposal/#8-phạm-vi-mvp). Tóm tắt: frontend, application gateway, auth-service, user-service, fitness-service, ai-service (với Ollama và Qdrant dưới dạng container), payment-service, gym-service, và PostgreSQL được di chuyển sang Amazon RDS.
 
 ### Thành phần loại khỏi MVP
 
-- `chat-service`, `gym-service`, `payment-service` (hai service sau hiện chưa có Dockerfile production trong source).
+- `chat-service` (bổ sung hạ tầng realtime Socket.IO ngoài phạm vi thiết kế networking/monitoring của MVP này). `gym-service` và `payment-service` ban đầu cũng bị loại ở đây (lúc đó chưa có Dockerfile production), nhưng sau đó cả hai đã có và được chuyển vào phạm vi MVP — xem [Proposal Mục 8](../../2-Proposal/#8-phạm-vi-mvp) và [Mục 9](../../2-Proposal/#9-thành-phần-không-nằm-trong-mvp).
 - Amazon S3 (file upload vẫn lưu trên local disk cho MVP — hiện chưa có S3 client trong source ứng dụng).
 - Amazon ElastiCache, Amazon Bedrock, Amazon CloudFront, Amazon Route 53, Application Load Balancer, Auto Scaling, CI/CD, và Infrastructure as Code — tất cả được liệt kê ở phần Optional/Future trong [Proposal](../../2-Proposal/#25-hướng-phát-triển).
 

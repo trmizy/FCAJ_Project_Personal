@@ -15,19 +15,19 @@ This report documents the design, implementation and evaluation of the **Fitness
 
 ### Student Information
 
-&emsp; **Full Name:** [TODO_FULL_NAME]
+&emsp; **Full Name:** TRAN MINH DUY
 
-&emsp; **Phone Number:** [TODO_PHONE]
+&emsp; **Phone Number:** +84372246113
 
-&emsp; **Email:** [TODO_EMAIL]
+&emsp; **Email:** tranminhduy1902@gmail.com
 
-&emsp; **University:** [TODO_UNIVERSITY]
+&emsp; **University:** Đại học Công nghiệp Thành phố Hồ Chí Minh
 
-&emsp; **Major:** [TODO_MAJOR]
+&emsp; **Major:** Information System
 
-&emsp; **FCAJ Class:** [TODO_FCAJ_CLASS]
+&emsp; **FCAJ Class:** 
 
-&emsp; **Internship Company:** [TODO_INTERNSHIP_COMPANY]
+&emsp; **Internship Company:** Amazon Web Services Viet Nam Company Limited
 
 &emsp; **Internship Position:** First Cloud AI Journey Intern
 

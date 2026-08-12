@@ -18,11 +18,11 @@ Dates in this page are placeholders (`[TODO_DATE]`) until the confirmed internsh
 
 ### Tasks Performed
 
-- Created one ECR repository per MVP service (frontend, gateway, auth-service, user-service, fitness-service, ai-service), matching the actual `Dockerfile`/`Dockerfile.production.example` built in Week 3.
+- Created one ECR repository per MVP service (frontend, gateway, auth-service, user-service, fitness-service, ai-service, payment-service, gym-service), matching the actual `Dockerfile`/`Dockerfile.production.example` built in Week 3.
 - Authenticated Docker to ECR (`aws ecr get-login-password`), built each image locally, tagged it with the ECR repository URI, and pushed it.
 - Verified each image appeared in its ECR repository with the expected tag.
 - Drafted an IAM policy granting only the ECR pull permissions EC2 needs (`ecr:GetAuthorizationToken`, `ecr:BatchGetImage`, `ecr:GetDownloadUrlForLayer`), and created an IAM Role for EC2 with that policy attached.
-- Noted explicitly that `gym-service` and `payment-service` do not currently have a production Dockerfile in the source repository, so they were **not** built or pushed this week; this is recorded as an open item under Future Development rather than silently skipped.
+- **Correction from an earlier pass:** this week's plan originally excluded `gym-service`/`payment-service` because they had no production Dockerfile at the time (see the struck-through Risk row in [Proposal §22](../../2-Proposal/#22-risks)). Both gained one since, so this week's scope was updated to build/push all eight MVP images, not six.
 
 ### Results Achieved
 
@@ -62,7 +62,7 @@ Dates in this page are placeholders (`[TODO_DATE]`) until the confirmed internsh
 - [ ] ECR repositories created for MVP services
 - [ ] Images built, tagged and pushed
 - [ ] IAM Role created with least-privilege ECR pull policy
-- [ ] `gym-service`/`payment-service` gap documented, not silently ignored
+- [ ] `gym-service`/`payment-service` images built and pushed alongside the rest of the MVP (scope correction documented, not silently changed)
 
 ### Related Workshop Section
 

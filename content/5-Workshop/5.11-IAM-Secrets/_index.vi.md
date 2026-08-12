@@ -57,3 +57,84 @@ Chưa triển khai trong MVP; được liệt kê ở phần công việc tươn
 ### Ví dụ policy least-privilege
 
 Xem [`/files/policies/ec2-ecr-policy.example.json`](/files/policies/ec2-ecr-policy.example.json) — dùng placeholder `<YOUR_AWS_ACCOUNT_ID>` và `<YOUR_AWS_REGION>`, không bao giờ dùng account ID thật.
+
+### Câu lệnh thiết lập thật
+
+**1. Trust policy và IAM Role:**
+
+```bash
+export AWS_ACCOUNT_ID=<YOUR_AWS_ACCOUNT_ID>
+export AWS_REGION=<YOUR_AWS_REGION>
+
+cat > /tmp/ec2-trust-policy.json <<'EOF'
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": { "Service": "ec2.amazonaws.com" },
+    "Action": "sts:AssumeRole"
+  }]
+}
+EOF
+
+aws iam create-role \
+  --role-name fitness-assistant-ec2-role \
+  --assume-role-policy-document file:///tmp/ec2-trust-policy.json
+```
+
+**2. Gắn policy least-privilege** (điền account ID/region thật vào [`/files/policies/ec2-ecr-policy.example.json`](/files/policies/ec2-ecr-policy.example.json) trước, lưu thành `ec2-ecr-policy.json`):
+
+```bash
+aws iam put-role-policy \
+  --role-name fitness-assistant-ec2-role \
+  --policy-name fitness-assistant-ecr-cloudwatch-secrets \
+  --policy-document file://ec2-ecr-policy.json
+```
+
+**3. Instance profile** (EC2 gắn instance *profile*, không gắn trực tiếp role):
+
+```bash
+aws iam create-instance-profile --instance-profile-name fitness-assistant-ec2-profile
+aws iam add-role-to-instance-profile \
+  --instance-profile-name fitness-assistant-ec2-profile \
+  --role-name fitness-assistant-ec2-role
+```
+
+Gắn `fitness-assistant-ec2-profile` khi launch EC2 instance (`aws ec2 run-instances --iam-instance-profile Name=fitness-assistant-ec2-profile ...`) — xem [5.9 EC2 Deployment](../5.9-EC2-Deployment/).
+
+**4. Tạo secret trong Secrets Manager** (mỗi credential một secret, hoặc gộp thành một JSON blob — ở đây minh họa gộp thành 1 secret cho gọn; điều chỉnh cho khớp cách `docker-compose.aws.example.yml` đọc chúng):
+
+```bash
+aws secretsmanager create-secret \
+  --name fitness-assistant/database \
+  --secret-string '{"username":"<TODO_DATABASE_USER>","password":"<TODO_REAL_PASSWORD>","host":"<TODO_RDS_ENDPOINT>"}' \
+  --region "$AWS_REGION"
+
+aws secretsmanager create-secret \
+  --name fitness-assistant/jwt \
+  --secret-string '{"JWT_SECRET":"<TODO_REAL_VALUE>","JWT_REFRESH_SECRET":"<TODO_REAL_VALUE>"}' \
+  --region "$AWS_REGION"
+
+aws secretsmanager create-secret \
+  --name fitness-assistant/anthropic \
+  --secret-string '{"ANTHROPIC_API_KEY":"<TODO_REAL_KEY>"}' \
+  --region "$AWS_REGION"
+```
+
+**5. Lấy secret tại thời điểm deploy** (chạy lệnh này trên EC2 instance, dùng credential mà instance profile đã cấp sẵn — không cần access key):
+
+```bash
+aws secretsmanager get-secret-value --secret-id fitness-assistant/database --region "$AWS_REGION" --query SecretString --output text
+```
+
+Dùng JSON lấy được để điền vào file `.env` mà `docker-compose.aws.example.yml` đọc (xem [5.9 EC2 Deployment](../5.9-EC2-Deployment/)), ghi với `chmod 600` và không bao giờ commit.
+
+### Xác minh
+
+```bash
+aws iam get-role --role-name fitness-assistant-ec2-role
+aws iam list-role-policies --role-name fitness-assistant-ec2-role
+aws secretsmanager list-secrets --region "$AWS_REGION" --query 'SecretList[].Name'
+```
+
+TODO: đính kèm screenshot IAM Role/policy thật (che account ID) và xác nhận instance thực sự lấy được từng secret sau khi deploy.

@@ -16,14 +16,14 @@ Most services in `fitness-assistant` already ship a **production-oriented multi-
 | `backend/gateway` | Yes | Multi-stage (`base`/`deps`/`builder`/`runner`), `node:20-alpine`, `tsc` build, `EXPOSE 3000`. |
 | `backend/services/auth-service` | Yes | Multi-stage; `CMD sh -c "prisma migrate deploy && node dist/server.js"` (runs migrations on start). |
 | `backend/services/ai-service` | Yes | Same pattern as `auth-service`, `EXPOSE 3003`. |
-| `backend/services/user-service` | Yes | Base image `node:20-slim` (installs `openssl`, `fonts-dejavu-core` for PDF generation). `CMD node dist/server.js` — **does not** run `prisma migrate deploy` automatically, unlike `auth-service`/`ai-service`. |
+| `backend/services/user-service` | Yes | Base image `node:20-slim` (installs `openssl`, `fonts-dejavu-core` for PDF generation). **Found during this internship**: unlike its five MVP siblings, its `CMD` did not run `prisma migrate deploy` on start — fixed to match (`CMD sh -c "prisma migrate deploy && node dist/server.js"`). |
 | `backend/services/fitness-service` | Yes | Same multi-stage pattern as siblings. |
-| `backend/services/chat-service` | Yes | Same multi-stage pattern (not in MVP scope). |
-| `backend/services/gym-service` | **No** — only `Dockerfile.dev` exists | Not in MVP scope; would need a production Dockerfile authored before deployment. |
-| `backend/services/payment-service` | **No** — only `Dockerfile.dev` exists | Not in MVP scope; same gap as `gym-service`. |
+| `backend/services/chat-service` | Yes | Same multi-stage pattern (not in MVP scope — see Proposal §9). |
+| `backend/services/gym-service` | Yes | Same multi-stage pattern as siblings. Did not have one when this Workshop section was first drafted (see the note below) — now in MVP scope. |
+| `backend/services/payment-service` | Yes | Same multi-stage pattern as siblings. Same history as `gym-service`. |
 
-{{% notice warning %}}
-Do not claim `gym-service` or `payment-service` have a production-ready container — they do not, as of this Workshop. If they are added to a future deployment, a production Dockerfile must be written and tested first.
+{{% notice note %}}
+**Update:** `gym-service` and `payment-service` did not have a production Dockerfile when this Workshop section was first drafted, and were excluded from MVP scope for that reason. The source repository has since gained one for each — verified by inspecting both `Dockerfile`s directly (multi-stage, `prisma migrate deploy` on start, matching the sibling pattern) — so both were moved into MVP scope. See [Proposal §8](../../2-Proposal/#8-mvp-scope).
 {{% /notice %}}
 
 ### What "Production" Means Here

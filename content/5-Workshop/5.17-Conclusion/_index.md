@@ -44,7 +44,8 @@ TODO: summarize the resolution approach for each difficulty above, cross-referen
 ### Limitations
 
 - Single EC2 host: no redundancy, no Auto Scaling.
-- `gym-service`, `payment-service`, `chat-service` are not part of this deployment.
+- `chat-service` is not part of this deployment (real-time Socket.IO infrastructure out of MVP scope).
+- `payment-service` runs with `PAYMENT_PROVIDER=MOCK` — no real payment gateway is integrated.
 - Amazon S3 is not integrated — file uploads remain on local disk.
 - TLS/HTTPS is not yet configured for the frontend.
 - Secret rotation is not automated.
@@ -64,7 +65,7 @@ TODO: describe, specifically, what was done personally versus with guidance (men
 - A CI/CD pipeline (GitHub Actions) to automate build, test and deploy.
 - Infrastructure as Code (Terraform or AWS CDK) instead of manual console/CLI steps.
 - Multi-AZ RDS for higher availability.
-- Production Dockerfiles and deployment for `gym-service`, `payment-service`, and `chat-service`.
+- Deployment of `chat-service`, and a real payment gateway integration for `payment-service`.
 
 {{% notice warning %}}
 **Health disclaimer:** Fitness Assistant's AI-assisted coaching and nutrition features (Ollama-backed RAG chat, deterministic calculators) provide general fitness information and suggestions only. They do not diagnose medical conditions, and this deployment does not change that. Fitness Assistant is not a substitute for advice from a qualified physician, registered dietitian, or certified fitness professional — this applies equally to the AI coaching feature and to the separate Anthropic Claude Vision-based InBody photo extraction feature, which reads numeric values from a photo and does not itself constitute medical interpretation.

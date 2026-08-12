@@ -18,11 +18,11 @@ Các mốc thời gian trong trang này là placeholder (`[TODO_DATE]`) cho đ�
 
 ### Công việc đã thực hiện
 
-- Tạo một ECR repository cho mỗi service trong MVP (frontend, gateway, auth-service, user-service, fitness-service, ai-service), khớp với `Dockerfile`/`Dockerfile.production.example` đã xây ở Tuần 3.
+- Tạo một ECR repository cho mỗi service trong MVP (frontend, gateway, auth-service, user-service, fitness-service, ai-service, payment-service, gym-service), khớp với `Dockerfile`/`Dockerfile.production.example` đã xây ở Tuần 3.
 - Đăng nhập Docker vào ECR (`aws ecr get-login-password`), build từng image ở local, gắn tag theo URI của ECR repository, rồi push lên.
 - Xác nhận từng image đã xuất hiện trong ECR repository tương ứng với đúng tag.
 - Soạn thảo IAM policy chỉ cấp đúng quyền pull ECR mà EC2 cần (`ecr:GetAuthorizationToken`, `ecr:BatchGetImage`, `ecr:GetDownloadUrlForLayer`), và tạo IAM Role cho EC2 gắn kèm policy này.
-- Ghi chú rõ ràng rằng `gym-service` và `payment-service` hiện chưa có Dockerfile production trong repository nguồn, nên **không** được build hoặc push trong tuần này; đây được ghi nhận là mục còn mở trong phần Hướng phát triển thay vì bỏ qua âm thầm.
+- **Điều chỉnh so với bản kế hoạch trước đó:** kế hoạch tuần này ban đầu loại `gym-service`/`payment-service` vì lúc đó chưa có Dockerfile production (xem dòng Risk đã gạch ngang ở [Proposal §22](../../2-Proposal/#22-rủi-ro)). Sau đó cả hai đã có, nên phạm vi tuần này được cập nhật thành build/push đủ 8 image thuộc MVP, không phải 6.
 
 ### Kết quả đạt được
 
@@ -62,7 +62,7 @@ Các mốc thời gian trong trang này là placeholder (`[TODO_DATE]`) cho đ�
 - [ ] Đã tạo ECR repository cho các service MVP
 - [ ] Đã build, tag và push image
 - [ ] Đã tạo IAM Role với policy pull ECR least-privilege
-- [ ] Đã ghi lại rõ ràng vấn đề thiếu Dockerfile của `gym-service`/`payment-service`
+- [ ] Đã build và push image của `gym-service`/`payment-service` cùng phần còn lại của MVP (điều chỉnh phạm vi có ghi chép rõ, không âm thầm thay đổi)
 
 ### Liên kết Workshop tương ứng
 

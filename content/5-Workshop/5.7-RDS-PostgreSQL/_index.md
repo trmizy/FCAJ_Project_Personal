@@ -8,7 +8,7 @@ pre: " <b> 5.7. </b> "
 
 ### Why RDS Replaces the postgres Container
 
-infra/compose/docker-compose.dev.yml runs a single postgres:15-alpine container for local development, with each backend service (auth-service, user-service, fitness-service, ai-service, chat-service, gym-service, payment-service) pointing its own DATABASE_URL at a different logical database on that same instance (database-per-service). Amazon RDS for PostgreSQL reproduces this exact layout on a managed, backed-up instance instead of a disposable local container.
+infra/compose/docker-compose.dev.yml runs a single postgres:15-alpine container for local development, with each backend service (auth-service, user-service, fitness-service, ai-service, chat-service, gym-service, payment-service) pointing its own DATABASE_URL at a different logical database on that same instance (database-per-service). Amazon RDS for PostgreSQL reproduces this exact layout on a managed, backed-up instance instead of a disposable local container — for the six MVP services (chat-service is out of scope, see Proposal §9).
 
 ### Create the DB Subnet Group
 
@@ -58,7 +58,11 @@ CREATE DATABASE gymcoach_auth;
 CREATE DATABASE gymcoach_user;
 CREATE DATABASE gymcoach_fitness;
 CREATE DATABASE gymcoach_ai;
--- Only create databases for services included in MVP scope.
+CREATE DATABASE gymcoach_payment;
+CREATE DATABASE gymcoach_gym;
+-- gymcoach_chat intentionally NOT created here — chat-service is out of MVP
+-- scope (see Proposal §9). Only create databases for services included in
+-- MVP scope.
 ```
 
 ### Run Prisma Migrations
@@ -71,7 +75,7 @@ DATABASE_URL="postgresql://TODO_DATABASE_USER:PASSWORD@TODO_RDS_ENDPOINT:5432/gy
 ```
 
 {{% notice warning %}}
-user-service's production Dockerfile does not run prisma migrate deploy automatically on container start, unlike auth-service and ai-service. Run its migration explicitly as a separate step; do not assume it happens automatically just because the container is running.
+**Update:** user-service's production Dockerfile was found, during this internship, to be the only one of the six MVP backend services that did **not** run `prisma migrate deploy` automatically on container start (auth-service, fitness-service, ai-service, payment-service, and gym-service all did). This was verified by diffing the `Dockerfile` `CMD` line across all six services, then fixed to match the other five. If you are working from a source checkout **older** than that fix, run user-service's migration explicitly as a separate step first — do not assume it happens automatically just because the container is running. See [Week 3 Worklog](../../1-Worklog/1.3-Week3/) for the discovery/fix evidence.
 {{% /notice %}}
 
 ### Seed Data

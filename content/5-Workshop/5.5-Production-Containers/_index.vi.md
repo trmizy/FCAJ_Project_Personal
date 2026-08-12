@@ -16,14 +16,14 @@ Hầu hết service trong `fitness-assistant` đã có sẵn **Dockerfile multi-
 | `backend/gateway` | Có | Multi-stage (`base`/`deps`/`builder`/`runner`), `node:20-alpine`, build bằng `tsc`, `EXPOSE 3000`. |
 | `backend/services/auth-service` | Có | Multi-stage; `CMD sh -c "prisma migrate deploy && node dist/server.js"` (tự chạy migration khi khởi động). |
 | `backend/services/ai-service` | Có | Cùng mẫu với `auth-service`, `EXPOSE 3003`. |
-| `backend/services/user-service` | Có | Base image `node:20-slim` (cài `openssl`, `fonts-dejavu-core` để tạo PDF). `CMD node dist/server.js` — **không** tự chạy `prisma migrate deploy`, khác với `auth-service`/`ai-service`. |
+| `backend/services/user-service` | Có | Base image `node:20-slim` (cài `openssl`, `fonts-dejavu-core` để tạo PDF). **Phát hiện trong quá trình thực tập**: khác với 5 service anh em thuộc MVP, `CMD` của nó không tự chạy `prisma migrate deploy` khi khởi động — đã sửa cho khớp (`CMD sh -c "prisma migrate deploy && node dist/server.js"`). |
 | `backend/services/fitness-service` | Có | Cùng mẫu multi-stage với các service khác. |
-| `backend/services/chat-service` | Có | Cùng mẫu multi-stage (không thuộc phạm vi MVP). |
-| `backend/services/gym-service` | **Không** — chỉ có `Dockerfile.dev` | Không thuộc phạm vi MVP; cần viết Dockerfile production trước khi triển khai. |
-| `backend/services/payment-service` | **Không** — chỉ có `Dockerfile.dev` | Không thuộc phạm vi MVP; cùng khoảng trống với `gym-service`. |
+| `backend/services/chat-service` | Có | Cùng mẫu multi-stage (không thuộc phạm vi MVP — xem Proposal §9). |
+| `backend/services/gym-service` | Có | Cùng mẫu multi-stage với các service khác. Chưa có khi mục Workshop này được viết lần đầu (xem ghi chú bên dưới) — giờ đã thuộc phạm vi MVP. |
+| `backend/services/payment-service` | Có | Cùng mẫu multi-stage với các service khác. Cùng lịch sử với `gym-service`. |
 
-{{% notice warning %}}
-Không khẳng định `gym-service` hoặc `payment-service` đã sẵn sàng container production — thực tế chưa, tính đến thời điểm viết Workshop này. Nếu được thêm vào một triển khai tương lai, cần viết và kiểm thử Dockerfile production trước.
+{{% notice note %}}
+**Cập nhật:** `gym-service` và `payment-service` chưa có Dockerfile production khi mục Workshop này được viết lần đầu, và bị loại khỏi phạm vi MVP vì lý do đó. Source repository sau đó đã có Dockerfile cho cả hai — xác minh bằng cách kiểm tra trực tiếp cả hai `Dockerfile` (multi-stage, tự chạy `prisma migrate deploy` khi khởi động, khớp mẫu của các service anh em) — nên cả hai đã được chuyển vào phạm vi MVP. Xem [Proposal §8](../../2-Proposal/#8-phạm-vi-mvp).
 {{% /notice %}}
 
 ### "Production" ở đây nghĩa là gì

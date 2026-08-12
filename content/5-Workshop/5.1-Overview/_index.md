@@ -21,7 +21,8 @@ Fitness Assistant is a real, actively developed open-source application, but it 
 - Profile management, including InBody body-composition record uploads with AI-assisted extraction (`user-service`).
 - Exercise catalog, workout plans, and workout logging (`fitness-service`).
 - AI-assisted coaching: a self-hosted LLM (Ollama, `llama3.2:3b`) combined with a Qdrant-backed Retrieval-Augmented Generation (RAG) pipeline (`ai-service`).
-- Real-time chat (`chat-service`), gym management (`gym-service`) and payments (`gym-service`/`payment-service`) also exist in source but are **not** part of this MVP (see below).
+- Gym/PT listings (`gym-service`) and wallet/PT-contract payments (`payment-service`, `PAYMENT_PROVIDER=MOCK` for this MVP).
+- Real-time chat (`chat-service`) also exists in source but is **not** part of this MVP (see below).
 
 {{% notice note %}}
 The AI coaching feature is a genuine LLM-backed RAG system (Ollama + Qdrant), not a purely rule-based recommendation engine — though deterministic guardrails (nutrition calculators, safety checks) also run alongside the LLM. The separate InBody photo-extraction feature calls the Anthropic Claude API, which is a distinct integration from the Ollama-based coaching chat. Neither of these is a substitute for medical advice — see the disclaimer in [5.17 Conclusion](../5.17-Conclusion/).
@@ -33,11 +34,11 @@ A working MVP reachable over the internet, backed by Amazon RDS, with container 
 
 ### MVP Scope
 
-See [Proposal Section 8](../../2-Proposal/#8-mvp-scope) for the full list. In short: frontend, application gateway, auth-service, user-service, fitness-service, ai-service (with Ollama and Qdrant as containers), and PostgreSQL migrated to Amazon RDS.
+See [Proposal Section 8](../../2-Proposal/#8-mvp-scope) for the full list. In short: frontend, application gateway, auth-service, user-service, fitness-service, ai-service (with Ollama and Qdrant as containers), payment-service, gym-service, and PostgreSQL migrated to Amazon RDS.
 
 ### Components Excluded from MVP
 
-- `chat-service`, `gym-service`, `payment-service` (the latter two currently lack a production Dockerfile in source).
+- `chat-service` (adds real-time Socket.IO infrastructure out of scope for this MVP's networking/monitoring design). `gym-service` and `payment-service` were originally excluded here too (no production Dockerfile at the time), but both since gained one and were moved into MVP scope — see [Proposal Section 8](../../2-Proposal/#8-mvp-scope) and [Section 9](../../2-Proposal/#9-out-of-mvp-scope).
 - Amazon S3 (uploads remain on local disk for the MVP — no S3 client exists in the application source today).
 - Amazon ElastiCache, Amazon Bedrock, Amazon CloudFront, Amazon Route 53, Application Load Balancer, Auto Scaling, CI/CD, and Infrastructure as Code — all listed as Optional/Future in the [Proposal](../../2-Proposal/#25-future-development).
 

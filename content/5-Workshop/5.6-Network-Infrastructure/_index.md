@@ -58,3 +58,91 @@ Port 22 (SSH) must never be open to `0.0.0.0/0` in this design. Port 5432 (Postg
 ### Principle of Least Privilege
 
 Every rule above is scoped to the narrowest source that still lets the application function: RDS is reachable only from the application's own Security Group, never from the public internet or from an arbitrary CIDR; SSH is scoped to a single administrator IP, not a broad range.
+
+### Provisioning Commands
+
+Shell variables used throughout (fill in real values — `AWS_REGION` should match the region chosen in [Proposal §21](../../2-Proposal/#21-cost-estimate)):
+
+```bash
+export AWS_REGION=<YOUR_AWS_REGION>
+export MY_IP=$(curl -s https://checkip.amazonaws.com)/32
+```
+
+**1. Create the VPC:**
+
+```bash
+export VPC_ID=$(aws ec2 create-vpc \
+  --cidr-block 10.0.0.0/16 \
+  --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=fitness-assistant-vpc}]' \
+  --region "$AWS_REGION" --query 'Vpc.VpcId' --output text)
+aws ec2 modify-vpc-attribute --vpc-id "$VPC_ID" --enable-dns-hostnames "{\"Value\":true}" --region "$AWS_REGION"
+```
+
+**2. Create the three subnets** (one public, two private in different AZs — required for the RDS DB subnet group):
+
+```bash
+export AZ_A="${AWS_REGION}a"
+export AZ_B="${AWS_REGION}b"
+
+export PUBLIC_SUBNET_ID=$(aws ec2 create-subnet \
+  --vpc-id "$VPC_ID" --cidr-block 10.0.1.0/24 --availability-zone "$AZ_A" \
+  --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=fitness-assistant-public-a}]' \
+  --region "$AWS_REGION" --query 'Subnet.SubnetId' --output text)
+
+export PRIVATE_SUBNET_A_ID=$(aws ec2 create-subnet \
+  --vpc-id "$VPC_ID" --cidr-block 10.0.11.0/24 --availability-zone "$AZ_A" \
+  --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=fitness-assistant-private-a}]' \
+  --region "$AWS_REGION" --query 'Subnet.SubnetId' --output text)
+
+export PRIVATE_SUBNET_B_ID=$(aws ec2 create-subnet \
+  --vpc-id "$VPC_ID" --cidr-block 10.0.12.0/24 --availability-zone "$AZ_B" \
+  --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=fitness-assistant-private-b}]' \
+  --region "$AWS_REGION" --query 'Subnet.SubnetId' --output text)
+
+# Public subnet must auto-assign public IPs for the EC2 instance to be reachable
+aws ec2 modify-subnet-attribute --subnet-id "$PUBLIC_SUBNET_ID" --map-public-ip-on-launch --region "$AWS_REGION"
+```
+
+**3. Internet Gateway and public route table:**
+
+```bash
+export IGW_ID=$(aws ec2 create-internet-gateway \
+  --tag-specifications 'ResourceType=internet-gateway,Tags=[{Key=Name,Value=fitness-assistant-igw}]' \
+  --region "$AWS_REGION" --query 'InternetGateway.InternetGatewayId' --output text)
+aws ec2 attach-internet-gateway --internet-gateway-id "$IGW_ID" --vpc-id "$VPC_ID" --region "$AWS_REGION"
+
+export PUBLIC_RT_ID=$(aws ec2 create-route-table --vpc-id "$VPC_ID" \
+  --tag-specifications 'ResourceType=route-table,Tags=[{Key=Name,Value=fitness-assistant-public-rt}]' \
+  --region "$AWS_REGION" --query 'RouteTable.RouteTableId' --output text)
+aws ec2 create-route --route-table-id "$PUBLIC_RT_ID" --destination-cidr-block 0.0.0.0/0 \
+  --gateway-id "$IGW_ID" --region "$AWS_REGION"
+aws ec2 associate-route-table --route-table-id "$PUBLIC_RT_ID" --subnet-id "$PUBLIC_SUBNET_ID" --region "$AWS_REGION"
+```
+
+Private subnets keep the VPC's implicit "local" route only — no explicit route table or NAT Gateway is created for them (see the NAT Gateway section above).
+
+**4. Security groups:**
+
+```bash
+export EC2_SG_ID=$(aws ec2 create-security-group \
+  --group-name fitness-assistant-ec2-sg --description "Fitness Assistant app server" \
+  --vpc-id "$VPC_ID" --region "$AWS_REGION" --query 'GroupId' --output text)
+aws ec2 authorize-security-group-ingress --group-id "$EC2_SG_ID" --protocol tcp --port 80 --cidr 0.0.0.0/0 --region "$AWS_REGION"
+aws ec2 authorize-security-group-ingress --group-id "$EC2_SG_ID" --protocol tcp --port 443 --cidr 0.0.0.0/0 --region "$AWS_REGION"
+aws ec2 authorize-security-group-ingress --group-id "$EC2_SG_ID" --protocol tcp --port 22 --cidr "$MY_IP" --region "$AWS_REGION"
+
+export RDS_SG_ID=$(aws ec2 create-security-group \
+  --group-name fitness-assistant-rds-sg --description "RDS PostgreSQL" \
+  --vpc-id "$VPC_ID" --region "$AWS_REGION" --query 'GroupId' --output text)
+aws ec2 authorize-security-group-ingress --group-id "$RDS_SG_ID" --protocol tcp --port 5432 \
+  --source-group "$EC2_SG_ID" --region "$AWS_REGION"
+```
+
+### Verify
+
+```bash
+aws ec2 describe-vpcs --vpc-ids "$VPC_ID" --region "$AWS_REGION" --query 'Vpcs[0].State'
+aws ec2 describe-route-tables --route-table-ids "$PUBLIC_RT_ID" --region "$AWS_REGION"
+```
+
+TODO: attach real console screenshots confirming the VPC, subnets, route tables and Security Groups once created.

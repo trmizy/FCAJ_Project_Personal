@@ -44,7 +44,8 @@ TODO: tóm tắt cách giải quyết cho từng khó khăn ở trên, tham chi�
 ### Hạn chế
 
 - Một EC2 duy nhất: không có redundancy, không có Auto Scaling.
-- `gym-service`, `payment-service`, `chat-service` không thuộc phạm vi triển khai này.
+- `chat-service` không thuộc phạm vi triển khai này (hạ tầng realtime Socket.IO ngoài phạm vi MVP).
+- `payment-service` chạy với `PAYMENT_PROVIDER=MOCK` — chưa tích hợp cổng thanh toán thật.
 - Amazon S3 chưa được tích hợp — file upload vẫn nằm trên local disk.
 - TLS/HTTPS chưa được cấu hình cho frontend.
 - Chưa tự động hóa xoay vòng secret.
@@ -64,7 +65,7 @@ TODO: mô tả cụ thể những gì đã tự thực hiện so với những g
 - Pipeline CI/CD (GitHub Actions) để tự động hóa build, test và deploy.
 - Infrastructure as Code (Terraform hoặc AWS CDK) thay vì thao tác thủ công trên console/CLI.
 - RDS Multi-AZ để tăng tính sẵn sàng.
-- Dockerfile production và triển khai cho `gym-service`, `payment-service`, và `chat-service`.
+- Triển khai `chat-service`, và tích hợp cổng thanh toán thật cho `payment-service`.
 
 {{% notice warning %}}
 **Lưu ý về sức khỏe:** Các tính năng huấn luyện AI và dinh dưỡng của Fitness Assistant (chat RAG dựa trên Ollama, bộ tính toán tất định) chỉ cung cấp thông tin và gợi ý thể hình mang tính tổng quát. Chúng không chẩn đoán tình trạng y tế, và việc triển khai này không làm thay đổi điều đó. Fitness Assistant không thay thế cho tư vấn của bác sĩ có chuyên môn, chuyên gia dinh dưỡng, hoặc huấn luyện viên thể hình được chứng nhận — điều này áp dụng cho cả tính năng huấn luyện AI lẫn tính năng trích xuất ảnh InBody riêng biệt dựa trên Anthropic Claude Vision, vốn chỉ đọc các giá trị số từ ảnh chứ không cấu thành một diễn giải y tế.

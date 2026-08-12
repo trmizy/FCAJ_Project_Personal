@@ -12,12 +12,12 @@ pre: " <b> 5.2. </b> "
 
 ### Sơ đồ kiến trúc
 
-![Kiến trúc AWS của Fitness Assistant — TODO: thay bằng sơ đồ thật đã export](/images/workshop/architecture/fitness-assistant-aws-architecture.png)
+![Kiến trúc AWS của Fitness Assistant — TODO: ảnh PNG này vẫn là placeholder; export từ file .drawio bên dưới](/images/workshop/architecture/fitness-assistant-aws-architecture.png)
 
 File tải xuống: [fitness-assistant-aws-architecture.drawio](/files/architecture/fitness-assistant-aws-architecture.drawio)
 
-{{% notice warning %}}
-Cả ảnh trên và file `.drawio` hiện đều là **placeholder**. Xem `static/images/workshop/architecture/README.md` để biết sơ đồ thật cần thể hiện những gì trước khi nộp báo cáo.
+{{% notice note %}}
+File `.drawio` đã là sơ đồ thật (bộ icon AWS4 — EC2, RDS, Internet Gateway, ECR, IAM Role, Secrets Manager, CloudWatch, SNS — bố trí trên một VPC riêng với public/private subnet, khớp với Request/Data/Log Flow của mục này). **Chỉ còn ảnh PNG export ở trên vẫn là placeholder** — mở file `.drawio` trong draw.io, xác nhận icon hiển thị đúng, điền AWS Region thật, rồi export ra PNG trước khi nộp báo cáo. Xem `static/files/architecture/README.md` và `static/images/workshop/architecture/README.md`.
 {{% /notice %}}
 
 ### AWS services sử dụng (MVP)
@@ -29,12 +29,13 @@ Amazon EC2, Amazon ECR, Amazon RDS for PostgreSQL, Amazon VPC, AWS IAM, AWS Secr
 1. Trình duyệt → reverse proxy Nginx trên EC2.
 2. Tài nguyên tĩnh của frontend được phục vụ trực tiếp (ứng dụng React/Vite đã build); API call được proxy tới container `backend/gateway` (port 3000).
 3. Gateway gọi endpoint `/auth/verify` của `auth-service` kèm JWT của người gọi, sau đó chuyển tiếp request xuống downstream kèm header `x-user-id` / `x-user-email` / `x-user-role`.
-4. Service downstream liên quan (`user-service`, `fitness-service`, `ai-service`) xử lý request.
+4. Service downstream liên quan (`user-service`, `fitness-service`, `ai-service`, `payment-service`, `gym-service`) xử lý request.
 
 ### Luồng dữ liệu
 
-- Mỗi backend service đọc/ghi database logic riêng (`gymcoach_auth`, `gymcoach_user`, `gymcoach_fitness`, `gymcoach_ai`, …) trên cùng một instance Amazon RDS PostgreSQL, thông qua Prisma.
+- Mỗi backend service đọc/ghi database logic riêng (`gymcoach_auth`, `gymcoach_user`, `gymcoach_fitness`, `gymcoach_ai`, `gymcoach_payment`, `gymcoach_gym`) trên cùng một instance Amazon RDS PostgreSQL, thông qua Prisma.
 - `ai-service` truy vấn thêm container Qdrant để lấy ngữ cảnh RAG và gọi endpoint `/api/chat` / `/api/embeddings` của container Ollama.
+- `gym-service` gọi `payment-service` cho các thao tác ví/hợp đồng; `payment-service` chạy với `PAYMENT_PROVIDER=MOCK` cho MVP này (chưa có thông tin cổng thanh toán thật).
 - `user-service` gọi Anthropic Claude API bên ngoài để trích xuất ảnh InBody (cần truy cập internet outbound và secret `ANTHROPIC_API_KEY`).
 - File tải lên (ảnh InBody, ảnh hồ sơ, tài liệu PT) hiện được ghi vào local disk trên EC2 qua `multer` — hiện chưa có tích hợp S3 trong source ứng dụng.
 

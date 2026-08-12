@@ -23,7 +23,7 @@ Fitness Assistant là một ứng dụng mã nguồn mở đã tồn tại và �
 
 ### 3. Bối cảnh
 
-Fitness Assistant đã có sẵn các chức năng đăng ký/đăng nhập, quản lý hồ sơ, danh mục bài tập, lịch tập, ghi log tập luyện, và tính năng hỗ trợ AI kết hợp một LLM tự host (Ollama, model mặc định `llama3.2:3b`) với pipeline Retrieval-Augmented Generation (RAG) dựa trên vector database Qdrant. Một tính năng riêng biệt — trích xuất chỉ số cơ thể từ ảnh InBody — gọi trực tiếp Anthropic Claude API để hiểu ảnh. Ở trạng thái hiện tại, ứng dụng được thiết kế cho phát triển local, chưa cho vận hành trên cloud: chưa có cấu hình AWS, Terraform, hay Kubernetes, chưa có bước deploy trong CI/CD, và 2 trong số 7 backend service (`gym-service`, `payment-service`) hiện chỉ có Dockerfile dạng development, chưa có bản build production.
+Fitness Assistant đã có sẵn các chức năng đăng ký/đăng nhập, quản lý hồ sơ, danh mục bài tập, lịch tập, ghi log tập luyện, và tính năng hỗ trợ AI kết hợp một LLM tự host (Ollama, model mặc định `llama3.2:3b`) với pipeline Retrieval-Augmented Generation (RAG) dựa trên vector database Qdrant. Một tính năng riêng biệt — trích xuất chỉ số cơ thể từ ảnh InBody — gọi trực tiếp Anthropic Claude API để hiểu ảnh. Ở trạng thái hiện tại, ứng dụng được thiết kế cho phát triển local, chưa cho vận hành trên cloud: chưa có cấu hình AWS, Terraform, hay Kubernetes, chưa có bước deploy trong CI/CD. Trong 7 backend service, `chat-service` bổ sung hạ tầng realtime (Socket.IO) nên vẫn để ngoài phạm vi MVP này (xem [Mục 9](#9-thành-phần-không-nằm-trong-mvp)); `gym-service` và `payment-service` ban đầu chỉ có Dockerfile dạng development nhưng sau đó đã có bản build production và được đưa vào phạm vi MVP (xem [Mục 8](#8-phạm-vi-mvp)).
 
 ### 4. Bài toán
 
@@ -52,7 +52,11 @@ Triển khai một phiên bản MVP hoạt động được của Fitness Assist
 
 ### 8. Phạm vi MVP
 
-MVP bao gồm các service vừa cốt lõi với luồng sử dụng chính của ứng dụng, vừa đã có Dockerfile hướng production trong repository nguồn:
+{{% notice warning %}}
+Mục này đã được cập nhật sau khi source repository có tiến triển trong thời gian thực tập: `gym-service` và `payment-service` **chưa** có Dockerfile production khi Proposal này được viết lần đầu — đó là lý do ban đầu để loại chúng khỏi MVP (xem [Mục 9](#9-thành-phần-không-nằm-trong-mvp)). Bây giờ cả hai đều đã có. Proposal đã được cập nhật để đưa chúng vào phạm vi MVP thay vì giữ nguyên một lý do loại trừ đã không còn đúng.
+{{% /notice %}}
+
+MVP bao gồm các service vừa cốt lõi với các luồng sử dụng chính của ứng dụng, vừa đã có Dockerfile hướng production trong repository nguồn:
 
 - **Frontend** (`frontend/web`, React + Vite, build và phục vụ qua Nginx).
 - **Application Gateway** (`backend/gateway`) — một service Express/Node.js đóng vai trò reverse-proxy nội bộ của ứng dụng. Đây **không phải** dịch vụ Amazon API Gateway do AWS quản lý; xem ghi chú ở [Mục 12](#12-kiến-trúc-giải-pháp).
@@ -60,13 +64,16 @@ MVP bao gồm các service vừa cốt lõi với luồng sử dụng chính c�
 - **User Service** (`backend/services/user-service`) — hồ sơ và bản ghi InBody (bao gồm tính năng trích xuất bằng Anthropic Claude Vision).
 - **Fitness Service** (`backend/services/fitness-service`) — bài tập, lịch tập, log tập luyện.
 - **AI Service** (`backend/services/ai-service`) — chat/huấn luyện dựa trên Ollama và truy vấn RAG dựa trên Qdrant.
-- **PostgreSQL** — di chuyển sang Amazon RDS (database-per-service, khớp với thiết kế schema Prisma hiện có của ứng dụng).
+- **Payment Service** (`backend/services/payment-service`) — nạp ví và thanh toán hợp đồng PT, dùng `PAYMENT_PROVIDER=MOCK` cho MVP này (chưa cấp thông tin cổng thanh toán thật).
+- **Gym Service** (`backend/services/gym-service`) — danh sách phòng gym/PT, phụ thuộc vào Payment Service.
+- **PostgreSQL** — di chuyển sang Amazon RDS (database-per-service: `gymcoach_auth`, `gymcoach_user`, `gymcoach_fitness`, `gymcoach_ai`, `gymcoach_payment`, `gymcoach_gym`, khớp với thiết kế schema Prisma hiện có của ứng dụng).
 - **Redis** — giữ dưới dạng container trên EC2 cho MVP (BullMQ queue, rate limiting); Amazon ElastiCache được liệt kê ở phần tương lai, không thuộc MVP.
 - **Qdrant** và **Ollama** — giữ dưới dạng container trên EC2 cho MVP; cả hai đều có yêu cầu CPU/RAM thực tế cần được ước lượng trung thực (xem [Mục 11](#11-non-functional-requirements)).
 
 ### 9. Thành phần không nằm trong MVP
 
-- **Chat Service, Gym Service, Payment Service** — có trong repository nguồn, nhưng `gym-service` và `payment-service` hiện chưa có Dockerfile production, còn `chat-service` bổ sung độ phức tạp hạ tầng realtime (Socket.IO). Để lại cho phần Hướng phát triển.
+- **Chat Service** — có trong repository nguồn, nhưng bổ sung độ phức tạp hạ tầng realtime (Socket.IO) vượt ngoài phạm vi networking/monitoring của MVP này. Để lại cho phần Hướng phát triển.
+- ~~Gym Service, Payment Service~~ — **đã chuyển vào phạm vi MVP** (xem [Mục 8](#8-phạm-vi-mvp)); cả hai đã có Dockerfile production kể từ khi Proposal này được viết lần đầu.
 - **Amazon S3 cho file upload** — ứng dụng hiện lưu file người dùng tải lên (ảnh InBody, ảnh hồ sơ, tài liệu đăng ký PT) trên local disk qua `multer`. Hiện chưa có S3 client trong source code. Việc tích hợp S3 đòi hỏi thay đổi code thực sự trong `user-service`, nằm ngoài phạm vi trừ khi được lập trình và xác minh. Đánh dấu **Planned**, không phải **Implemented**.
 - **Amazon ElastiCache for Redis** — Optional; Redis chạy dưới dạng container cho MVP.
 - **Amazon Bedrock** — lựa chọn thay thế/bổ sung tương lai cho Ollama tự host.
@@ -84,6 +91,8 @@ MVP bao gồm các service vừa cốt lõi với luồng sử dụng chính c�
 | FR-5 | Người dùng ghi log buổi tập đã hoàn thành | `fitness-service` |
 | FR-6 | Người dùng nhận gợi ý huấn luyện AI dựa trên kiến thức truy xuất (RAG) | `ai-service` (Ollama + Qdrant) |
 | FR-7 | Toàn bộ traffic API được xác thực qua JWT, xác minh tập trung tại gateway | `backend/gateway` + `auth-service` |
+| FR-8 | Người dùng xem danh sách phòng gym/PT | `gym-service` |
+| FR-9 | Người dùng nạp ví và thanh toán hợp đồng PT (dùng provider mock cho MVP này) | `payment-service` |
 
 ### 11. Non-functional Requirements (Yêu cầu phi chức năng)
 
@@ -100,9 +109,9 @@ MVP bao gồm các service vừa cốt lõi với luồng sử dụng chính c�
 `backend/gateway` là một service Node.js/Express **ở tầng ứng dụng** (router HTTP nội bộ và reverse proxy riêng) đi kèm trong source code Fitness Assistant. Đây **không phải** dịch vụ **Amazon API Gateway** do AWS quản lý. MVP này không sử dụng Amazon API Gateway; `backend/gateway` chạy như một container trên EC2, còn việc sử dụng Amazon API Gateway (nếu có) chỉ được liệt kê trong phần Hướng phát triển.
 {{% /notice %}}
 
-![Sơ đồ kiến trúc AWS của Fitness Assistant — TODO: thay bằng sơ đồ thật đã export](/images/workshop/architecture/fitness-assistant-aws-architecture.png)
+![Sơ đồ kiến trúc AWS của Fitness Assistant — TODO: ảnh PNG này vẫn là placeholder; export từ file .drawio bên dưới trước khi nộp báo cáo](/images/workshop/architecture/fitness-assistant-aws-architecture.png)
 
-File tải xuống: [fitness-assistant-aws-architecture.drawio](/files/architecture/fitness-assistant-aws-architecture.drawio) — TODO: file này hiện là placeholder; hãy thay bằng sơ đồ draw.io thật trước khi nộp báo cáo.
+File tải xuống: [fitness-assistant-aws-architecture.drawio](/files/architecture/fitness-assistant-aws-architecture.drawio) — giờ đã là sơ đồ thật (bộ icon AWS4: EC2, RDS, Internet Gateway, ECR, IAM Role, Secrets Manager, CloudWatch, SNS), khớp với kiến trúc MVP ở mục này. **TODO còn lại:** mở file trong draw.io, xác nhận mọi icon hiển thị đúng, điền AWS Region thật, và export ảnh PNG ở trên (xem `static/files/architecture/README.md`).
 
 **Kiến trúc MVP hiện tại (dự kiến):**
 
@@ -115,17 +124,18 @@ EC2 (public subnet) — Nginx reverse proxy
    └── Container Application Gateway (backend/gateway, Node.js/Express)
              │  (xác thực JWT qua HTTP call tới auth-service)
              ▼
-   ┌─────────┴─────────┬─────────────┬─────────────┐
-   ▼                    ▼             ▼             ▼
-Auth Service      User Service   Fitness Service   AI Service
-(container)       (container)    (container)       (Ollama + Qdrant,
-                                                     container)
-   │                    │             │                  │
-   └────────────────────┴─────────────┴──────────────────┘
-                         │
-                         ▼
-          Amazon RDS for PostgreSQL (private subnet)
-                         │
+   ┌─────────┴──────┬───────────┬───────────┬─────────────┬─────────────┐
+   ▼                 ▼           ▼           ▼             ▼             ▼
+Auth Service    User Service  Fitness    AI Service   Payment       Gym Service
+(container)     (container)  Service    (Ollama +     Service       (container)
+                              (container) Qdrant,      (container)
+                                          container)
+   │                 │           │           │             │             │
+   └─────────────────┴───────────┴───────────┴─────────────┴─────────────┘
+                                  │
+                                  ▼
+                   Amazon RDS for PostgreSQL (private subnet)
+                                  │
                  Amazon CloudWatch  ──►  Amazon SNS ──► Email
 ```
 
@@ -220,9 +230,9 @@ Giá AWS thay đổi theo Region và thời điểm. Cần kiểm tra [AWS Prici
 |--------|----------|-----------|-----------|
 | EC2 instance không đủ tài nguyên cho Ollama/Qdrant | Cao | Cao | Chọn lại kích thước instance dựa trên tải đo được thực tế; ghi lại mức sử dụng CPU/RAM thực (Tuần 8/11) |
 | Vô tình commit secret lên git | Trung bình | Cao | `.gitignore` cho `.env`/key, review trước khi commit, dùng Secrets Manager cho secret runtime |
-| `gym-service`/`payment-service` thiếu Dockerfile production | Cao (đã biết trước) | Thấp (ngoài phạm vi MVP) | Ghi rõ để lại cho Hướng phát triển, không âm thầm bỏ qua |
+| ~~`gym-service`/`payment-service` thiếu Dockerfile production~~ | ~~Cao~~ Đã xử lý | ~~Thấp~~ | **Đã xử lý trong quá trình thực tập**: cả hai service đã có Dockerfile production và được chuyển từ "ngoài phạm vi MVP" vào "phạm vi MVP" (xem [Mục 8](#8-phạm-vi-mvp)); giữ lại dòng này để ghi nhận thay đổi phạm vi thực tế, không xóa đi |
 | Vượt chi phí do quên tài nguyên đang chạy | Trung bình | Trung bình | Dừng/xóa tài nguyên khi không dùng; cảnh báo AWS Budgets (khuyến nghị, tùy chọn) |
-| Không nhất quán khi migrate RDS (`user-service` không tự chạy `prisma migrate deploy`) | Trung bình | Trung bình | Chạy migration tường minh theo từng service; xác nhận trước khi tin tưởng auto-migration |
+| Không nhất quán khi migrate RDS (`user-service` không tự chạy `prisma migrate deploy`) | Trung bình (đã phát hiện) | Trung bình | **Đã phát hiện và sửa trong quá trình thực tập**: `user-service` là service duy nhất trong 6 backend service thuộc MVP không tự chạy `prisma migrate deploy` khi container khởi động — phát hiện khi đối chiếu với 5 service còn lại, đã sửa cho khớp. Xem [Worklog Tuần 3](../1-Worklog/1.3-Week3/) để lấy bằng chứng phát hiện/sửa lỗi. |
 | Một EC2 duy nhất = điểm lỗi đơn (single point of failure) | Cao (theo thiết kế MVP) | Trung bình | Ghi nhận là giới hạn đã biết của MVP; Auto Scaling/ALB được liệt kê ở phần tương lai |
 
 ### 23. Tiêu chí đánh giá thành công
@@ -249,7 +259,7 @@ Giá AWS thay đổi theo Region và thời điểm. Cần kiểm tra [AWS Prici
 - Amazon ElastiCache for Redis, thay thế container Redis.
 - Pipeline CI/CD (GitHub Actions) build và deploy tự động mỗi lần merge.
 - Infrastructure as Code (Terraform hoặc AWS CDK) thay vì thao tác thủ công trên console.
-- Dockerfile production và triển khai cho `gym-service`, `payment-service`, và `chat-service`.
+- Triển khai `chat-service` (hạ tầng realtime Socket.IO), cổng thanh toán thật cho `payment-service` thay vì `PAYMENT_PROVIDER=MOCK`.
 
 ### 26. Tài liệu tham khảo
 
