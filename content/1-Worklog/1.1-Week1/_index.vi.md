@@ -44,6 +44,7 @@ Tuần này mình đã setup xong môi trường AWS để bắt đầu học. P
 - Hoàn thành cả 5 bài lab trên AWS Study Group từ 000001 đến 000005  
 - Cài AWS CLI trên máy local (Windows), test được các lệnh cơ bản như `aws s3 ls`, `aws ec2 describe-instances`
 - Tạo EC2 instance + RDS PostgreSQL, kết nối 2 services với nhau qua Security Group
+- Tham khảo thêm bài lab 10 nhưng bị chặn do tài khoản Free Tier và bài lab quá cũ (không hỗ trợ service hiện tại)
 
 **Khó khăn gặp phải:**
 
@@ -55,7 +56,7 @@ Tuần này mình đã setup xong môi trường AWS để bắt đầu học. P
 
 4. **RDS connection string:** Lúc đầu không connect được từ EC2 vào RDS vì quên config Security Group cho phép EC2 security group ID. Phải research thêm về security group chaining.
 
-5. **Lab 10 Route 53 bị chặn:** Khi thử làm thêm bài lab 10 để tìm hiểu Route 53 thì gặp lỗi vì bài lab quá cũ (sử dụng service cũ đã được cập nhật) và tài khoản Free Tier bị giới hạn truy cập một số dịch vụ mới (như Route 53). Cần chờ account nâng cấp hoặc làm lại lab với service mới.
+5. **Lab 10 bị chặn:** Khi thử làm thêm bài lab 10 thì gặp lỗi vì bài lab quá cũ (sử dụng service cũ đã được cập nhật) và tài khoản Free Tier bị giới hạn truy cập một số dịch vụ mới. Cần chờ account nâng cấp hoặc làm lại lab với service mới.
 
 **Cách giải quyết:**
 
@@ -67,4 +68,4 @@ Tuần này mình đã setup xong môi trường AWS để bắt đầu học. P
 
 - **RDS connection:** Thay vì dùng 0.0.0.0/0 cho RDS, config security group rule cho phép source là EC2's security group ID. An toàn hơn và đúng best practice.
 
-- **Lab 10 Route 53:** Tìm tài liệu mới từ AWS Documentation hoặc thực hành các service tương tự qua Console để hiểu nguyên lý hoạt động thay vì làm theo lab cũ.
+- **Lab 10:** Tìm tài liệu mới từ AWS Documentation hoặc thực hành các service tương tự qua Console để hiểu nguyên lý hoạt động thay vì làm theo lab cũ.
