@@ -1,6 +1,6 @@
 ---
 title: "Worklog Tuần 1"
-date: 2026-07-08
+date: 2026-08-03
 weight: 1
 chapter: false
 pre: " <b> 1.1. </b> "
@@ -16,7 +16,9 @@ pre: " <b> 1.1. </b> "
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Workshop / Tài liệu tham khảo |
 |-----------|--------------|-----------------|-------------------------------|
-| - Đăng ký tài khoản AWS Free Tier <br/> - Cấu hình IAM user, enable MFA <br/> - Học và thực hành 5 bài lab đầu tiên | 08-07-2026 | 12-07-2026 | 1: https://000001.awsstudygroup.com/ <br/> 2: https://000002.awsstudygroup.com/ <br/> 3: https://000003.awsstudygroup.com/ <br/> 4: https://000004.awsstudygroup.com/ <br/> 5: https://000005.awsstudygroup.com/ |
+| - Đăng ký tài khoản AWS Free Tier <br/> - Cấu hình IAM user, enable MFA <br/> - Học và thực hành 5 bài lab đầu tiên | 03-08-2026 | 08-08-2026 | 1: https://000001.awsstudygroup.com/ <br/> 2: https://000002.awsstudygroup.com/ <br/> 3: https://000003.awsstudygroup.com/ <br/> 4: https://000004.awsstudygroup.com/ <br/> 5: https://000005.awsstudygroup.com/ |
+| - Đăng ký lên văn phòng | 04-08-2026 | 04-08-2026 | - |
+| - Thực hành thêm bài lab 10 | 04-08-2026 | 04-08-2026 | - |
 
 ### Kết quả đạt được tuần 1:
 
@@ -42,6 +44,7 @@ Tuần này mình đã setup xong môi trường AWS để bắt đầu học. P
 - Hoàn thành cả 5 bài lab trên AWS Study Group từ 000001 đến 000005  
 - Cài AWS CLI trên máy local (Windows), test được các lệnh cơ bản như `aws s3 ls`, `aws ec2 describe-instances`
 - Tạo EC2 instance + RDS PostgreSQL, kết nối 2 services với nhau qua Security Group
+- Tham khảo thêm bài lab 10 (Route 53 + DNS) nhưng bị chặn do tài khoản Free Tier và bài lab quá cũ (không hỗ trợ service hiện tại)
 
 **Khó khăn gặp phải:**
 
@@ -53,6 +56,8 @@ Tuần này mình đã setup xong môi trường AWS để bắt đầu học. P
 
 4. **RDS connection string:** Lúc đầu không connect được từ EC2 vào RDS vì quên config Security Group cho phép EC2 security group ID. Phải research thêm về security group chaining.
 
+5. **Lab 10 Route 53 bị chặn:** Khi thử làm thêm bài lab 10 để tìm hiểu Route 53 thì gặp lỗi vì bài lab quá cũ (sử dụng service cũ đã được cập nhật) và tài khoản Free Tier bị giới hạn truy cập một số dịch vụ mới (như Route 53). Cần chờ account nâng cấp hoặc làm lại lab với service mới.
+
 **Cách giải quyết:**
 
 - **Account verify:** Chờ 24h tự động verify, không cần tạo support case. Trong lúc chờ thì dùng AWS CLI thay CloudShell.
@@ -62,3 +67,5 @@ Tuần này mình đã setup xong môi trường AWS để bắt đầu học. P
 - **Security Group:** Vẽ diagram để hiểu luồng traffic: Internet → ALB → EC2 → RDS. Mỗi bước cần security group rule riêng. Practice principle of least privilege.
 
 - **RDS connection:** Thay vì dùng 0.0.0.0/0 cho RDS, config security group rule cho phép source là EC2's security group ID. An toàn hơn và đúng best practice.
+
+- **Lab 10 Route 53:** Tìm tài liệu mới từ AWS Documentation hoặc thực hành các service tương tự qua Console để hiểu nguyên lý hoạt động thay vì làm theo lab cũ.

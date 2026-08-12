@@ -7,7 +7,7 @@ pre: " <b> 1.1. </b> "
 ---
 
 {{% notice note %}}
-Dates in this page are placeholders (`[TODO_DATE]`) until the confirmed internship schedule is available.
+Dates updated based on confirmed schedule: Registration at office on Tuesday, August 4, 2026. Week runs from August 3 to August 8, 2026.
 {{% /notice %}}
 
 ### Week Objectives
@@ -54,10 +54,10 @@ Dates in this page are placeholders (`[TODO_DATE]`) until the confirmed internsh
 
 | Day | Task | Start Date | Completion Date | Reference |
 | --- | ---- | ---------- | ---------------- | --------- |
-| 1 | Read FCAJ project rules and report template | [TODO_DATE] | [TODO_DATE] | https://hcm-rules.awsfcaj.com/3-project/ |
-| 2 | Clone and review `fitness-assistant` repository structure | [TODO_DATE] | [TODO_DATE] | https://github.com/trmizy/fitness-assistant |
-| 3 | Run the project locally following its own README | [TODO_DATE] | [TODO_DATE] | Project README |
-| 4 | Draft initial MVP scope (draft only, not final) | [TODO_DATE] | [TODO_DATE] | — |
+| 1 | Read FCAJ project rules and report template | 03-08-2026 | 03-08-2026 | https://hcm-rules.awsfcaj.com/3-project/ |
+| 2 | Clone and review `fitness-assistant` repository structure | 04-08-2026 | 04-08-2026 | https://github.com/trmizy/fitness-assistant |
+| 3 | Run the project locally following its own README | 05-08-2026 | 05-08-2026 | Project README |
+| 4 | Draft initial MVP scope (draft only, not final) | 06-08-2026 | 06-08-2026 | — |
 
 ### Completion Checklist
 
