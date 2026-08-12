@@ -1,67 +1,83 @@
 ---
-title: "Tuần 3"
-date: 2026-07-15
+title: "Worklog Tuần 3"
+date: 2026-08-17
 weight: 3
 chapter: false
 pre: " <b> 1.3. </b> "
 ---
 
-{{% notice note %}}
-Các mốc thời gian trong trang này là placeholder (`[TODO_DATE]`) cho đến khi có lịch thực tập chính thức.
-{{% /notice %}}
+### Mục tiêu tuần 3:
 
-### Mục tiêu tuần
+- Học và thực hành các bài lab về migration: VM Import/Export và Database Migration.
+- Nghiên cứu các chiến lược migrate lên AWS (Rehost, Replatform, Refactor).
+- Tiếp tục phân tích source code project cá nhân, chuẩn bị viết Dockerfile cho production.
 
-- Xem xét (các) Dockerfile hiện có trong `fitness-assistant` và xác định đó là dev-only hay đã sẵn sàng cho production.
-- Soạn thảo Dockerfile hướng production (multi-stage build, không chạy dev watcher, có `.dockerignore`, dùng non-root user nếu tương thích).
-- Kiểm tra container ở local bằng Docker Compose trước khi chuyển sang AWS.
+### Các công việc cần triển khai trong tuần này:
 
-### Công việc đã thực hiện
+| Công việc | Ngày bắt đầu | Ngày hoàn thành | Workshop / Tài liệu tham khảo |
+|-----------|--------------|-----------------|-------------------------------|
+| - Học các bài lab về VM Import/Export và Database Migration <br/> - Nghiên cứu chiến lược migration <br/> - Phân tích Dockerfile hiện có trong project | 17-08-2026 | 22-08-2026 | 14: https://000014.awsstudygroup.com/ <br/> 43: https://000043.awsstudygroup.com/ |
 
-- Kiểm tra (các) Dockerfile hiện có theo từng service/app về base image, các bước build và CMD/ENTRYPOINT.
-- Soạn thảo `Dockerfile.production.example` cho các service cần thiết, dựa trên công cụ build thực tế tìm thấy trong source (ví dụ tên script `npm run build` thực tế).
-- Thêm file `.dockerignore` mẫu để tránh copy `node_modules`, `.env` và các artifact local khác vào image.
-- Chạy thử build Docker Compose ở local để xác nhận image kiểu production khởi động và phục vụ đúng port mong đợi.
+### Kết quả đạt được tuần 3:
 
-### Kết quả đạt được
+**Tổng quan:**
 
-- Bản nháp Dockerfile production build thành công ở local.
-- TODO: Ghi lại kích thước image trước/sau khi tối ưu.
+Tuần này học về migration - các cách di chuyển hệ thống từ on-premise hoặc cloud khác lên AWS. Mặc dù project cá nhân là build từ đầu trên AWS nhưng hiểu về migration vẫn quan trọng, đặc biệt là phần Database Migration Service (DMS) có thể dùng cho việc sync data sau này. Ngoài ra cũng bắt đầu tìm hiểu Dockerfile để chuẩn bị containerize app.
 
-### Khó khăn
+**Kiến thức đã học:**
 
-- Đảm bảo bước build production khớp đúng với tên script được định nghĩa trong `package.json`/cấu hình build thực tế của project, thay vì đoán chung chung.
+- **VM Import/Export:** Cách import máy ảo (VMware, Hyper-V, VirtualBox) lên AWS EC2. Hiểu format OVA/OVF và các điều kiện để import thành công. Trong thực tế dự án mình build mới nên không cần import VM, nhưng biết concept này giúp hiểu cách AWS xử lý virtualization.
 
-### Cách giải quyết
+- **AWS Schema Conversion Tool (SCT):** Tool để convert database schema từ engine này sang engine khác (ví dụ Oracle → PostgreSQL, SQL Server → MySQL). SCT phân tích code và báo những gì có thể auto convert, những gì phải sửa tay. Rất hữu ích khi migrate database giữa các platform.
 
-- Đọc đúng các script trong `package.json` (hoặc tương đương) trước khi viết bất kỳ bước `RUN` build nào, để Dockerfile chỉ gọi các lệnh thực sự tồn tại trong repository.
+- **AWS Database Migration Service (DMS):** Service migrate data giữa databases với downtime tối thiểu. Có 2 mode: full load (migrate toàn bộ) và CDC (change data capture - sync liên tục). DMS support nhiều source/target: MySQL, PostgreSQL, Oracle, MongoDB, S3...
 
-### Kỹ năng / Dịch vụ AWS đã học
+- **Migration Strategies (6R):** Học về 6 chiến lược migration phổ biến:
+  - **Rehost (Lift and Shift):** Move nguyên si lên cloud, nhanh nhưng không tối ưu
+  - **Replatform (Lift and Reshape):** Sửa một chút (RDS thay self-managed DB) nhưng không đổi core
+  - **Refactor/Re-architect:** Viết lại để tận dụng cloud-native (serverless, containers)
+  - **Repurchase:** Đổi sang SaaS thay vì tự host
+  - **Retire:** Tắt app không dùng nữa
+  - **Retain:** Giữ on-premise vì lý do đặc biệt
 
-- Best practice đóng gói container liên quan trực tiếp đến yêu cầu của Amazon ECR (gắn tag, giảm số layer, không nhúng secret vào image).
+**Thực hành:**
 
-### Bằng chứng cần bổ sung
+- Làm lab VM Import/Export (lab 14) - practice import VM image lên EC2, config network và storage.
+- Làm lab Database Migration (lab 43) - dùng DMS migrate data từ source DB sang target DB trên RDS. Setup replication instance, tạo endpoint, monitor migration task.
+- Đọc Dockerfile hiện có trong project cá nhân (nếu có) để hiểu cách app được containerize. Note lại base image, dependencies, exposed port, entrypoint.
+- Research multi-stage Docker build để giảm kích thước image production. Dev image thường to vì có nhiều build tools, production chỉ cần runtime.
 
-- TODO: Output lệnh `docker build`.
-- TODO: Output lệnh `docker images` thể hiện kích thước image.
-- TODO: Screenshot container chạy ở local theo chế độ production.
+**Khó khăn gặp phải:**
 
-### Bảng theo ngày / task
+1. **VM Import troubleshooting:** Import VM lên EC2 bị lỗi "InvalidParameter" vì OVA file không đúng format. Phải dùng VMware/VirtualBox export lại đúng chuẩn OVF 1.0 hoặc 2.0.
 
-| Ngày | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
-| --- | --- | --- | --- | --- |
-| 1 | Xem xét (các) Dockerfile hiện có | [TODO_DATE] | [TODO_DATE] | Source `fitness-assistant` |
-| 2 | Soạn thảo `Dockerfile.production.example` theo từng service | [TODO_DATE] | [TODO_DATE] | — |
-| 3 | Thêm `.dockerignore` và kiểm tra không copy secret vào image | [TODO_DATE] | [TODO_DATE] | — |
-| 4 | Kiểm tra bằng Docker Compose ở local | [TODO_DATE] | [TODO_DATE] | — |
+2. **DMS replication lag:** Khi setup CDC (continuous replication), target DB bị lag so với source. Monitor CloudWatch metrics thấy CDCLatencySource tăng cao. Phải tune replication instance size.
 
-### Checklist hoàn thành
+3. **Schema conversion complexity:** SCT không auto convert được một số stored procedure phức tạp. Assessment report báo "Action Required", phải rewrite manually. Tốn thời gian nếu DB có nhiều logic.
 
-- [ ] Đã xem xét Dockerfile hiện có
-- [ ] Đã tạo bản nháp Dockerfile production theo từng service
-- [ ] Đã có `.dockerignore`
-- [ ] Đã kiểm tra build/run bằng Docker Compose ở local
+4. **Docker multi-stage build:** Lần đầu viết multi-stage Dockerfile hơi confuse về cách copy artifact từ stage này sang stage khác. Build stage cần build tools (npm, webpack) nhưng production stage chỉ cần runtime (node).
 
-### Liên kết Workshop tương ứng
+5. **Dockerfile base image choice:** Chọn base image nào cho Node.js? `node:18`, `node:18-alpine`, hay `node:18-slim`? Alpine nhỏ nhất (50MB) nhưng dùng musl thay glibc, đôi khi có compatibility issue.
 
-- [5.5 Production Containers](../../5-Workshop/5.5-Production-Containers/)
+**Cách giải quyết:**
+
+- **VM Import:** Đọc AWS docs về VM Import requirements. Export VM đúng format, disable virtual hardware features không support (USB controller, audio). Dùng `aws ec2 import-image` với đầy đủ parameters.
+
+- **DMS lag:** Tăng replication instance size từ `dms.t3.micro` lên `dms.t3.small`. Enable Multi-AZ nếu cần high availability. Monitor metrics CloudWatch thường xuyên.
+
+- **Schema conversion:** Chạy SCT assessment trước khi migrate để biết workload. Với stored procedure phức tạp, có thể refactor logic sang application layer thay vì giữ trong DB. Modern practice là thin database, thick application.
+
+- **Multi-stage build:** Học pattern: stage 1 (builder) install dev deps + build, stage 2 (production) chỉ copy artifact từ builder.Ví dụ:
+  ```dockerfile
+  FROM node:18 AS builder
+  COPY package*.json ./
+  RUN npm ci
+  COPY . .
+  RUN npm run build
+  
+  FROM node:18-slim
+  COPY --from=builder /app/dist ./dist
+  CMD ["node", "dist/index.js"]
+  ```
+
+- **Base image:** Với project cá nhân dùng `node:18-slim` là balance tốt: nhỏ hơn full image, ổn định hơn alpine. Alpine để sau khi đã test kỹ, vì có thể gặp issue với native modules.
