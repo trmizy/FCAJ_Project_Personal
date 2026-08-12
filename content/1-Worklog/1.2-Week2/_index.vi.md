@@ -17,7 +17,7 @@ pre: " <b> 1.2. </b> "
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Workshop / Tài liệu tham khảo |
 |-----------|--------------|-----------------|-------------------------------|
 | - Phân tích repo Workshop mẫu <br/> - Học các bài lab về IAM Role, S3, CloudWatch, Auto Scaling <br/> - Đọc source code project để hiểu cấu trúc | 10-08-2026 | 15-08-2026 | 48: https://000048.awsstudygroup.com/ <br/> 57: https://000057.awsstudygroup.com/ <br/> 45: https://000045.awsstudygroup.com/ <br/> 06: https://000006.awsstudygroup.com/ <br/> 08: https://000008.awsstudygroup.com/ <br/> 10: https://000010.awsstudygroup.com/ <br/> 11: https://000011.awsstudygroup.com/ |
-| - Lên văn phòng làm việc <br/> - Nghiên cứu bài blog về Docker và Amazon ECR | 12-08-2026 | 12-08-2026 | Blog: Từ Development Container đến Production-ready Microservices với Docker và Amazon ECR |
+| - Lên văn phòng làm việc <br/> - Nghiên cứu bài blog về Docker và Amazon ECR | 12-08-2026 | 12-08-2026 | Blog: https://000067.awsstudygroup.com/ (Monolith to Microservices) <br/> hoặc https://000015.awsstudygroup.com/ (Deploy on Docker Container) |
 
 ### Kết quả đạt được tuần 2:
 
