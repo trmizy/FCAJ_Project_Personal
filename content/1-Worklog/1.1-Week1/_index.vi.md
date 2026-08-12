@@ -44,7 +44,6 @@ Tuần này mình đã setup xong môi trường AWS để bắt đầu học. P
 - Hoàn thành cả 5 bài lab trên AWS Study Group từ 000001 đến 000005  
 - Cài AWS CLI trên máy local (Windows), test được các lệnh cơ bản như `aws s3 ls`, `aws ec2 describe-instances`
 - Tạo EC2 instance + RDS PostgreSQL, kết nối 2 services với nhau qua Security Group
-- Tham khảo thêm bài lab 10 (Route 53 + DNS) nhưng bị chặn do tài khoản Free Tier và bài lab quá cũ (không hỗ trợ service hiện tại)
 
 **Khó khăn gặp phải:**
 
