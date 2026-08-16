@@ -15,23 +15,23 @@ Báo cáo này ghi lại quá trình thiết kế, triển khai và đánh giá 
 
 ### Thông tin sinh viên
 
-&emsp; **Họ và tên:** [TODO_FULL_NAME]
+&emsp; **Họ và tên:** TRẦN MINH DUY
 
-&emsp; **Số điện thoại:** [TODO_PHONE]
+&emsp; **Số điện thoại:** +84372246113
 
-&emsp; **Email:** [TODO_EMAIL]
+&emsp; **Email:** tranminhduy1902@gmail.com
 
-&emsp; **Trường:** [TODO_UNIVERSITY]
+&emsp; **Trường:** Đại học Công nghiệp Thành phố Hồ Chí Minh
 
-&emsp; **Chuyên ngành:** [TODO_MAJOR]
+&emsp; **Chuyên ngành:** Hệ thống Thông tin
 
 &emsp; **Lớp FCAJ:** [TODO_FCAJ_CLASS]
 
-&emsp; **Công ty thực tập:** [TODO_INTERNSHIP_COMPANY]
+&emsp; **Công ty thực tập:** Amazon Web Services Viet Nam Company Limited
 
 &emsp; **Vị trí thực tập:** First Cloud AI Journey Intern
 
-&emsp; **Thời gian thực tập:** [TODO_START_DATE] – [TODO_END_DATE]
+&emsp; **Thời gian thực tập:** 03-08-2026 – [TODO_END_DATE]
 
 &emsp; **GitHub:** [TODO_GITHUB_URL]
 

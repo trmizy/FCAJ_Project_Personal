@@ -31,7 +31,7 @@ This report documents the design, implementation and evaluation of the **Fitness
 
 &emsp; **Internship Position:** First Cloud AI Journey Intern
 
-&emsp; **Internship Duration:** [TODO_START_DATE] – [TODO_END_DATE]
+&emsp; **Internship Duration:** 03-08-2026 – [TODO_END_DATE]
 
 &emsp; **GitHub:** [TODO_GITHUB_URL]
 
