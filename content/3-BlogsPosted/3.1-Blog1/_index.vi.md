@@ -1,6 +1,6 @@
 ---
 title: "Blog 1: Từ Docker Local đến Amazon ECR"
-date: 2026-08-22
+date: 2026-08-15
 weight: 1
 chapter: false
 pre: " <b> 3.1. </b> "
