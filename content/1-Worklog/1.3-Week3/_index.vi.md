@@ -16,7 +16,7 @@ pre: " <b> 1.3. </b> "
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Workshop / Tài liệu tham khảo |
 |-----------|--------------|-----------------|-------------------------------|
-| - Tìm hiểu 7Rs migration <br/> - Practice VM Import/Export <br/> - Research Database Migration <br/> - Phân tích Docker production | 17-08-2026 | 22-08-2026 | Lab 14: https://000014.awsstudygroup.com/ <br/> Lab 43: https://000043.awsstudygroup.com/ |
+| - Tìm hiểu 7Rs migration <br/> - Practice VM Import/Export <br/> - Research Database Migration <br/> - Phân tích Docker production <br/> - Hoàn thành bài blog 1 | 17-08-2026 | 22-08-2026 | Lab 14: https://000014.awsstudygroup.com/ <br/> Lab 43: https://000043.awsstudygroup.com/ <br/> Blog 1: https://www.facebook.com/share/p/1F8v6Qye3F/ |
 
 ### Kết quả đạt được tuần 3:
 
@@ -128,6 +128,12 @@ Runtime chỉ cần Nginx, không cần Node.
 - Phải có `.dockerignore`
 - Chạy non-root user
 - Không hardcode secrets vào image
+
+**5. Hoàn thành Blog 1**
+
+Viết xong bài blog đầu tiên về kinh nghiệm học AWS và chia sẻ lên Facebook group. Bài viết tổng hợp những gì học được từ tuần 1-3, các lab đã làm, và một số tips cho người mới bắt đầu với AWS.
+
+Link bài blog: https://www.facebook.com/share/p/1F8v6Qye3F/
 
 ### Bài học:
 

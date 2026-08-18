@@ -16,7 +16,7 @@ pre: " <b> 1.3. </b> "
 
 | Task | Start Date | Completion Date | Workshop / Reference |
 |------|------------|----------------|----------------------|
-| - Research 7Rs migration <br/> - Practice VM Import/Export <br/> - Research Database Migration <br/> - Analyze Docker production | 08-17-2026 | 08-22-2026 | Lab 14: https://000014.awsstudygroup.com/ <br/> Lab 43: https://000043.awsstudygroup.com/ |
+| - Research 7Rs migration <br/> - Practice VM Import/Export <br/> - Research Database Migration <br/> - Analyze Docker production <br/> - Complete blog 1 | 08-17-2026 | 08-22-2026 | Lab 14: https://000014.awsstudygroup.com/ <br/> Lab 43: https://000043.awsstudygroup.com/ <br/> Blog 1: https://www.facebook.com/share/p/1F8v6Qye3F/ |
 
 ### Week 3 Results:
 
@@ -128,6 +128,12 @@ Runtime only needs Nginx, no Node.
 - Must have `.dockerignore`
 - Run as non-root user
 - Don't hardcode secrets in image
+
+**5. Completed Blog 1**
+
+Finished writing first blog post about AWS learning experience and shared on Facebook group. The post summarizes what was learned from weeks 1-3, labs completed, and some tips for AWS beginners.
+
+Blog link: https://www.facebook.com/share/p/1F8v6Qye3F/
 
 ### Lessons Learned:
 

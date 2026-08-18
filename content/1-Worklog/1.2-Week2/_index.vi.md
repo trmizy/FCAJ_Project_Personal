@@ -16,7 +16,7 @@ pre: " <b> 1.2. </b> "
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Workshop / Tài liệu tham khảo |
 |-----------|--------------|-----------------|-------------------------------|
-| - Phân tích repo Workshop mẫu <br/> - Học các bài lab về IAM Role, S3, CloudWatch, Auto Scaling <br/> - Đọc source code project để hiểu cấu trúc | 10-08-2026 | 15-08-2026 | 48: https://000048.awsstudygroup.com/ <br/> 57: https://000057.awsstudygroup.com/ <br/> 45: https://000045.awsstudygroup.com/ <br/> 06: https://000006.awsstudygroup.com/ <br/> 08: https://000008.awsstudygroup.com/ <br/> 10: https://000010.awsstudygroup.com/ <br/> 11: https://000011.awsstudygroup.com/ |
+| - Phân tích repo Workshop mẫu <br/> - Học các bài lab về IAM Role, S3, CloudWatch, Auto Scaling <br/> - Đọc source code project để hiểu cấu trúc <br/> - Bắt đầu viết bài blog 1 | 10-08-2026 | 15-08-2026 | 48: https://000048.awsstudygroup.com/ <br/> 57: https://000057.awsstudygroup.com/ <br/> 45: https://000045.awsstudygroup.com/ <br/> 06: https://000006.awsstudygroup.com/ <br/> 08: https://000008.awsstudygroup.com/ <br/> 10: https://000010.awsstudygroup.com/ <br/> 11: https://000011.awsstudygroup.com/ <br/> Blog: https://www.facebook.com/share/p/1F8v6Qye3F/ |
 | - Lên văn phòng làm việc <br/> - Nghiên cứu bài blog về Docker và Amazon ECR | 12-08-2026 | 12-08-2026 | AWS Blog: https://aws.amazon.com/blogs/containers/automated-software-delivery-using-docker-compose-and-amazon-ecs <br/> Lab: https://000067.awsstudygroup.com/ (Monolith to Microservices) |
 
 ### Kết quả đạt được tuần 2:
@@ -49,6 +49,7 @@ Tuần này có 2 mảng chính: một là học tiếp các bài lab AWS để 
 - List các service/port: frontend chạy port nào, backend API port nào, có microservices không hay monolith.
 - Lên văn phòng làm việc vào thứ 3 ngày 12/8, làm quen môi trường và setup workspace.
 - Đọc và nghiên cứu bài blog "Từ Development Container đến Production-ready Microservices với Docker và Amazon ECR" để chuẩn bị cho việc containerize project sau này. Bài này hay vì giải thích rõ flow từ dev local với Docker đến push image lên ECR và deploy production.
+- Bắt đầu viết bài blog đầu tiên để chia sẻ kinh nghiệm học AWS.
 
 **Khó khăn gặp phải:**
 

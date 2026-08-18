@@ -16,7 +16,7 @@ pre: " <b> 1.2. </b> "
 
 | Task | Start Date | Completion Date | Workshop / Reference Materials |
 |------|------------|----------------|--------------------------------|
-| - Analyze workshop template repo <br/> - Learn labs on IAM Role, S3, CloudWatch, Auto Scaling <br/> - Read project source code to understand structure | 08-10-2026 | 08-15-2026 | 48: https://000048.awsstudygroup.com/ <br/> 57: https://000057.awsstudygroup.com/ <br/> 45: https://000045.awsstudygroup.com/ <br/> 06: https://000006.awsstudygroup.com/ <br/> 08: https://000008.awsstudygroup.com/ <br/> 10: https://000010.awsstudygroup.com/ <br/> 11: https://000011.awsstudygroup.com/ |
+| - Analyze workshop template repo <br/> - Learn labs on IAM Role, S3, CloudWatch, Auto Scaling <br/> - Read project source code to understand structure <br/> - Start writing blog 1 | 08-10-2026 | 08-15-2026 | 48: https://000048.awsstudygroup.com/ <br/> 57: https://000057.awsstudygroup.com/ <br/> 45: https://000045.awsstudygroup.com/ <br/> 06: https://000006.awsstudygroup.com/ <br/> 08: https://000008.awsstudygroup.com/ <br/> 10: https://000010.awsstudygroup.com/ <br/> 11: https://000011.awsstudygroup.com/ <br/> Blog: https://www.facebook.com/share/p/1F8v6Qye3F/ |
 | - Office work visit <br/> - Research blog about Docker and Amazon ECR | 08-12-2026 | 08-12-2026 | AWS Blog: https://aws.amazon.com/blogs/containers/automated-software-delivery-using-docker-compose-and-amazon-ecs <br/> Lab: https://000067.awsstudygroup.com/ (Monolith to Microservices) |
 
 ### Week 2 Results:
@@ -49,6 +49,7 @@ This week had 2 main areas: one is continuing AWS labs to master more important 
 - Listed services/ports: which port frontend runs on, which port backend API, is it microservices or monolith.
 - Visited office for work on Tuesday August 12, familiarized with environment and setup workspace.
 - Read and researched blog "From Development Container to Production-ready Microservices with Docker and Amazon ECR" to prepare for containerizing project later. This blog is good because it clearly explains the flow from local dev with Docker to pushing images to ECR and deploying to production.
+- Started writing first blog post to share AWS learning experience.
 
 **Difficulties Encountered:**
 
