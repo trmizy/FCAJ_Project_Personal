@@ -6,31 +6,35 @@ chapter: false
 pre: " <b> 6. </b> "
 ---
 
-{{% notice warning %}}
-This self-evaluation table must be filled in honestly by the intern after completing the work, not rated "Good" across the board by default. Ratings without a specific piece of evidence (a Worklog entry, a Workshop step, a commit) are not credible.
-{{% /notice %}}
+# SELF-EVALUATION
 
-### Rating Scale
+Throughout my internship at Amazon Web Services Vietnam Co., Ltd. from August 3, 2026 to [TODO: end date], I had the opportunity to learn, practice, and apply cloud computing knowledge in a well-structured internship environment.
 
-**Good** / **Fair** / **Average** (Tốt / Khá / Trung bình)
+My main project was **Fitness Assistant** - a fitness and health management platform based on microservices architecture deployed on AWS. Through this project, I practiced designing AWS architecture, selecting appropriate services, deploying containers with Docker and Amazon ECR, managing images, monitoring systems, writing technical blogs, and completing internship reports.
 
-### Self-assessment Table
+Regarding work attitude, I always strive to complete tasks responsibly, stick to the internship schedule, and improve technical knowledge through self-study and lab practice. I also learned how to organize technical content into a complete internship report with both English and Vietnamese versions.
 
-| # | Criteria | Rating | Comment | Evidence | Area to Improve |
-|---|---|---|---|---|---|
-| 1 | Technical knowledge & skills | TODO | TODO | Link to specific [Worklog](../1-Worklog/)/[Workshop](../5-Workshop/) entries | TODO |
-| 2 | Ability to learn | TODO | TODO | TODO | TODO |
-| 3 | Proactiveness | TODO | TODO | TODO | TODO |
-| 4 | Discipline | TODO | TODO | TODO | TODO |
-| 5 | Communication | TODO | TODO | TODO | TODO |
-| 6 | Teamwork | TODO | TODO | TODO | TODO |
-| 7 | Problem-solving | TODO | TODO | TODO | TODO |
-| 8 | Contribution to the project | TODO | TODO | TODO | TODO |
+To review the internship process, I evaluate myself based on the following criteria:
 
-### Overall Self-assessment
+| # | Criteria | Description | Good | Fair | Average |
+|---|---|---|:---:|:---:|:---:|
+| 1 | Technical knowledge and skills | Understanding AWS concepts, applying cloud knowledge to practice, and using tools effectively | ✅ | ☐ | ☐ |
+| 2 | Learning ability | Absorbing new knowledge, learning AWS services quickly, and turning learning into practice | ☐ | ✅ | ☐ |
+| 3 | Proactiveness | Preparing documentation, self-researching solutions, and improving reports without overly detailed guidance | ✅ | ☐ | ☐ |
+| 4 | Responsibility | Completing worklog, proposal, blogs, workshop, and documentation carefully | ✅ | ☐ | ☐ |
+| 5 | Discipline | Following internship timeline and maintaining clear report structure by chapters | ✅ | ☐ | ☐ |
+| 6 | Growth mindset | Receiving feedback and adjusting structure, images, and content of reports | ☐ | ✅ | ☐ |
+| 7 | Communication | Presenting project content, explaining architecture, and writing bilingual reports | ☐ | ☐ | ✅ |
+| 8 | Teamwork | Coordinating report content and adjusting project documentation according to team requirements | ☐ | ☐ | ✅ |
+| 9 | Professional conduct | Maintaining serious learning attitude and respecting guidance during internship | ✅ | ☐ | ☐ |
+| 10 | Problem-solving mindset | Identifying issues in deployment, documentation structure, Docker images, and report formatting | ✅ | ☐ | ☐ |
+| 11 | Project/team contribution | Contributing to Fitness Assistant project documentation, architecture description, deployment guides, and technical blogs | ☐ | ☐ | ✅ |
+| 12 | Overall | Overall evaluation of the entire internship process and completion level of final report | ☐ | ✅ | ☐ |
 
-TODO: write a short (3–5 sentence) honest summary of overall performance during this internship, referencing specific weeks or Workshop sections as evidence rather than general claims.
+## Areas for Improvement
 
-### Areas Needing Improvement
+• **Communication skills**: Need to further develop the ability to present project content, explain microservices system architecture, and write more coherent bilingual technical reports.
 
-TODO: list concrete, specific areas — not generic statements like "need to work harder."
+• **Teamwork skills**: Need to improve efficiency in coordinating report content development and adjusting project documentation to closely follow internship team requirements.
+
+• **Project contribution level**: Need to be more proactive in building detailed documentation for team projects, focusing on AWS architecture description, Docker/ECR/ECS deployment guides, system testing, and cloud resource cleanup.
