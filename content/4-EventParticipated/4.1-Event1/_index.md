@@ -27,6 +27,20 @@ pre: " <b> 4.1. </b> "
 
 Attendee
 
+### Speakers and Main Topics
+
+Below is a list of speakers and topics presented at the event:
+
+| Speaker | Organization / Role | Topic |
+|---|---|---|
+| Kiet Lam | Senior Developer Engineer, FPT Software | Development Application with AWS Serverless |
+| Kiet Nguyen & Viet Ly | Software Engineer (VPBank), DevOps (VPBank) | Optimizing Database Cost & Performance with Data Archiving Strategies |
+| Long Huynh | Senior Solutions Architect, eCloudvalley | Diffusion and OCR |
+| Vi Tran | CloudOps Engineer, VIB | Agentic AIOps on AWS: Inside AWS DevOps Agent |
+| Ngoc Tran | Service Delivery Engineer Intern, Accenture | From Local to Global: Migrating a GenAI Product to AWS |
+| Xuan Le & Nghi Danh | Data Analytics & Insights, AI Engineer (Renova Cloud) | Agentic Decision Intelligence on AWS |
+| Bao Huynh | Cloud Native Developer, Endava Viet Nam | AWS Principles Beyond AWS: How AWS Knowledge Transfers to Cloud-Native Roles |
+
 ### Main Content
 
 On the morning of August 22, 2026, I attended FCAJ Community Day August at Bitexco Financial Tower. The event focused on AWS, Serverless, database optimization, Generative AI, Agentic AI, and Cloud Operations. Here's what I learned from the sessions:

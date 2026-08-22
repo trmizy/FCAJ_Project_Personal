@@ -27,6 +27,20 @@ pre: " <b> 4.1. </b> "
 
 Người tham dự (Attendee)
 
+### Diễn giả và chủ đề chính
+
+Dưới đây là danh sách diễn giả và chủ đề được trình bày tại sự kiện:
+
+| Diễn giả | Tổ chức / Vai trò | Chủ đề trình bày |
+|---|---|---|
+| Kiệt Lam | Senior Developer Engineer, FPT Software | Development Application with AWS Serverless |
+| Kiệt Nguyen & Việt Lý | Software Engineer (VPBank), DevOps (VPBank) | Optimizing Database Cost & Performance with Data Archiving Strategies |
+| Long Huynh | Senior Solutions Architect, eCloudvalley | Diffusion and OCR |
+| Vi Tran | CloudOps Engineer, VIB | Agentic AIOps on AWS: Inside AWS DevOps Agent |
+| Ngoc Tran | Service Delivery Engineer Intern, Accenture | From Local to Global: Migrating a GenAI Product to AWS |
+| Xuan Le & Nghi Danh | Data Analytics & Insights, AI Engineer (Renova Cloud) | Agentic Decision Intelligence on AWS |
+| Bao Huynh | Cloud Native Developer, Endava Viet Nam | AWS Principles Beyond AWS: How AWS Knowledge Transfers to Cloud-Native Roles |
+
 ### Nội dung chính
 
 Sáng ngày 22/08/2026, mình tham gia FCAJ Community Day August tại Bitexco Financial Tower. Sự kiện tập trung vào các chủ đề AWS, Serverless, database optimization, Generative AI, Agentic AI và Cloud Operations. Dưới đây là những gì mình học được từ các session:
