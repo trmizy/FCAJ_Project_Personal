@@ -245,6 +245,9 @@ Sessions particularly relevant to the project include:
 **Official event page:**  
 [FCAJ Community Day August – Luma](https://luma.com/m8h7l900)
 
+**Registration ticket:**  
+[My Event Ticket](https://luma.com/e/ticket/evt-c2ShqHj9N1WwOTN?pk=g-pw3kjKE8DqhuRjD)
+
 **Key information:**
 - **Host:** Huỳnh Hoàng Long
 - **Time:** Saturday, August 22, 2026 - 9:00 AM to 12:00 PM
