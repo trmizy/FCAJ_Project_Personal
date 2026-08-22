@@ -1,0 +1,42 @@
+# Reference example only — adapt the actual filter/package name and build
+# script to match the real service's package.json before using this.
+# Mirrors the multi-stage pattern already used by auth-service / ai-service /
+# fitness-service in the fitness-assistant source repository.
+
+# ---- base ----
+FROM node:20-alpine AS base
+RUN corepack enable
+WORKDIR /app
+
+# ---- deps ----
+FROM base AS deps
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY backend/shared/package.json backend/shared/package.json
+COPY backend/services/<SERVICE_NAME>/package.json backend/services/<SERVICE_NAME>/package.json
+RUN pnpm install --frozen-lockfile --filter @gym-coach/<SERVICE_NAME>...
+
+# ---- builder ----
+FROM deps AS builder
+COPY backend/shared backend/shared
+COPY backend/services/<SERVICE_NAME> backend/services/<SERVICE_NAME>
+RUN pnpm --filter @gym-coach/shared build
+RUN pnpm --filter @gym-coach/<SERVICE_NAME> exec prisma generate
+RUN pnpm --filter @gym-coach/<SERVICE_NAME> build
+
+# ---- runner ----
+FROM node:20-alpine AS runner
+RUN apk add --no-cache wget
+ENV NODE_ENV=production
+WORKDIR /app
+COPY --from=builder /app/backend/services/<SERVICE_NAME>/dist ./dist
+COPY --from=builder /app/backend/services/<SERVICE_NAME>/node_modules ./node_modules
+COPY --from=builder /app/backend/services/<SERVICE_NAME>/prisma ./prisma
+
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost:3000/health || exit 1
+
+# NOTE: verify per-service whether `prisma migrate deploy` should run here.
+# auth-service and ai-service run it automatically at startup; user-service
+# does not (see content/5-Workshop/5.7-RDS-PostgreSQL/). Do not assume.
+CMD ["node", "dist/server.js"]
