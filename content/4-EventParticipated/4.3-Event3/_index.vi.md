@@ -4,19 +4,12 @@ date: 2026-07-15
 weight: 3
 chapter: false
 pre: " <b> 4.3. </b> "
+draft: true
 ---
 
-{{% notice warning %}}
-Toàn bộ trang này là placeholder. Không tự bịa tên sự kiện, ngày tháng, hay link bằng chứng — chỉ điền thông tin đã được xác minh sau khi thực sự tham gia.
+{{% notice info %}}
+Trang này đang được phát triển và sẽ được cập nhật sau khi tham gia sự kiện tiếp theo.
 {{% /notice %}}
-
-### Tên sự kiện
-
-[TODO_EVENT_NAME]
-
-### Thời gian
-
-[TODO_EVENT_DATE]
 
 ### Địa điểm / Hình thức
 

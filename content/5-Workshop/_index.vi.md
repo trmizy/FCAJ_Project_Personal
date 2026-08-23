@@ -4,20 +4,14 @@ date: 2026-07-15
 weight: 5
 chapter: false
 pre: " <b> 5. </b> "
+draft: true
 ---
 
 # Workshop — Triển khai Fitness Assistant trên AWS
 
-{{% notice warning %}}
-Workshop này ghi lại một quá trình triển khai **đã lên kế hoạch và thực hiện một phần**. Các bước được viết để có thể làm theo và tái hiện; bất kỳ bước nào chưa được xác minh trên tài khoản AWS thật đều được đánh dấu `TODO` trong mục đó. Không xem một bước chưa đánh dấu là "đã hoàn thành" mà không kiểm tra mục Bằng chứng của bước đó.
+{{% notice info %}}
+Trang Workshop đang được phát triển. Nội dung sẽ được cập nhật khi quá trình triển khai hệ thống được hoàn thiện.
 {{% /notice %}}
-
-Đây là workshop kỹ thuật chính của đợt thực tập: lấy ứng dụng mã nguồn mở [Fitness Assistant](https://github.com/trmizy/fitness-assistant) có sẵn và triển khai một phiên bản MVP của nó trên AWS, từ đầu đến cuối — từ chạy local, đóng gói container cho production, thiết kế mạng, di chuyển database, compute, lưu trữ, bảo mật, giám sát, kiểm thử và dọn dẹp.
-
-### Nội dung
-
-1. [5.1 Overview](5.1-Overview/)
-2. [5.2 Architecture](5.2-Architecture/)
 3. [5.3 Prerequisites](5.3-Prerequisites/)
 4. [5.4 Run Local](5.4-Run-Local/)
 5. [5.5 Production Containers](5.5-Production-Containers/)

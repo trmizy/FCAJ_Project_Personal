@@ -4,20 +4,14 @@ date: 2026-07-15
 weight: 5
 chapter: false
 pre: " <b> 5. </b> "
+draft: true
 ---
 
 # Workshop — Deploying Fitness Assistant on AWS
 
-{{% notice warning %}}
-This Workshop documents a **planned and partially executed** deployment. Steps are written so they can be followed and reproduced; any step not yet verified against a real AWS account is marked `TODO` in that section. Do not read an unmarked step as "already done" without checking its Evidence subsection.
+{{% notice info %}}
+Workshop page is under development. Content will be updated as system deployment is finalized.
 {{% /notice %}}
-
-This is the main technical workshop of the internship: taking the existing, open-source [Fitness Assistant](https://github.com/trmizy/fitness-assistant) application and deploying a minimum viable version of it on AWS, end to end — from running it locally, to containerizing it for production, to networking, database migration, compute, storage, security, monitoring, testing and clean-up.
-
-### Content
-
-1. [5.1 Overview](5.1-Overview/)
-2. [5.2 Architecture](5.2-Architecture/)
 3. [5.3 Prerequisites](5.3-Prerequisites/)
 4. [5.4 Run Local](5.4-Run-Local/)
 5. [5.5 Production Containers](5.5-Production-Containers/)
