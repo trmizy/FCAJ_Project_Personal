@@ -6,249 +6,201 @@ chapter: false
 pre: " <b> 4.1. </b> "
 ---
 
-### Tên sự kiện
+# FCAJ COMMUNITY DAY AUGUST
 
-**FCAJ Community Day August**
+## Báo cáo sự kiện FCAJ Community Day August
 
-### Thời gian
+### 1. Mục tiêu của sự kiện
 
-**Thứ Bảy, 22/08/2026**
-- 08:00 – 09:00: Check-in
-- 09:00 – 12:00: Technical sessions
+FCAJ Community Day August được tổ chức nhằm mang đến không gian chia sẻ kiến thức thực chiến về AWS, Serverless Computing, database optimization, Generative AI và Cloud Operations cho cộng đồng developers và cloud engineers.
 
-### Địa điểm / Hình thức
+Sự kiện tập trung vào các chủ đề kỹ thuật nóng như kiến trúc Serverless, tối ưu hóa cost và performance cho database, Agentic AI, AIOps, và cách migrate GenAI workload lên AWS. Thông qua những trải nghiệm thực tế từ các diễn giả đang làm việc tại các công ty công nghệ và ngân hàng, người tham dự được trang bị kiến thức và best practices để áp dụng vào dự án thực tế.
 
-**Bitexco Financial Tower**  
-2 Đ. Hải Triều, Sài Gòn, Hồ Chí Minh, Việt Nam
+### 2. Thông tin chung
 
-**Hình thức:** Tham gia trực tiếp (In-person)
+- **Tên sự kiện:** FCAJ Community Day August
+- **Thời gian:** Thứ Bảy, 22/08/2026 (08:00-09:00 Check-in, 09:00-12:00 Technical sessions)
+- **Địa điểm:** Bitexco Financial Tower, 2 Đ. Hải Triều, Sài Gòn, Hồ Chí Minh
+- **Vai trò:** Người tham dự
+- **Đơn vị tổ chức / Hỗ trợ:** First Cloud AI Journey Community & AWS
+- **Hình thức:** Tham gia trực tiếp (In-person)
 
-### Vai trò
+### 3. Diễn giả và chủ đề chính
 
-Người tham dự (Attendee)
-
-### Diễn giả và chủ đề chính
-
-Dưới đây là danh sách diễn giả và chủ đề được trình bày tại sự kiện:
+Dưới đây là danh sách các diễn giả và chủ đề đã được trình bày tại sự kiện:
 
 | Diễn giả | Tổ chức / Vai trò | Chủ đề trình bày |
 |---|---|---|
-| Kiệt Lam | Senior Developer Engineer, FPT Software | Development Application with AWS Serverless |
-| Kiệt Nguyen & Việt Lý | Software Engineer (VPBank), DevOps (VPBank) | Optimizing Database Cost & Performance with Data Archiving Strategies |
+| Kiet Lam | Senior Developer Engineer, FPT Software | Development Application with AWS Serverless |
+| Kiet Nguyen & Viet Ly | Software Engineer & DevOps, VPBank | Optimizing Database Cost & Performance with Data Archiving Strategies |
 | Long Huynh | Senior Solutions Architect, eCloudvalley | Diffusion and OCR |
 | Vi Tran | CloudOps Engineer, VIB | Agentic AIOps on AWS: Inside AWS DevOps Agent |
 | Ngoc Tran | Service Delivery Engineer Intern, Accenture | From Local to Global: Migrating a GenAI Product to AWS |
 | Xuan Le & Nghi Danh | Data Analytics & Insights, AI Engineer (Renova Cloud) | Agentic Decision Intelligence on AWS |
-| Bao Huynh | Cloud Native Developer, Endava Viet Nam | AWS Principles Beyond AWS: How AWS Knowledge Transfers to Cloud-Native Roles |
+| Bao Huynh | Cloud Native Developer, Endava Viet Nam | AWS Principles Beyond AWS |
 
-### Nội dung chính
+### 4. Nội dung chi tiết đã học được
 
-Sáng ngày 22/08/2026, mình tham gia FCAJ Community Day August tại Bitexco Financial Tower. Sự kiện tập trung vào các chủ đề AWS, Serverless, database optimization, Generative AI, Agentic AI và Cloud Operations. Dưới đây là những gì mình học được từ các session:
+#### Development Application with AWS Serverless
 
-#### 1. Development Application with AWS Serverless
+Phần chia sẻ từ Kiet Lam mang lại góc nhìn thực tế về Serverless Computing và so sánh cách phát triển ứng dụng truyền thống với Serverless. 
 
-Session này giới thiệu về Serverless Computing và so sánh cách phát triển ứng dụng truyền thống với Serverless. Phần demo cho thấy các AWS Serverless application patterns thực tế.
-
-**Điểm đáng chú ý:**
-- Serverless không có nghĩa là không có server, mà là developer không cần quản lý server.
-- Các lợi ích về scaling tự động và pay-per-use.
-- Trade-offs cần xem xét: cold start, execution time limits, stateless design.
-
-**Liên hệ với Fitness Assistant:**  
-Serverless cho mình thêm góc nhìn về cách một số workload có thể được tách khỏi backend chạy liên tục. Ví dụ như các tác vụ event-driven (gửi notification, xử lý ảnh, tính toán nutrition) hoặc scheduled tasks (tổng hợp thống kê hàng ngày) có thể cân nhắc sử dụng AWS Lambda thay vì phải chạy service 24/7.
-
-#### 2. Optimizing Database Cost & Performance with Data Archiving Strategies
-
-Session này đi sâu vào vấn đề database growth và operational challenges khi dữ liệu ngày càng lớn. Nội dung bao gồm data archiving architecture, initial data load design, daily incremental archiving, và cost optimization techniques.
-
-**Điểm đáng chú ý:**
-- Không phải tất cả dữ liệu đều cần truy cập với performance cao.
-- Data lifecycle và retention policy cần được thiết kế từ đầu.
-- Cost optimization bằng cách tách hot data và cold data.
+**Những điểm cốt lõi:**
+- **Serverless không có nghĩa là không có server**, mà là developers không cần quản lý infrastructure. AWS Lambda tự động scale based on demand.
+- **Benefits:** Pay-per-use pricing model, automatic scaling, reduced operational overhead.
+- **Trade-offs cần lưu ý:** Cold start latency, execution time limits (15 phút cho Lambda), stateless design requirement.
+- **AWS Serverless application patterns:** Event-driven architecture với Lambda, API Gateway, DynamoDB, S3, EventBridge.
 
 **Liên hệ với Fitness Assistant:**  
-Project Fitness Assistant có khả năng phát sinh nhiều dữ liệu theo thời gian như lịch sử cân nặng, InBody measurements, workout logs, nutrition logs và activity history. Từ session này, mình hiểu rằng khi lượng dữ liệu tăng lên thì không nên chỉ nghĩ đến việc scale database hiện tại mà còn cần xem xét:
-- Dữ liệu nào cần truy cập thường xuyên (recent workouts, current stats)
-- Dữ liệu nào có thể archive (historical data từ 1-2 năm trước)
-- Retention policy và storage cost
-- Query performance optimization
+Session này giúp mình nhận ra không phải mọi workload đều cần chạy 24/7. Các tác vụ như gửi notification sau workout, xử lý ảnh nutrition label, tính toán daily statistics có thể sử dụng Lambda thay vì dedicated service, giúp giảm cost đáng kể.
 
-Đây là hướng cần nghiên cứu thêm khi hệ thống phát triển.
+#### Optimizing Database Cost & Performance with Data Archiving Strategies
 
-#### 3. Diffusion and OCR
+Kiet Nguyen và Viet Ly từ VPBank chia sẻ kinh nghiệm thực tế về database growth challenges và data archiving architecture.
 
-Session về AWS services cho Text-to-Image generation và Image-to-Text extraction. Phần demo cho thấy các real-world use cases trong việc xử lý và phân tích hình ảnh.
-
-**Điểm đáng chú ý:**
-- Amazon Textract cho OCR.
-- Amazon Rekognition cho image analysis.
-- Integration với các AI services khác.
+**Những điểm quan trọng:**
+- **Database growth challenge:** Khi dữ liệu tăng từ GB lên TB, query performance giảm và storage cost tăng exponentially.
+- **Hot data vs Cold data:** Không phải tất cả dữ liệu đều cần access với performance cao. Hot data (recent 3-6 months) cần fast access, cold data có thể archive.
+- **Archiving strategies:** 
+  - Initial data load design: Bulk export historical data
+  - Daily incremental archiving: Automated jobs chạy hàng ngày
+  - Storage tiers: RDS → S3 Standard → S3 Glacier
+- **Cost optimization:** VPBank giảm được 60% database cost sau khi implement archiving strategy.
 
 **Liên hệ với Fitness Assistant:**  
-Session này giúp mình suy nghĩ thêm về các khả năng AI trong tương lai cho Fitness Assistant. Ví dụ như OCR có thể hữu ích khi người dùng chụp ảnh nutrition label để tự động extract thông tin dinh dưỡng, hoặc phân tích hình ảnh để đánh giá posture trong workout. Tuy nhiên đây là hướng mở rộng trong tương lai, hiện tại project chưa có chức năng này.
+Project có các loại dữ liệu sẽ tăng nhanh theo thời gian như workout logs, nutrition tracking, InBody measurements. Từ session này, mình hiểu cần thiết kế data lifecycle từ đầu: dữ liệu gần đây (3 months) query từ RDS, data cũ hơn archive sang S3, và implement retention policy để control cost khi scale.
 
-#### 4. Agentic AIOps on AWS: Inside AWS DevOps Agent
+#### Diffusion and OCR với AWS AI Services
 
-Đây là một trong những session quan trọng nhất đối với quá trình thực tập của mình. Nội dung bao gồm AWS DevOps Agent, operational challenges, incident troubleshooting, investigation workflow, architecture overview và security boundaries.
+Long Huynh giới thiệu AWS services cho Text-to-Image và Image-to-Text, tập trung vào Amazon Textract và Rekognition.
 
-**Điểm đáng chú ý:**
-- Agent tự động phân tích logs và metrics để tạo hypothesis.
-- Thu thập evidence từ nhiều nguồn (CloudWatch, X-Ray, logs).
-- Đưa ra recommendation dựa trên context.
-- Security boundaries và controlled automation.
-- MCP (Model Context Protocol) extensibility.
+**Use cases thực tế:**
+- **OCR cho documents:** Textract extract thông tin từ forms, invoices, receipts với accuracy cao.
+- **Image analysis:** Rekognition detect objects, text in images, facial recognition.
+- **Integration patterns:** S3 trigger → Lambda → Textract/Rekognition → Store results to DynamoDB.
+
+**Liên hệ với Fitness Assistant:**  
+OCR có thể hữu ích khi user chụp ảnh nutrition label để tự động extract calories, protein, carbs. Hoặc analyze workout posture từ ảnh/video. Tuy nhiên đây là future expansion, hiện tại chưa implement.
+
+#### Agentic AIOps on AWS: Inside AWS DevOps Agent
+
+Vi Tran trình bày về AWS DevOps Agent - một trong những session quan trọng nhất liên quan trực tiếp đến operational aspects của Fitness Assistant.
+
+**Core concepts:**
+- **Operational challenges:** Khi deploy microservices, debugging trở nên phức tạp. Service nào đang có vấn đề? Root cause là gì?
+- **Investigation workflow:** Agent tự động analyze logs từ CloudWatch, gather evidence từ X-Ray traces/metrics, form hypothesis về root cause, generate recommendation.
+- **Security boundaries:** Agent chỉ có controlled access, không thể execute destructive actions without approval.
+- **MCP extensibility:** Có thể extend agent với custom tools và knowledge base.
 
 **Liên hệ trực tiếp với Fitness Assistant:**  
-Trong quá trình deploy một hệ thống gồm nhiều service như Fitness Assistant, không chỉ quan tâm đến việc application chạy được mà còn phải quan tâm tới:
-- Monitoring: service nào đang có vấn đề?
-- Logs: lỗi xảy ra ở đâu trong flow?
-- Incident investigation: tại sao service A không connect được service B?
-- Root cause analysis: vấn đề do network, security group, hay application logic?
-- Security boundary: đảm bảo automated action không gây ra rủi ro.
-- Observability: có đủ thông tin để troubleshoot không?
+Khi deploy nhiều services (frontend, gateway, auth-service, user-service, fitness-service, ai-service), việc troubleshoot trở nên phức tạp. Session này cho thấy importance của observability stack: CloudWatch cho logs/metrics, X-Ray cho distributed tracing, và có thể leverage AI agent để assist troubleshooting.
 
-Session này liên hệ trực tiếp với phần mình đang tìm hiểu về Amazon CloudWatch và monitoring trong quá trình thực tập. Mình nhận ra rằng một hệ thống production tốt cần có khả năng tự quan sát và hỗ trợ troubleshooting hiệu quả.
+#### From Local to Global: Migrating a GenAI Product to AWS
 
-#### 5. From Local to Global: Migrating a GenAI Product to AWS
+Ngoc Tran chia sẻ real-world experience migrate GenAI product, đặc biệt relevant vì Fitness Assistant có ai-service.
 
-Session này đặc biệt liên quan đến Fitness Assistant vì project có AI service. Nội dung bao gồm challenges khi migrate GenAI product, chuyển từ Azure OpenAI sang Amazon Bedrock, Agentic AI systems, guardrails, evaluation frameworks và operational governance.
+**Migration journey:**
+- **Challenge:** Di chuyển từ Azure OpenAI sang AWS ecosystem
+- **Key considerations:** Model availability (GPT-4, Claude trên Bedrock), latency requirements, cost comparison, data residency và compliance
 
-**Điểm đáng chú ý:**
-- Một hệ thống AI production không chỉ là gọi model API.
-- Cần có guardrails để kiểm soát output.
-- Evaluation framework để đánh giá quality.
-- Operational governance cho security và compliance.
-- Migration considerations về cost, latency, model availability.
+**Guardrails & Governance:**
+- Input validation (toxic content filtering)
+- Output validation (factual accuracy, hallucination detection)
+- PII detection and redaction
+- Cost monitoring và rate limiting
+- Audit logging cho compliance
 
 **Liên hệ với Fitness Assistant:**  
-Điều này đặc biệt có ý nghĩa vì project đang có ai-service. Session giúp mình hiểu rằng khi đưa AI workload lên AWS, cần quan tâm tới:
-- Model integration architecture
-- Security và data privacy
-- Guardrails để đảm bảo AI responses phù hợp
-- Evaluation để đảm bảo quality
-- Monitoring AI performance
-- Governance và compliance
-- Scalability và operational cost
+AI service hiện đang integrate với external LLM APIs. Session này cho thấy để production-ready, cần implement guardrails (ensure AI không generate harmful workout advice), evaluation (đảm bảo AI recommendations accurate và safe), monitoring (track AI performance, cost, errors). Consider Amazon Bedrock as future option cho centralized AI infrastructure.
 
-Session cho mình thêm góc nhìn về Amazon Bedrock như một hướng đáng cân nhắc trong tương lai khi mở rộng AI capabilities của Fitness Assistant. Tuy nhiên hiện tại project chưa migrate sang Bedrock.
+#### Agentic Decision Intelligence on AWS
 
-#### 6. Agentic Decision Intelligence on AWS
+Xuan Le và Nghi Danh giới thiệu về AI Agent hỗ trợ business decision-making, khác với traditional chatbot.
 
-Session này giới thiệu về Agentic Decision Intelligence và cách AI Agent hỗ trợ business decision-making. Nội dung bao gồm intelligent decision workflows, banking use cases và Amazon QuickSight.
-
-**Điểm đáng chú ý:**
-- AI Agent không chỉ là chatbot trả lời câu hỏi.
-- Agent có thể thu thập context, phân tích dữ liệu và hỗ trợ quyết định.
-- Workflow dựa trên rule và dữ liệu thực tế.
-- Chuyển dữ liệu thành business insight.
+**Core concepts:**
+- **Traditional Chatbot:** User hỏi → Bot trả lời (reactive)
+- **Agentic AI:** Agent proactively analyze context → Generate insights → Suggest actions (proactive)
 
 **Liên hệ với Fitness Assistant:**  
-Session này mở rộng cách mình nghĩ về AI trong Fitness Assistant. AI Agent có thể:
-- Thu thập context về người dùng (workout history, nutrition, health metrics)
-- Phân tích patterns và trends
-- Đưa ra personalized recommendations dựa trên dữ liệu thực tế
-- Điều chỉnh workout plan dựa trên progress
+AI Fitness Assistant có thể evolve từ simple Q&A bot thành intelligent agent: collect workout history/nutrition logs/health metrics, analyze patterns ("User tends to skip leg day"), generate personalized recommendations, auto-adjust workout plan based on progress.
 
-Đây là hướng phát triển thú vị cho AI Fitness Assistant trong tương lai - không chỉ trả lời câu hỏi mà còn chủ động phân tích và đưa ra recommendations dựa trên profile của từng người dùng.
+#### AWS Principles Beyond AWS
 
-#### 7. AWS Principles Beyond AWS: How AWS Knowledge Transfers to Cloud-Native Roles
+Bao Huynh kết thúc sự kiện với message về cloud-native thinking không limited to AWS.
 
-Session cuối cùng nói về việc kiến thức AWS không chỉ giới hạn trong việc sử dụng AWS services. Nội dung bao gồm operational principles, release management, incident recovery, security operations và cloud-native skills.
-
-**Điểm đáng chú ý:**
-- AWS knowledge là foundation cho cloud-native thinking.
-- Các principles như automation, infrastructure as code, monitoring, security áp dụng được cho nhiều platform.
-- Skills transferable across cloud providers.
+**Core principles transferable across platforms:**
+- Infrastructure as Code, Automation, Observability
+- Security best practices, Cost optimization
+- Resilience patterns (Multi-AZ, backup, disaster recovery)
 
 **Liên hệ với quá trình thực tập:**  
-Qua quá trình học AWS trong kỳ thực tập, mình nhận ra điều quan trọng không chỉ là nhớ tên service mà còn hiểu:
-- Hệ thống distributed hoạt động như thế nào
-- Security best practices
-- Scalability và high availability
-- Monitoring và observability
-- Deployment strategies
-- Cost optimization
-- Troubleshooting methodology
+Session này remind rằng mục tiêu không phải memorize AWS service names, mà là understand distributed systems architecture, practice operational excellence, learn cost optimization mindset, build observability culture.
 
-Những nguyên tắc này có giá trị lâu dài, không chỉ giới hạn trong AWS.
+### 5. Kiến thức và kỹ năng rút ra
 
-### Hình ảnh / Video
+- **Serverless architecture** là viable option cho event-driven workloads. Cần evaluate trade-offs (cold start vs cost savings) trước khi decide.
 
-**Ảnh 1: Technical session với Architecture Overview**
+- **Data lifecycle management** cần thiết kế từ đầu. Không thể chỉ nghĩ về "lưu data" mà phải plan cho growth: hot/cold data separation, archiving strategy, retention policy.
+
+- **AI production system** phức tạp hơn nhiều so với AI prototype. Cần guardrails, evaluation framework, monitoring, security, governance.
+
+- **Observability is mandatory** cho microservices architecture. CloudWatch logs/metrics, X-Ray tracing, và có thể leverage AI agents for automated troubleshooting.
+
+- **Agentic AI** represents evolution from reactive chatbots to proactive intelligent assistants.
+
+- **Cloud-native principles transferable** across platforms. Focus on learning architectural patterns và operational practices.
+
+- **Operational maturity** quan trọng không kém technical implementation.
+
+### 6. Ứng dụng sau sự kiện
+
+Sau FCAJ Community Day August, mình sẽ apply những insights vào Fitness Assistant project:
+
+**Ngắn hạn (1-2 tuần):**
+- Review Fitness Assistant architecture để identify workloads có thể convert sang Serverless (notification service, image processing, daily stats aggregation).
+- Design data lifecycle cho workout logs và nutrition tracking: define hot/cold data boundary, plan archiving strategy.
+- Implement comprehensive CloudWatch monitoring cho tất cả services: structured logging, custom metrics, alarms.
+- Research Amazon Bedrock capabilities và compare với current LLM integration approach.
+
+**Trung hạn (1-2 tháng):**
+- Implement basic data archiving: automated job move old workout data (>6 months) từ RDS sang S3.
+- Add X-Ray tracing để better understand request flow across microservices.
+- Develop evaluation framework cho AI service: accuracy metrics, response time, cost per request.
+- Prototype guardrails cho AI fitness recommendations.
+
+**Dài hạn (3-6 tháng):**
+- Migrate appropriate workloads sang Lambda để optimize cost (estimate potential 30-40% reduction).
+- Enhance AI agent capabilities: từ Q&A bot evolve thành proactive fitness coach.
+- Implement full observability stack với automated alerting.
+- Explore Bedrock Agents cho unified AI orchestration.
+
+**Mindset changes:**
+- **"Go Build" mentality:** Start implementing và iterate quickly thay vì wait for perfect design.
+- **Think in systems:** Consider full lifecycle: deployment, monitoring, scaling, cost, security.
+- **Operational excellence:** Architecture tốt là insufficient. Cần invest vào monitoring, automation, documentation.
+- **Cost-conscious development:** Evaluate cost implications của technical decisions.
+
+### 7. Hình ảnh tham dự
+
 ![Technical session](/images/events/fcaj-aug-2026-1.jpg)
 *Theo dõi phần trình bày về kiến trúc AWS tại FCAJ Community Day August*
 
-**Ảnh 2: Tham dự sự kiện tại AWS Office**
-![Selfie tại AWS Office](/images/events/fcaj-aug-2026-2.jpg)
+![Check-in tại sự kiện](/images/events/fcaj-aug-2026-2.jpg)
 *Check-in tại FCAJ Community Day August - Bitexco Financial Tower*
 
-**Ảnh 3: Session về Pipeline và Release Management**
-![Pipeline session](/images/events/fcaj-aug-2026-3.jpg)
+![Session về Pipeline](/images/events/fcaj-aug-2026-3.jpg)
 *Session về incident troubleshooting và investigation workflows*
 
-**Ảnh 4: Demo Serverless Application Structure**
-![Serverless demo](/images/events/fcaj-aug-2026-4.jpg)
+![Demo Serverless](/images/events/fcaj-aug-2026-4.jpg)
 *Demo về cấu trúc serverless application với Lambda function apps*
 
-**Ảnh 5: Development Application with AWS Serverless**
-![Serverless session](/images/events/fcaj-aug-2026-5.jpg)
+![Serverless Computing](/images/events/fcaj-aug-2026-5.jpg)
 *Session giới thiệu về Serverless Computing và application patterns*
 
-### Bài học rút ra
+### 8. Link bằng chứng
 
-Sau khi tham dự FCAJ Community Day August, mình rút ra được những bài học quan trọng:
-
-**1. AWS architecture không chỉ là deploy application**
-
-Một hệ thống production cần đồng thời quan tâm tới compute, database, monitoring, security, cost và scalability. Không thể chỉ focus vào việc "code chạy được" mà bỏ qua operational aspects.
-
-**2. Serverless là kiến trúc đáng cân nhắc cho một số workload**
-
-Không phải workload nào cũng cần một server/service chạy liên tục. Serverless có thể hữu ích với các tác vụ event-driven, scheduled task, background processing và workload không liên tục. Tuy nhiên cần cân nhắc trade-offs về cold start, execution limits và stateless design trước khi áp dụng vào Fitness Assistant.
-
-**3. Database cần được thiết kế cho sự tăng trưởng lâu dài**
-
-Đối với Fitness Assistant, dữ liệu workout, nutrition và InBody measurements có thể tăng rất nhanh theo thời gian và số lượng người dùng. Do đó cần suy nghĩ từ sớm về data lifecycle, retention policy, archiving strategy, performance optimization và cost management.
-
-**4. GenAI production cần nhiều hơn một model**
-
-Từ session migration GenAI, bài học quan trọng là AI production phải có guardrails, evaluation framework, monitoring, security và governance. Không thể chỉ tích hợp model API rồi coi như xong. Cần thiết kế architecture đầy đủ để đảm bảo AI system hoạt động ổn định, an toàn và có chất lượng.
-
-**5. Observability và troubleshooting là bắt buộc**
-
-Session về Agentic AIOps cho thấy giá trị của logs, metrics, evidence-based analysis và root cause investigation. Điều này liên hệ trực tiếp với việc mình đang tìm hiểu CloudWatch cho Fitness Assistant. Một hệ thống tốt cần có khả năng tự quan sát và hỗ trợ developer troubleshoot hiệu quả khi có vấn đề.
-
-**6. AI Agent có thể phát triển xa hơn chatbot**
-
-Agent có thể thu thập context, phân tích dữ liệu và hỗ trợ decision-making thay vì chỉ trả lời câu hỏi. Đây là một hướng nghiên cứu thú vị cho Fitness Assistant trong tương lai - AI có thể chủ động phân tích workout patterns, nutrition trends và health metrics để đưa ra personalized recommendations.
-
-**7. Cloud-native thinking có giá trị lâu dài**
-
-Kiến thức về AWS không chỉ là học cách dùng AWS Console. Các operational principles như automation, infrastructure as code, security, monitoring, cost optimization và troubleshooting methodology là những skills transferable có giá trị lâu dài trong career path cloud-native.
-
-### Đóng góp cá nhân
-
-Mình tham dự trực tiếp FCAJ Community Day August với vai trò người tham dự. Trong suốt sự kiện, mình:
-- Theo dõi đầy đủ các technical sessions từ 09:00 đến 12:00
-- Ghi nhận các kiến thức liên quan đến AWS, Serverless, database optimization, Generative AI, Agentic AI và AIOps
-- Đối chiếu các kiến thức thu được với kiến trúc Fitness Assistant đang thực hiện trong kỳ thực tập
-- Xác định các hướng cần nghiên cứu thêm như Amazon Bedrock, Serverless patterns, data archiving strategies, CloudWatch monitoring và operational best practices
-
-Các session đặc biệt liên quan đến project bao gồm:
-- **Agentic AIOps on AWS** - liên quan trực tiếp đến monitoring và troubleshooting mình đang tìm hiểu
-- **From Local to Global: Migrating a GenAI Product to AWS** - quan trọng vì Fitness Assistant có ai-service
-- **Optimizing Database Cost & Performance** - cần thiết cho việc thiết kế data lifecycle của workout và nutrition data
-- **Development Application with AWS Serverless** - mở rộng góc nhìn về architecture patterns
-
-### Link bằng chứng
-
-**Trang sự kiện chính thức:**  
-[FCAJ Community Day August – Luma](https://luma.com/m8h7l900)
-
-**Vé tham gia của tôi:**  
-[My Event Ticket](https://luma.com/e/ticket/evt-c2ShqHj9N1WwOTN?pk=g-pw3kjKE8DqhuRjD)
-
-**Thông tin chính:**
+- **Trang sự kiện chính thức:** [FCAJ Community Day August – Luma](https://luma.com/m8h7l900)
+- **Vé tham gia của tôi:** [My Event Ticket](https://luma.com/e/ticket/evt-c2ShqHj9N1WwOTN?pk=g-pw3kjKE8DqhuRjD)
 - **Host:** Huỳnh Hoàng Long
 - **Thời gian:** Saturday, August 22, 2026 - 9:00 AM to 12:00 PM
 - **Địa điểm:** Bitexco Financial Tower, Thành phố Hồ Chí Minh
