@@ -4,6 +4,7 @@ date: 2026-07-15
 weight: 6
 chapter: false
 pre: " <b> 1.6. </b> "
+draft: true
 ---
 
 {{% notice note %}}

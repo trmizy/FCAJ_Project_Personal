@@ -4,6 +4,7 @@ date: 2026-07-15
 weight: 2
 chapter: false
 pre: " <b> 3.2. </b> "
+draft: true
 ---
 
 ## Migrating PostgreSQL from Docker to Amazon RDS

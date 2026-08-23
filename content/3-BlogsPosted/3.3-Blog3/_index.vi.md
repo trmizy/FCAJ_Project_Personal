@@ -4,6 +4,7 @@ date: 2026-07-15
 weight: 3
 chapter: false
 pre: " <b> 3.3. </b> "
+draft: true
 ---
 
 ## Giám sát ứng dụng container trên EC2 bằng CloudWatch và SNS

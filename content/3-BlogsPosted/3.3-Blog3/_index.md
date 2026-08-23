@@ -4,6 +4,7 @@ date: 2026-07-15
 weight: 3
 chapter: false
 pre: " <b> 3.3. </b> "
+draft: true
 ---
 
 ## Monitoring an EC2 Container Application with CloudWatch and SNS

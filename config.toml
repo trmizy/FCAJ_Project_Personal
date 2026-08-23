@@ -27,11 +27,11 @@ title = "Cloud-Native AI Fitness Assistant – Internship Report"
 weight = 1
 languageName = "English"
 
-[[Languages.en.menu.shortcuts]]
-name = "<i class='fab fa-github'></i> Fitness Assistant Source Code"
-identifier = "Fitness Assistant Source"
-url = "https://github.com/trmizy/fitness-assistant"
-weight = 20
+# [[Languages.en.menu.shortcuts]]
+# name = "<i class='fab fa-github'></i> Fitness Assistant Source Code"
+# identifier = "Fitness Assistant Source"
+# url = "https://github.com/trmizy/fitness-assistant"
+# weight = 20
 
 [[Languages.en.menu.shortcuts]]
 name = "<i class='fab fa-aws'></i> AWS Study Group - Blog"
@@ -50,11 +50,11 @@ title = "Trợ lý Thể hình AI trên AWS – Báo cáo thực tập"
 weight = 2
 languageName = "Tiếng Việt"
 
-[[Languages.vi.menu.shortcuts]]
-name = "<i class='fab fa-github'></i> Source code Fitness Assistant"
-identifier = "Fitness Assistant Source"
-url = "https://github.com/trmizy/fitness-assistant"
-weight = 20
+# [[Languages.vi.menu.shortcuts]]
+# name = "<i class='fab fa-github'></i> Source code Fitness Assistant"
+# identifier = "Fitness Assistant Source"
+# url = "https://github.com/trmizy/fitness-assistant"
+# weight = 20
 
 [[Languages.vi.menu.shortcuts]]
 name = "<i class='fab fa-aws'></i> AWS Study Group - Blog"
