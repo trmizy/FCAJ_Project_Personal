@@ -5,52 +5,31 @@ weight: 1
 chapter: false
 ---
 
-# Cloud-Native AI Fitness Assistant on AWS
+# INTERNSHIP REPORT
 
-**Internship Report — First Cloud AI Journey (FCAJ)**
+### Student Information:
 
-{{% notice info %}}
-This report documents the design, implementation and evaluation of the **Fitness Assistant** application deployed on AWS, carried out as part of the First Cloud AI Journey internship program. Content marked `TODO` has not yet been verified against a real deployment and must be completed before submission.
-{{% /notice %}}
+**Full Name:** TRAN MINH DUY
 
-### Student Information
+**Phone Number:** +84372246113
 
-&emsp; **Full Name:** TRAN MINH DUY
+**Email:** tranminhduy1902@gmail.com
 
-&emsp; **Phone Number:** +84372246113
+**University:** Ho Chi Minh City University of Industry
 
-&emsp; **Email:** tranminhduy1902@gmail.com
+**Major:** Information System
 
-&emsp; **University:** Đại học Công nghiệp Thành phố Hồ Chí Minh
+**Class:** [TODO_CLASS]
 
-&emsp; **Major:** Information System
+**Internship Company:** Amazon Web Services Vietnam Co., Ltd.
 
-&emsp; **FCAJ Class:** 
+**Internship Position:** Workforce Bootcamp - First Cloud AI Journey
 
-&emsp; **Internship Company:** Amazon Web Services Viet Nam Company Limited
+**Internship Duration:** From 03/08/2026 to [TODO_END_DATE]
 
-&emsp; **Internship Position:** Workforce Bootcamp - First Cloud AI Journey
+![Profile photo](/images/profile/avatar-placeholder.png)
 
-&emsp; **Internship Duration:** 03-08-2026 – [TODO_END_DATE]
-
-&emsp; **GitHub:** [TODO_GITHUB_URL]
-
-&emsp; **LinkedIn:** [TODO_LINKEDIN_URL]
-
-![Avatar placeholder — replace with a real profile photo before submission](/images/profile/avatar-placeholder.png)
-
-*The image above is a placeholder. Replace `static/images/profile/avatar-placeholder.png` with a real photo before submitting this report.*
-
-### About This Internship
-
-The goal of this internship is to design and deploy a cloud-native version of the open-source **Fitness Assistant** application on AWS, covering containerization, networking, database migration, deployment, monitoring and security — and to document every step so the process can be reviewed and reproduced.
-
-- **Project (English):** Cloud-Native AI Fitness Assistant on AWS
-- **Project (Vietnamese):** Xây dựng và triển khai Trợ lý Thể hình AI trên AWS
-- **Application source code:** [trmizy/fitness-assistant](https://github.com/trmizy/fitness-assistant)
-- **This report's repository:** [TODO_GITHUB_URL]
-
-### Report Contents
+### Report Content
 
 1. [Worklog](1-Worklog/)
 2. [Proposal](2-Proposal/)
@@ -59,7 +38,3 @@ The goal of this internship is to design and deploy a cloud-native version of th
 5. [Workshop](5-Workshop/)
 6. [Self-evaluation](6-Self-evaluation/)
 7. [Sharing and Feedback](7-Feedback/)
-
-{{% notice warning %}}
-**Notice:** This report still contains placeholder values (`[TODO_...]`) for personal information, dates, screenshots and evidence that have not yet been produced. All `TODO` items must be filled in with real, verified data before this report is submitted for evaluation.
-{{% /notice %}}

@@ -5,52 +5,31 @@ weight: 1
 chapter: false
 ---
 
-# Trợ lý Thể hình AI trên AWS
+# BÁO CÁO THỰC TẬP
 
-**Báo cáo thực tập — Chương trình First Cloud AI Journey (FCAJ)**
+### Thông tin sinh viên:
 
-{{% notice info %}}
-Báo cáo này ghi lại quá trình thiết kế, triển khai và đánh giá ứng dụng **Fitness Assistant** trên nền tảng AWS, thực hiện trong khuôn khổ chương trình thực tập First Cloud AI Journey. Những nội dung được đánh dấu `TODO` là nội dung chưa có bằng chứng thực tế và cần được bổ sung trước khi nộp báo cáo.
-{{% /notice %}}
+**Họ và tên:** TRẦN MINH DUY
 
-### Thông tin sinh viên
+**Số điện thoại:** +84372246113
 
-&emsp; **Họ và tên:** TRẦN MINH DUY
+**Email:** tranminhduy1902@gmail.com
 
-&emsp; **Số điện thoại:** +84372246113
+**Trường:** Đại học Công nghiệp Thành phố Hồ Chí Minh
 
-&emsp; **Email:** tranminhduy1902@gmail.com
+**Chuyên ngành:** Hệ thống Thông tin
 
-&emsp; **Trường:** Đại học Công nghiệp Thành phố Hồ Chí Minh
+**Lớp:** [TODO_CLASS]
 
-&emsp; **Chuyên ngành:** Hệ thống Thông tin
+**Công ty thực tập:** Công ty TNHH Amazon Web Services Việt Nam
 
-&emsp; **Lớp FCAJ:** [TODO_FCAJ_CLASS]
+**Vị trí thực tập:** Workforce Bootcamp - First Cloud AI Journey
 
-&emsp; **Công ty thực tập:** Công ty TNHH Amazon Web Services Việt Nam
+**Thời gian thực tập:** Từ 03/08/2026 đến [TODO_END_DATE]
 
-&emsp; **Vị trí thực tập:** Workforce Bootcamp - First Cloud AI Journey
+![Ảnh đại diện](/images/profile/avatar-placeholder.png)
 
-&emsp; **Thời gian thực tập:** 03-08-2026 – [TODO_END_DATE]
-
-&emsp; **GitHub:** [TODO_GITHUB_URL]
-
-&emsp; **LinkedIn:** [TODO_LINKEDIN_URL]
-
-![Ảnh đại diện placeholder — cần thay bằng ảnh thật](/images/profile/avatar-placeholder.png)
-
-*Ảnh trên là ảnh placeholder. Hãy thay file `static/images/profile/avatar-placeholder.png` bằng ảnh thật trước khi nộp báo cáo.*
-
-### Giới thiệu về đợt thực tập
-
-Mục tiêu của đợt thực tập này là thiết kế và triển khai phiên bản cloud-native của ứng dụng mã nguồn mở **Fitness Assistant** trên AWS, bao gồm đóng gói container, thiết kế mạng, di chuyển cơ sở dữ liệu, triển khai, giám sát và bảo mật — đồng thời ghi lại toàn bộ quá trình để có thể xem xét và tái hiện lại.
-
-- **Tên project (tiếng Anh):** Cloud-Native AI Fitness Assistant on AWS
-- **Tên project (tiếng Việt):** Xây dựng và triển khai Trợ lý Thể hình AI trên AWS
-- **Source code ứng dụng:** [trmizy/fitness-assistant](https://github.com/trmizy/fitness-assistant)
-- **Repository của báo cáo này:** [TODO_GITHUB_URL]
-
-### Mục lục báo cáo
+### Nội dung báo cáo
 
 1. [Worklog](1-Worklog/)
 2. [Proposal](2-Proposal/)
@@ -59,7 +38,3 @@ Mục tiêu của đợt thực tập này là thiết kế và triển khai phi
 5. [Workshop](5-Workshop/)
 6. [Self-evaluation](6-Self-evaluation/)
 7. [Sharing and Feedback](7-Feedback/)
-
-{{% notice warning %}}
-**Lưu ý:** Báo cáo này vẫn còn chứa các giá trị placeholder (`[TODO_...]`) cho thông tin cá nhân, ngày tháng, screenshot và bằng chứng chưa được thực hiện. Tất cả các mục `TODO` cần được bổ sung bằng dữ liệu thật, đã được xác minh trước khi nộp báo cáo để đánh giá.
-{{% /notice %}}
