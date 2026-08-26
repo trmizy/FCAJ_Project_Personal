@@ -7,64 +7,104 @@ pre: " <b> 1.4. </b> "
 draft: true
 ---
 
-{{% notice note %}}
-Các mốc thời gian trong trang này là placeholder (`[TODO_DATE]`) cho đến khi có lịch thực tập chính thức.
-{{% /notice %}}
+# WORKLOG TUẦN 4
 
-### Mục tiêu tuần
+### Mục tiêu tuần 4:
 
-- Thiết kế bản đề xuất kiến trúc AWS đầu tiên cho MVP, dựa chặt chẽ vào các service đã xác nhận ở Tuần 2–3 (không dựa vào kiến trúc mẫu chung chung).
-- Tạo sơ đồ kiến trúc bằng draw.io.
-- Soạn thảo kế hoạch VPC, subnet và Security Group.
+- Hoàn thành tự học Module 3: Tối ưu hóa hệ thống
+- Tìm hiểu sâu hơn về 3 trụ cột của AWS Well-Architected Framework: Operate, Security và Reliability
+- Áp dụng kiến thức vào việc tối ưu kiến trúc Fitness Assistant
 
-### Công việc đã thực hiện
+### Công việc thực hiện tuần này:
 
-- Xem xét lại cấu trúc thực tế của `fitness-assistant` đã xác nhận trong source: frontend React/Vite, container API gateway ở tầng ứng dụng (`backend/gateway`), và nhiều microservice backend (auth, user, fitness, AI/RAG, cùng với chat/gym/payment có tồn tại trong source nhưng nặng hơn hoặc chưa có Dockerfile production).
-- Quyết định service nào thuộc phạm vi MVP và service nào thuộc phần phát triển tương lai, dựa trên bằng chứng cụ thể (đã có Dockerfile production chưa? có cần thêm hạ tầng như vector database hay LLM tự host không?).
-- Vẽ bản nháp sơ đồ kiến trúc AWS đầu tiên (một EC2 chạy Docker Compose, Amazon RDS for PostgreSQL, Amazon ECR lưu image).
-- Bắt đầu soạn thảo bố cục VPC/subnet/Security Group.
+| Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
+| --- | --- | --- | --- |
+| Học và hoàn thành Module 3: Tối ưu hóa hệ thống | 10-7-2026 | 16-7-2026 | **Operate:** <br>22: https://000022.awsstudygroup.com/ <br>27: https://000027.awsstudygroup.com/ <br>29: https://000029.awsstudygroup.com/ <br>31: https://000031.awsstudygroup.com/ <br>58: https://000058.awsstudygroup.com/ <br>**Security:** <br>18: https://000018.awsstudygroup.com/ <br>26: https://000026.awsstudygroup.com/ <br>30: https://000030.awsstudygroup.com/ <br>33: https://000033.awsstudygroup.com/ <br>44: https://000044.awsstudygroup.com/ <br>**Reliability:** <br>13: https://000013.awsstudygroup.com/ <br>19: https://000019.awsstudygroup.com/ <br>20: https://000020.awsstudygroup.com/ |
 
-### Kết quả đạt được
+### Kết quả đạt được tuần 4:
 
-- Phạm vi MVP đã được ghi lại kèm bằng chứng cụ thể (xem [Proposal](../../2-Proposal/) phiên bản hoàn chỉnh).
-- TODO: Đính kèm sơ đồ draw.io đã export sau khi hoàn thiện.
+**Tổng quan:**
 
-### Khó khăn
+Trong tuần này, mình tập trung vào tối ưu hóa hệ thống (Module 3) thông qua việc khám phá ba trụ cột quan trọng: Operations, Security và Reliability. Mình đã thực hành các giải pháp thực tế để giảm chi phí, theo dõi tập trung, kiểm soát truy cập nghiêm ngặt và xây dựng kiến trúc mạng vững chắc cho Fitness Assistant project.
 
-- Container `backend/gateway` nội bộ của ứng dụng rất dễ bị nhầm với **Amazon API Gateway**; sơ đồ kiến trúc cần thể hiện rõ sự khác biệt này.
-- Service AI phụ thuộc vào một LLM tự host, có yêu cầu CPU/RAM thực tế cần được phản ánh trung thực trong kế hoạch chọn kích thước instance, thay vì giả định instance Free Tier là đủ.
+**Kiến thức lý thuyết học được:**
 
-### Cách giải quyết
+- **Operations (Operate):** Nắm vững cách tối ưu chi phí EC2 instances bằng AWS Lambda, quản lý tài nguyên thông qua Tagging và Resource Groups, giám sát hệ thống với Amazon CloudWatch và visualize với Grafana, quản lý server tập trung dùng AWS Systems Manager.
 
-- Gắn nhãn rõ ràng container gateway của ứng dụng là "Application Gateway (container backend/gateway trên EC2)" trong mọi sơ đồ và tài liệu, chỉ dùng "Amazon API Gateway" cho đúng dịch vụ AWS managed thực sự (hiện MVP này chưa sử dụng).
-- Thêm cảnh báo rõ ràng về kích thước tài nguyên cho service AI/RAG trong ghi chú kiến trúc, sẽ được trình bày chi tiết hơn ở mục [EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/).
+- **Security:** Hiểu sâu hơn về kiểm soát quyền truy cập dùng IAM Permission Boundaries và condition keys. Khám phá phát hiện mối đe dọa với AWS Security Hub, lọc traffic web với AWS WAF, và các chiến lược mã hóa data at rest (AWS KMS).
 
-### Kỹ năng / Dịch vụ AWS đã học
+- **Reliability:** Nghiên cứu kết nối mạng cấp doanh nghiệp sử dụng VPC Peering và AWS Transit Gateway, cùng với tự động hóa data retention dùng AWS Backup.
 
-- Kiến thức nền tảng thiết kế VPC (public/private subnet, route table, Internet Gateway).
-- Cách chuyển đổi cấu trúc ứng dụng dựa trên docker-compose thành sơ đồ mạng AWS.
+**Hands-on labs đã thực hiện:**
 
-### Bằng chứng cần bổ sung
+- **Operate:** 
+  - Cấu hình Lambda function để tự động bật/tắt EC2 instances theo schedule (giảm cost khi dev environment không dùng)
+  - Setup CloudWatch dashboards để monitor metrics của Fitness Assistant services
+  - Apply resource tags cho các services (Environment: dev/prod, Service: auth/user/fitness/ai)
+  - Thử nghiệm Systems Manager Session Manager để access EC2 không cần SSH key
 
-- TODO: Sơ đồ kiến trúc hoàn chỉnh (`/images/workshop/architecture/fitness-assistant-aws-architecture.png` và file `.drawio` có thể tải xuống).
-- TODO: Screenshot bản nháp thiết kế VPC.
+- **Security:**
+  - Implement IAM Permission Boundaries để limit quyền của developer users
+  - Configure Security Groups với least privilege principle (chỉ mở ports cần thiết)
+  - Research AWS WAF rules để protect API endpoints khỏi common attacks (SQL injection, XSS)
+  - Tìm hiểu KMS encryption cho RDS database và S3 buckets (nơi lưu user workout data)
 
-### Bảng theo ngày / task
+- **Reliability:**
+  - Design backup policy cho RDS database dùng AWS Backup (daily snapshots, 7-day retention)
+  - Nghiên cứu multi-AZ deployment cho production environment (đảm bảo high availability)
+  - Evaluate VPC Peering vs Transit Gateway cho future microservices expansion
 
-| Ngày | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
-| --- | --- | --- | --- | --- |
-| 1 | Quyết định phạm vi MVP và phần phát triển tương lai | [TODO_DATE] | [TODO_DATE] | Kết quả Tuần 2–3 |
-| 2 | Soạn thảo sơ đồ kiến trúc AWS | [TODO_DATE] | [TODO_DATE] | draw.io |
-| 3 | Soạn thảo kế hoạch VPC/subnet/Security Group | [TODO_DATE] | [TODO_DATE] | — |
-| 4 | Rà soát bản nháp cùng mentor/checklist tự đánh giá | [TODO_DATE] | [TODO_DATE] | — |
+**Áp dụng vào Fitness Assistant:**
 
-### Checklist hoàn thành
+- Thiết kế cost optimization strategy: schedule để tắt dev environment EC2 ngoài giờ làm việc
+- Plan monitoring stack: CloudWatch Logs cho centralized logging, custom metrics cho API latency/error rate
+- Security hardening checklist: IAM roles với least privilege, Security Groups strict rules, encryption at rest cho sensitive data
+- Backup và disaster recovery plan: automated daily backups, cross-region backup cho production (future)
 
-- [ ] Đã ghi lại phạm vi MVP kèm lý do
-- [ ] Đã tạo bản nháp sơ đồ kiến trúc
-- [ ] Đã soạn thảo kế hoạch VPC/subnet/Security Group
-- [ ] Đã rà soát sơ đồ và kế hoạch
+### Khó khăn gặp phải:
 
-### Liên kết Workshop tương ứng
+- **IAM Permission Boundaries phức tạp:** Khái niệm Permission Boundaries (giới hạn quyền tối đa) vs inline policies khá khó hiểu ban đầu. Mất khá nhiều thời gian để understand use case thực tế.
 
-- [5.2 Architecture](../../5-Workshop/5.2-Architecture/)
+- **Cost optimization trade-offs:** Khi research Lambda-based EC2 scheduling, nhận ra có trade-off giữa cost savings và developer convenience. Tắt dev instances có thể gây inconvenience nếu dev cần work ngoài giờ.
+
+- **Monitoring overhead:** Setup comprehensive monitoring tốn effort ban đầu (define metrics, create dashboards, configure alarms). Cần balance giữa "monitor everything" vs "monitor what matters".
+
+### Cách giải quyết:
+
+- **Permission Boundaries:** Vẽ diagram để visualize relationship giữa identity-based policies, permission boundaries và resource-based policies. Practice với concrete examples trong lab.
+
+- **Cost optimization:** Quyết định implement "on-demand start" mechanism: dev có thể trigger Lambda function để start instances khi cần, instances tự động stop sau 2 giờ idle.
+
+- **Monitoring strategy:** Adopt "start simple, iterate" approach. Week 4 focus vào critical metrics (CPU, memory, disk, API error rate), sẽ expand monitoring dần theo experience.
+
+### Kỹ năng / Dịch vụ AWS đã học:
+
+**Services:**
+- AWS Lambda (event-driven automation)
+- Amazon CloudWatch (logs, metrics, alarms)
+- AWS Systems Manager (Session Manager, Patch Manager)
+- AWS IAM (Permission Boundaries, condition keys)
+- AWS Security Hub (security posture management)
+- AWS WAF (web application firewall)
+- AWS KMS (encryption key management)
+- AWS Backup (automated backup orchestration)
+- VPC Peering và AWS Transit Gateway (network connectivity)
+
+**Skills:**
+- Cost optimization strategies for cloud infrastructure
+- Security best practices (least privilege, defense in depth)
+- Centralized monitoring và observability
+- Infrastructure automation với Lambda
+- Backup và disaster recovery planning
+
+### Liên kết với Fitness Assistant Architecture:
+
+Module 3 insights directly applicable:
+- **Operate:** CloudWatch monitoring cho microservices health checks, Lambda automation cho routine tasks
+- **Security:** IAM roles cho service-to-service communication, WAF protection cho API Gateway, KMS encryption cho user data
+- **Reliability:** Multi-AZ RDS deployment, automated backups, health checks với auto-recovery
+
+### Liên kết Workshop tương ứng:
+
+- [5.2 Architecture](../../5-Workshop/5.2-Architecture/) - Security và network design
+- [5.9 EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/) - Systems Manager usage

@@ -7,64 +7,104 @@ pre: " <b> 1.4. </b> "
 draft: true
 ---
 
-{{% notice note %}}
-Dates in this page are placeholders (`[TODO_DATE]`) until the confirmed internship schedule is available.
-{{% /notice %}}
+# WEEK 4 WORKLOG
 
-### Week Objectives
+### Week 4 Objectives:
 
-- Design a first AWS architecture proposal for the MVP, based strictly on the services confirmed in Week 2–3 (not on a generic template architecture).
-- Produce a draw.io architecture diagram.
-- Draft the VPC, subnet and Security Group plan.
+- Complete self-study of Module 3: Optimizing the system
+- Deepen understanding across the Operate, Security, and Reliability pillars of the AWS Well-Architected Framework
+- Apply knowledge to optimize Fitness Assistant architecture
 
-### Tasks Performed
+### Tasks to be carried out this week:
 
-- Reviewed the actual `fitness-assistant` topology confirmed in source: a React/Vite frontend, an application-level API gateway container (`backend/gateway`), and multiple backend microservices (auth, user, fitness, AI/RAG, plus chat/gym/payment which exist in source but are heavier or lack production Dockerfiles).
-- Decided which services belong in the MVP versus Future Development, based on evidence (does a production Dockerfile exist? does it need extra infrastructure such as a vector database or a self-hosted LLM?).
-- Drew a first-draft AWS architecture diagram (single EC2 host running Docker Compose, Amazon RDS for PostgreSQL, Amazon ECR for images).
-- Started drafting the VPC/subnet/Security Group layout.
+| Task | Start Date | Completion Date | Reference Materials |
+| --- | --- | --- | --- |
+| Study and complete Module 3: Optimizing the system | 10-7-2026 | 16-7-2026 | **Operate:** <br>22: https://000022.awsstudygroup.com/ <br>27: https://000027.awsstudygroup.com/ <br>29: https://000029.awsstudygroup.com/ <br>31: https://000031.awsstudygroup.com/ <br>58: https://000058.awsstudygroup.com/ <br>**Security:** <br>18: https://000018.awsstudygroup.com/ <br>26: https://000026.awsstudygroup.com/ <br>30: https://000030.awsstudygroup.com/ <br>33: https://000033.awsstudygroup.com/ <br>44: https://000044.awsstudygroup.com/ <br>**Reliability:** <br>13: https://000013.awsstudygroup.com/ <br>19: https://000019.awsstudygroup.com/ <br>20: https://000020.awsstudygroup.com/ |
 
-### Results Achieved
+### Week 4 Achievements:
 
-- A documented, evidence-based MVP scope (see [Proposal](../../2-Proposal/) for the finalized version).
-- TODO: Attach the exported draw.io diagram once finalized.
+**Overview:**
 
-### Difficulties
+During this week, I focused on system optimization (Module 3) by exploring three crucial pillars: Operations, Security, and Reliability. I implemented practical solutions for cost reduction, centralized monitoring, strict access controls, and robust network architectures for the Fitness Assistant project.
 
-- The application's own internal `backend/gateway` container is easy to confuse with **Amazon API Gateway**; the architecture diagram had to make this distinction explicit.
-- The AI service depends on a self-hosted LLM runtime, which has real CPU/RAM requirements that must be reflected honestly in the instance-sizing plan rather than assuming a Free Tier instance is sufficient.
+**Learned theory:**
 
-### How It Was Resolved
+- **Operations (Operate):** Mastered programmatic cost optimization for EC2 instances using AWS Lambda, resource management through Tagging and Resource Groups, system monitoring with Amazon CloudWatch and visualization with Grafana, and centralized server management utilizing AWS Systems Manager.
 
-- Labeled the application gateway container explicitly as "Application Gateway (backend/gateway container on EC2)" in every diagram and document, reserving "Amazon API Gateway" only for the actual AWS managed service (currently not used by this MVP).
-- Added an explicit sizing warning for the AI/RAG service in the architecture notes, to be elaborated in the [EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/) workshop section.
+- **Security:** Deepened my understanding of access restrictions using IAM Permission Boundaries and condition keys. Explored threat detection with AWS Security Hub, web traffic filtering with AWS WAF, and data encryption strategies at rest (AWS KMS).
 
-### AWS Skills / Services Learned
+- **Reliability:** Studied enterprise-grade network interconnectivity using VPC Peering and AWS Transit Gateway, alongside automated data retention utilizing AWS Backup.
 
-- VPC design fundamentals (public/private subnets, route tables, Internet Gateway).
-- How to translate a docker-compose based application topology into an AWS network diagram.
+**Hands-on labs:**
 
-### Evidence Still Required
+- **Operate:**
+  - Configured Lambda function to automatically start/stop EC2 instances on schedule (reduce costs when dev environment not in use)
+  - Set up CloudWatch dashboards to monitor Fitness Assistant services metrics
+  - Applied resource tags for services (Environment: dev/prod, Service: auth/user/fitness/ai)
+  - Tested Systems Manager Session Manager for EC2 access without SSH keys
 
-- TODO: Final architecture diagram (`/images/workshop/architecture/fitness-assistant-aws-architecture.png` and the downloadable `.drawio` source).
-- TODO: Screenshot of the VPC design whiteboarding/draft.
+- **Security:**
+  - Implemented IAM Permission Boundaries to limit developer user permissions
+  - Configured Security Groups with least privilege principle (only open necessary ports)
+  - Researched AWS WAF rules to protect API endpoints from common attacks (SQL injection, XSS)
+  - Studied KMS encryption for RDS database and S3 buckets (storing user workout data)
 
-### Day-by-Day / Task Table
+- **Reliability:**
+  - Designed backup policy for RDS database using AWS Backup (daily snapshots, 7-day retention)
+  - Researched multi-AZ deployment for production environment (ensuring high availability)
+  - Evaluated VPC Peering vs Transit Gateway for future microservices expansion
 
-| Day | Task | Start Date | Completion Date | Reference |
-| --- | ---- | ---------- | ---------------- | --------- |
-| 1 | Decide MVP vs. future-development service scope | [TODO_DATE] | [TODO_DATE] | Weeks 2–3 findings |
-| 2 | Draft AWS architecture diagram | [TODO_DATE] | [TODO_DATE] | draw.io |
-| 3 | Draft VPC/subnet/Security Group plan | [TODO_DATE] | [TODO_DATE] | — |
-| 4 | Review draft with mentor/self-review checklist | [TODO_DATE] | [TODO_DATE] | — |
+**Applied to Fitness Assistant:**
 
-### Completion Checklist
+- Designed cost optimization strategy: schedule to stop dev environment EC2 outside working hours
+- Planned monitoring stack: CloudWatch Logs for centralized logging, custom metrics for API latency/error rate
+- Security hardening checklist: IAM roles with least privilege, strict Security Groups rules, encryption at rest for sensitive data
+- Backup and disaster recovery plan: automated daily backups, cross-region backup for production (future)
 
-- [ ] MVP scope documented with justification
-- [ ] Draft architecture diagram created
-- [ ] Draft VPC/subnet/Security Group plan written
-- [ ] Diagram and plan reviewed
+### Difficulties Encountered:
 
-### Related Workshop Section
+- **IAM Permission Boundaries complexity:** The concept of Permission Boundaries (maximum permission limits) vs inline policies was quite confusing initially. Took considerable time to understand real-world use cases.
 
-- [5.2 Architecture](../../5-Workshop/5.2-Architecture/)
+- **Cost optimization trade-offs:** When researching Lambda-based EC2 scheduling, realized there are trade-offs between cost savings and developer convenience. Stopping dev instances might cause inconvenience if developers need to work outside regular hours.
+
+- **Monitoring overhead:** Setting up comprehensive monitoring requires upfront effort (define metrics, create dashboards, configure alarms). Need to balance between "monitor everything" vs "monitor what matters".
+
+### How It Was Resolved:
+
+- **Permission Boundaries:** Drew diagrams to visualize relationships between identity-based policies, permission boundaries, and resource-based policies. Practiced with concrete examples in labs.
+
+- **Cost optimization:** Decided to implement "on-demand start" mechanism: developers can trigger Lambda function to start instances when needed, instances automatically stop after 2 hours idle.
+
+- **Monitoring strategy:** Adopted "start simple, iterate" approach. Week 4 focused on critical metrics (CPU, memory, disk, API error rate), will expand monitoring gradually based on experience.
+
+### AWS Skills / Services Learned:
+
+**Services:**
+- AWS Lambda (event-driven automation)
+- Amazon CloudWatch (logs, metrics, alarms)
+- AWS Systems Manager (Session Manager, Patch Manager)
+- AWS IAM (Permission Boundaries, condition keys)
+- AWS Security Hub (security posture management)
+- AWS WAF (web application firewall)
+- AWS KMS (encryption key management)
+- AWS Backup (automated backup orchestration)
+- VPC Peering and AWS Transit Gateway (network connectivity)
+
+**Skills:**
+- Cost optimization strategies for cloud infrastructure
+- Security best practices (least privilege, defense in depth)
+- Centralized monitoring and observability
+- Infrastructure automation with Lambda
+- Backup and disaster recovery planning
+
+### Connection to Fitness Assistant Architecture:
+
+Module 3 insights directly applicable:
+- **Operate:** CloudWatch monitoring for microservices health checks, Lambda automation for routine tasks
+- **Security:** IAM roles for service-to-service communication, WAF protection for API Gateway, KMS encryption for user data
+- **Reliability:** Multi-AZ RDS deployment, automated backups, health checks with auto-recovery
+
+### Related Workshop Sections:
+
+- [5.2 Architecture](../../5-Workshop/5.2-Architecture/) - Security and network design
+- [5.9 EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/) - Systems Manager usage

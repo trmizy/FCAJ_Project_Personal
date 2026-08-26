@@ -27,9 +27,9 @@ Báo cáo này ghi lại quá trình thiết kế, triển khai và đánh giá 
 
 &emsp; **Lớp FCAJ:** [TODO_FCAJ_CLASS]
 
-&emsp; **Công ty thực tập:** Amazon Web Services Viet Nam Company Limited
+&emsp; **Công ty thực tập:** Công ty TNHH Amazon Web Services Việt Nam
 
-&emsp; **Vị trí thực tập:** First Cloud AI Journey Intern
+&emsp; **Vị trí thực tập:** Workforce Bootcamp - First Cloud AI Journey
 
 &emsp; **Thời gian thực tập:** 03-08-2026 – [TODO_END_DATE]
 

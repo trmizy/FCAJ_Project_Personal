@@ -29,7 +29,7 @@ This report documents the design, implementation and evaluation of the **Fitness
 
 &emsp; **Internship Company:** Amazon Web Services Viet Nam Company Limited
 
-&emsp; **Internship Position:** First Cloud AI Journey Intern
+&emsp; **Internship Position:** Workforce Bootcamp - First Cloud AI Journey
 
 &emsp; **Internship Duration:** 03-08-2026 – [TODO_END_DATE]
 
