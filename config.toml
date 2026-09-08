@@ -1,6 +1,6 @@
 baseURL = "/"
 relativeURLs = true
-canonifyURLs = false
+canonifyURLs = true
 defaultContentLanguage = "en"
 
 # Change the default theme to be use when building the site with Hugo
@@ -14,59 +14,53 @@ home = [ "HTML", "RSS", "JSON"]
   # Change default color scheme with a variant one. Can be "red", "blue", "green".
   themeVariant = "workshop"
   # Git hub repo link
-  editURL = "https://github.com/<YOUR_GITHUB_USERNAME>/<YOUR_REPOSITORY>/edit/main/content/"
-  description = "Internship report for Cloud-Native AI Fitness Assistant on AWS."
-  author = "[TODO_FULL_NAME]"
+  editURL = "https://github.com/trmizy/FCAJ_Project_Personal/edit/main/"
+  description = ""
+  author = "tranminhduy1902@gmail.com"
   showVisitedLinks = true
   disableBreadcrumb = false
   disableNextPrev = false
-
+  
 [Languages]
 [Languages.en]
-title = "Cloud-Native AI Fitness Assistant – Internship Report"
+title = "Internship Report"
 weight = 1
 languageName = "English"
 
-# [[Languages.en.menu.shortcuts]]
-# name = "<i class='fab fa-github'></i> Fitness Assistant Source Code"
-# identifier = "Fitness Assistant Source"
-# url = "https://github.com/trmizy/fitness-assistant"
-# weight = 20
+[Languages.en.params]
+label = "English"
 
 [[Languages.en.menu.shortcuts]]
-name = "<i class='fab fa-aws'></i> AWS Study Group - Blog"
-identifier = "AWS Study Group"
-url = "https://awsstudygroup.com"
-weight = 30
+name = "<i class='fab fa-github'></i> Github Repo"
+identifier = "Github Repo"
+url = "https://github.com/trmizy/FCAJ_Project_Personal"
+weight = 10
 
 [[Languages.en.menu.shortcuts]]
-name = "<i class='fab fa-facebook'></i> AWS Study Group - FB Group"
+name = "<i class='fab fa-facebook'></i> AWS Study Group"
 identifier = "AWS Study Group FB"
-url = "https://www.facebook.com/groups/awsstudygroupfcj"
-weight = 40
+url = "https://www.facebook.com/groups/awsstudygroupfcj/"
+weight = 20
 
 [Languages.vi]
-title = "Trợ lý Thể hình AI trên AWS – Báo cáo thực tập"
+title = "Báo cáo thực tập"
 weight = 2
 languageName = "Tiếng Việt"
 
-# [[Languages.vi.menu.shortcuts]]
-# name = "<i class='fab fa-github'></i> Source code Fitness Assistant"
-# identifier = "Fitness Assistant Source"
-# url = "https://github.com/trmizy/fitness-assistant"
-# weight = 20
+[Languages.vi.params]
+label = "Tiếng Việt"
 
 [[Languages.vi.menu.shortcuts]]
-name = "<i class='fab fa-aws'></i> AWS Study Group - Blog"
-identifier = "AWS Study Group"
-url = "http://awsstudygroup.com"
-weight = 30
+name = "<i class='fab fa-github'></i> Github Repo"
+identifier = "Github Repo"
+url = "https://github.com/trmizy/FCAJ_Project_Personal"
+weight = 10
 
 [[Languages.vi.menu.shortcuts]]
-name = "<i class='fab fa-facebook'></i> AWS Study Group - Nhóm FB"
+name = "<i class='fab fa-facebook'></i> AWS Study Group"
 identifier = "AWS Study Group FB"
-url = "https://www.facebook.com/groups/awsstudygroupfcj"
-weight = 40
+url = "https://www.facebook.com/groups/awsstudygroupfcj/"
+weight = 20
 
 [markup]
   [markup.goldmark]
