@@ -1,6 +1,6 @@
 ---
 title: "Internship Report"
-date: 2026-07-15
+date: 2026-08-03
 weight: 1
 chapter: false
 ---
@@ -19,15 +19,15 @@ chapter: false
 
 **Major:** Information System
 
-**Class:** [TODO_CLASS]
+**Class:** DHHTTT18BTT
 
 **Internship Company:** Amazon Web Services Vietnam Co., Ltd.
 
 **Internship Position:** Workforce Bootcamp - First Cloud AI Journey
 
-**Internship Duration:** From 03/08/2026 to [TODO_END_DATE]
+**Internship Duration:** From 03/08/2026 to 19/10/2026
 
-![Profile photo](/images/profile/avatar-placeholder.png)
+![Profile photo](/images/profile/avatar.png)
 
 ### Report Content
 

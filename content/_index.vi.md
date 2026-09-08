@@ -1,6 +1,6 @@
 ---
 title: "Báo cáo thực tập"
-date: 2026-07-15
+date: 2026-08-03
 weight: 1
 chapter: false
 ---
@@ -19,15 +19,15 @@ chapter: false
 
 **Chuyên ngành:** Hệ thống Thông tin
 
-**Lớp:** [TODO_CLASS]
+**Lớp:** DHHTTT18BTT
 
 **Công ty thực tập:** Công ty TNHH Amazon Web Services Việt Nam
 
 **Vị trí thực tập:** Workforce Bootcamp - First Cloud AI Journey
 
-**Thời gian thực tập:** Từ 03/08/2026 đến [TODO_END_DATE]
+**Thời gian thực tập:** Từ 03/08/2026 đến 19/10/2026
 
-![Ảnh đại diện](/images/profile/avatar-placeholder.png)
+![Ảnh đại diện](/images/profile/avatar.png)
 
 ### Nội dung báo cáo
 
