@@ -7,62 +7,138 @@ pre: " <b> 1.5. </b> "
 draft: true
 ---
 
-{{% notice note %}}
-Dates in this page are placeholders (`[TODO_DATE]`) until the confirmed internship schedule is available.
-{{% /notice %}}
+# WEEK 5 WORKLOG
 
-### Week Objectives
+### Week 5 Objectives:
 
-- Build the network foundation for the MVP: VPC, public and private subnets, route tables, Internet Gateway and Security Groups.
-- Apply the principle of least privilege from the very first network resource created.
+- Complete Module 3: Optimizing the system, focusing aggressively on System Performance and Cost Optimization strategies
+- Complete Module 4: Modernize the application by exploring and implementing Serverless and Microservices architectures
 
-### Tasks Performed
+### Tasks to be carried out this week:
 
-- Created a VPC with the CIDR block planned in Week 4.
-- Created one public subnet (for the EC2 host) and two private subnets across two Availability Zones (for the RDS DB subnet group).
-- Created and attached an Internet Gateway, and configured route tables (public route table → Internet Gateway; private route tables with no direct internet route).
-- Created Security Groups: one for the EC2 application host, one for RDS, following the matrix drafted in [Workshop 5.6](../../5-Workshop/5.6-Network-Infrastructure/).
+| Task | Start Date | Completion Date | Reference Materials |
+| --- | --- | --- | --- |
+| Complete Module 3: Optimizing the system | 17-7-2026 | 23-7-2026 | **Module 3 - Performance:** <br>15: https://000015.awsstudygroup.com/ <br>16: https://000016.awsstudygroup.com/ <br>17: https://000017.awsstudygroup.com/ <br>23: https://000023.awsstudygroup.com/ <br>24: https://000024.awsstudygroup.com/ <br>25: https://000025.awsstudygroup.com/ <br>35: https://000035.awsstudygroup.com/ <br>**Module 3 - Optimizing costs:** <br>32: https://000032.awsstudygroup.com/ <br>34: https://000034.awsstudygroup.com/ <br>40: https://000040.awsstudygroup.com/ <br>42: https://000042.awsstudygroup.com/ |
+| Complete Module 4: Modernize the application | 17-7-2026 | 23-7-2026 | **Module 4 - Modernize the application:** <br>47: https://000047.awsstudygroup.com/ <br>50: https://000050.awsstudygroup.com/ <br>51: https://000051.awsstudygroup.com/ <br>52: https://000052.awsstudygroup.com/ <br>53: https://000053.awsstudygroup.com/ <br>54: https://000054.awsstudygroup.com/ <br>55: https://000055.awsstudygroup.com/ <br>56: https://000056.awsstudygroup.com/ |
 
-### Results Achieved
+### Week 5 Achievements:
 
-- A working VPC with the planned subnet layout.
-- TODO: Confirm final CIDR ranges used and record them (they may differ from the design placeholders).
+**Overview:**
 
-### Difficulties
+During this intensive week, I accomplished two major tracks: system performance/cost optimization (Module 3) and application modernization (Module 4). The extensive lab workload spanned containerization, robust serverless computing, data lakes, and complex cost analytics.
 
-- Deciding whether a NAT Gateway was justified for this MVP, given its ongoing hourly + data-processing cost, versus keeping the private subnets fully isolated (no outbound internet) for the database tier.
+**Note:** Certain sections within the modernization labs (specifically 47, 54, and 55) mandated the use of AWS Cloud9. As AWS Cloud9 is currently inaccessible in my environment, these specific sections were strategically skipped, while the underlying architectural concepts were still thoroughly studied.
 
-### How It Was Resolved
+**Learned theory:**
 
-- For the MVP, the private DB subnets do not require outbound internet access (RDS does not need to call out), so a NAT Gateway was treated as optional/future rather than a default MVP component, to keep costs predictable.
+- **Performance & Cost Optimization:** Learned deployment paradigms using Docker and Amazon ECS. Mastered CI/CD automation with AWS CodePipeline. Studied Data Lake foundations and explored financial governance via Savings Plans, EC2 right-sizing, and AWS Glue/Athena querying.
 
-### AWS Skills / Services Learned
+- **Modernization & Microservices:** Grasped architectural patterns for migrating monolithic applications to microservices. Explored decoupled messaging/eventing systems and integrating orchestration tools like AWS Step Functions.
 
-- Amazon VPC, subnets, route tables, Internet Gateway.
-- Security Group design as a stateful allow-list, mapped directly to the real ports used by the application (see [Workshop 5.6](../../5-Workshop/5.6-Network-Infrastructure/) for the exact port table).
+- **Serverless Architecture:** Deepened my expertise in the serverless ecosystem utilizing AWS Lambda, Amazon API Gateway, the Serverless Application Model (SAM), Amazon Cognito for identity, SQS/SNS for asynchronous processing, and AppSync.
 
-### Evidence Still Required
+**Hands-on labs:**
 
-- TODO: Screenshot of the VPC console showing the created VPC and subnets.
-- TODO: Screenshot of route tables.
-- TODO: Screenshot of Security Group rules.
+- Successfully deployed containerized applications on ECS, integrating them with automated CI/CD pipelines
+- Configured enterprise storage solutions including File Storage Gateways and FSx for Windows, alongside Data Lake optimizations
+- Executed advanced cost tracking and query analysis utilizing AWS Glue and Amazon Athena
+- Engineered and deployed fully serverless applications (e.g., Serverless Bookstore), encompassing frontend API integration, SSL setup, CI/CD workflows, and CloudWatch/X-Ray distributed tracing
+- Skipped specific execution steps in Labs 47, 54, and 55 due to an inability to provision AWS Cloud9 environments, though the theoretical framework for Step Functions, Messaging/Eventing, and SPA configurations was thoroughly reviewed
 
-### Day-by-Day / Task Table
+**Applied to Fitness Assistant:**
 
-| Day | Task | Start Date | Completion Date | Reference |
-| --- | ---- | ---------- | ---------------- | --------- |
-| 1 | Create VPC and subnets | [TODO_DATE] | [TODO_DATE] | [Workshop 5.6](../../5-Workshop/5.6-Network-Infrastructure/) |
-| 2 | Create and attach Internet Gateway, configure route tables | [TODO_DATE] | [TODO_DATE] | [Workshop 5.6](../../5-Workshop/5.6-Network-Infrastructure/) |
-| 3 | Create Security Groups for EC2 and RDS | [TODO_DATE] | [TODO_DATE] | [Workshop 5.6](../../5-Workshop/5.6-Network-Infrastructure/) |
-| 4 | Validate network layout end to end | [TODO_DATE] | [TODO_DATE] | — |
+**Performance Optimization:**
+- Evaluated containerization strategy: migrating from Docker Compose to Amazon ECS for better scaling and management
+- Designed CI/CD pipeline: GitHub → AWS CodePipeline → CodeBuild → ECR → ECS deployment
+- Considered CloudFront CDN for frontend assets to reduce latency
 
-### Completion Checklist
+**Cost Optimization:**
+- Right-sizing analysis: monitored EC2 utilization, identified opportunities to downsize instances
+- Implemented tagging strategy for cost allocation by service (auth-service, fitness-service, ai-service)
+- Researched Savings Plans and Reserved Instances for predictable workloads
+- Set up AWS Budgets and Cost Anomaly Detection alerts
 
-- [ ] VPC and subnets created
-- [ ] Internet Gateway attached and route tables configured
-- [ ] Security Groups created following least privilege
-- [ ] Network layout documented with evidence
+**Modernization Path:**
+- Evaluated serverless migration for specific workloads:
+  - Notification service → Lambda + SQS
+  - Image processing (nutrition labels) → Lambda triggered by S3
+  - Daily stats aggregation → Lambda with scheduled EventBridge rules
+- Planned microservices decomposition strategy (future enhancement when scaling)
+- Considered API Gateway to replace application gateway container (better managed service)
 
-### Related Workshop Section
+### Difficulties Encountered:
 
-- [5.6 Network Infrastructure](../../5-Workshop/5.6-Network-Infrastructure/)
+- **Cloud9 Limitation:** Unable to access AWS Cloud9 (possibly due to region restrictions or account limitations), resulting in skipped hands-on steps in labs 47, 54, 55. However, conceptual learning was maintained through documentation and video tutorials.
+
+- **Containerization Complexity:** Understanding the difference between Docker Compose (local dev) and ECS (production) required learning curve about task definitions, services, and clusters.
+
+- **Serverless Cold Start Trade-offs:** When researching Lambda migration, realized cold start latency could impact user experience for synchronous APIs. Needed to carefully evaluate which workloads are suitable for serverless.
+
+- **Cost Calculation Complexity:** AWS cost model is very granular (per request, per GB-second, data transfer costs). Difficult to forecast costs accurately when planning serverless migration.
+
+### How It Was Resolved:
+
+- **Cloud9 Workaround:** Used local development environment with AWS CLI and SAM CLI to simulate Cloud9 workflows. Read lab documentation thoroughly to understand intended outcomes.
+
+- **ECS Learning:** Drew comparison diagrams between Docker Compose concepts and ECS equivalents. Practiced with simple containerized apps before applying to Fitness Assistant.
+
+- **Cold Start Mitigation:** Researched provisioned concurrency for critical Lambda functions. Planned hybrid approach: keep synchronous APIs on containers, async workloads on Lambda.
+
+- **Cost Forecasting:** Used AWS Pricing Calculator to estimate costs. Set up granular billing alerts. Planned phased migration to monitor costs incrementally.
+
+### AWS Skills / Services Learned:
+
+**Services - Containerization & CI/CD:**
+- Amazon ECS (Elastic Container Service)
+- Amazon ECR (Elastic Container Registry)
+- AWS CodePipeline
+- AWS CodeBuild
+- AWS CodeDeploy
+
+**Services - Serverless:**
+- AWS Lambda
+- Amazon API Gateway
+- AWS SAM (Serverless Application Model)
+- Amazon Cognito
+- Amazon SQS/SNS
+- AWS AppSync
+- AWS Step Functions
+
+**Services - Storage & Data:**
+- AWS Storage Gateway
+- Amazon FSx
+- AWS Glue
+- Amazon Athena
+- Data Lake architecture
+
+**Services - Cost & Monitoring:**
+- AWS Cost Explorer
+- AWS Budgets
+- Savings Plans
+- Amazon CloudWatch
+- AWS X-Ray (distributed tracing)
+
+**Skills:**
+- Container orchestration with ECS
+- CI/CD pipeline design and implementation
+- Serverless architecture patterns
+- Cost optimization strategies
+- Data Lake design fundamentals
+- Distributed tracing and observability
+
+### Connection to Fitness Assistant Architecture:
+
+**Immediate Applications:**
+- Containerize all services and deploy to ECS instead of single EC2
+- Set up CI/CD pipeline for automated deployments
+- Implement CloudWatch monitoring and X-Ray tracing
+
+**Future Enhancements:**
+- Migrate notification service to Lambda + SQS
+- Implement API Gateway for better API management
+- Build data lake for workout analytics and user behavior analysis
+
+### Related Workshop Sections:
+
+- [5.6 Network Infrastructure](../../5-Workshop/5.6-Network-Infrastructure/) - VPC design for ECS
+- [5.9 EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/) - Container deployment strategies
