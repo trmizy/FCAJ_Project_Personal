@@ -4,7 +4,7 @@ date: 2026-07-15
 weight: 5
 chapter: false
 pre: " <b> 5. </b> "
-draft: true
+draft: false
 ---
 
 # Workshop — Deploying Fitness Assistant on AWS

@@ -4,7 +4,7 @@ date: 2026-07-15
 weight: 2
 chapter: false
 pre: " <b> 3.2. </b> "
-draft: true
+draft: false
 ---
 
 ## Chuyển PostgreSQL từ Docker sang Amazon RDS
