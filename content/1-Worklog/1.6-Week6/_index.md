@@ -4,68 +4,157 @@ date: 2026-07-15
 weight: 6
 chapter: false
 pre: " <b> 1.6. </b> "
-draft: true
 ---
 
-{{% notice note %}}
-Dates in this page are placeholders (`[TODO_DATE]`) until the confirmed internship schedule is available.
-{{% /notice %}}
+# WEEK 6 WORKLOG
 
-### Week Objectives
+### Week 6 Objectives:
 
-- Provision Amazon RDS for PostgreSQL to replace the containerized `postgres:15-alpine` used in local development.
-- Run Prisma migrations against RDS for each service that owns a database.
-- Verify connectivity from the application tier only (private access).
+- Complete Module 5: Container services
+- Master the orchestration and deployment of containerized applications across Lightsail, ECS, and EKS
+- Engage with the professional community and integrate further into the office environment
 
-### Tasks Performed
+### Tasks to be carried out this week:
 
-- Created a DB subnet group across the two private subnets from Week 5.
-- Launched an Amazon RDS PostgreSQL instance with **public access disabled**, encryption at rest enabled, and automated backups configured.
-- Attached the RDS Security Group so that inbound port 5432 is only allowed from the EC2 application Security Group, matching the real database-per-service design used by `fitness-assistant` (each service — auth, user, fitness, ai, chat — has its own logical database and its own Prisma schema/migrations).
-- Ran `prisma migrate deploy` for each service against the new RDS endpoint, using the project's own Prisma schemas (no hand-written SQL DDL).
-- Ran the project's seed scripts where available, to load baseline data.
-- Verified connectivity from an EC2 instance in the same VPC (not from a personal machine over the public internet, since RDS is private).
+| Task | Start Date | Completion Date | Reference Materials |
+| --- | --- | --- | --- |
+| Study and complete Module 5: Container services | 24-7-2026 | 30-7-2026 | 46: https://000046.awsstudygroup.com/ <br>67: https://000067.awsstudygroup.com/ <br>152: https://000152.awsstudygroup.com/ |
 
-### Results Achieved
+### Week 6 Achievements:
 
-- Migrations applied for the services included in MVP scope.
-- TODO: Confirm final list of databases created (`gymcoach_auth`, `gymcoach_user`, `gymcoach_fitness`, `gymcoach_ai`, and any others in MVP scope) and record evidence.
+**Overview:**
 
-### Difficulties
+During this week, I focused exclusively on AWS Container services (Module 5), exploring how to run and orchestrate containers at varying scales of complexity using Amazon Lightsail, ECS, and EKS. Beyond technical skill acquisition, I deepened my professional involvement by working from the office for the second time and actively participating in a weekend technology meetup.
 
-- The `user-service` production Dockerfile does not automatically run `prisma migrate deploy` on startup (unlike `auth-service` and `ai-service`), so migrations for that service need to be triggered explicitly rather than assumed to run automatically.
+**Learned theory:**
 
-### How It Was Resolved
+- **Amazon Lightsail Containers:** Learned how to rapidly deploy and run containerized applications within a simplified, predictable pricing environment.
 
-- Documented this inconsistency explicitly in [Workshop 5.7](../../5-Workshop/5.7-RDS-PostgreSQL/) and ran `user-service` migrations as a manual/explicit step rather than assuming the container handles it.
+- **Amazon ECS & Fargate:** Understood the architectural strategies for modernizing legacy Monolithic applications into Microservices utilizing Docker, Amazon ECS, and the serverless AWS Fargate compute engine.
 
-### AWS Skills / Services Learned
+- **Amazon EKS & CI/CD:** Grasped the fundamentals of Kubernetes cluster management on AWS (EKS) and learned how to establish a continuous integration and continuous delivery (CI/CD) pipeline using AWS CodePipeline for automated container deployments.
 
-- Amazon RDS provisioning, DB subnet groups, automated backups, encryption at rest.
-- Running Prisma migrations against a managed database instead of a local container.
+- Gained valuable networking and professional experience by attending community events and integrating into the workplace.
 
-### Evidence Still Required
+**Hands-on labs:**
 
-- TODO: Screenshot of the RDS instance configuration (with credentials redacted).
-- TODO: Terminal output of `prisma migrate deploy` succeeding per service.
-- TODO: Screenshot/log of a successful connectivity test from EC2.
+- Successfully deployed a containerized application utilizing Amazon Lightsail Containers
+- Migrated a monolithic application to a microservices architecture using Docker, orchestrating the deployment via ECS and Fargate
+- Configured a robust CI/CD pipeline for Amazon EKS using AWS CodePipeline to automate Kubernetes deployments
 
-### Day-by-Day / Task Table
+**Applied to Fitness Assistant:**
 
-| Day | Task | Start Date | Completion Date | Reference |
-| --- | ---- | ---------- | ---------------- | --------- |
-| 1 | Create DB subnet group and RDS instance | [TODO_DATE] | [TODO_DATE] | [Workshop 5.7](../../5-Workshop/5.7-RDS-PostgreSQL/) |
-| 2 | Configure Security Group for private-only access | [TODO_DATE] | [TODO_DATE] | [Workshop 5.6](../../5-Workshop/5.6-Network-Infrastructure/) |
-| 3 | Run Prisma migrations per service | [TODO_DATE] | [TODO_DATE] | `prisma/schema.prisma` per service |
-| 4 | Verify connectivity and seed data | [TODO_DATE] | [TODO_DATE] | — |
+**Container Strategy Evaluation:**
 
-### Completion Checklist
+After learning 3 container platforms, evaluated the best fit for Fitness Assistant:
 
-- [ ] RDS PostgreSQL instance created (private access only)
-- [ ] DB subnet group and Security Group configured
-- [ ] Prisma migrations applied per service
-- [ ] Connectivity verified from EC2, not from the public internet
+1. **Amazon Lightsail Containers:**
+   - **Pros:** Simple setup, predictable pricing ($10-40/month), good for MVP
+   - **Cons:** Limited scaling, not suitable for production growth
+   - **Decision:** Possible for initial prototype testing
 
-### Related Workshop Section
+2. **Amazon ECS with Fargate:**
+   - **Pros:** Serverless (no server management), good AWS integration, cost-effective for small-medium scale
+   - **Cons:** Vendor lock-in (AWS-specific), learning curve
+   - **Decision:** **Recommended choice for MVP** - balance between simplicity and production-readiness
 
-- [5.7 RDS PostgreSQL](../../5-Workshop/5.7-RDS-PostgreSQL/)
+3. **Amazon EKS (Kubernetes):**
+   - **Pros:** Industry standard, portable, powerful orchestration
+   - **Cons:** Complex setup, higher cost, overkill for current scale
+   - **Decision:** Future consideration when scaling or need multi-cloud portability
+
+**Implementation Plan for Fitness Assistant:**
+
+**Phase 1 - ECS Migration (Immediate):**
+- Containerize all services (auth, user, fitness, ai, gateway)
+- Create ECS Task Definitions for each service
+- Setup ECS Service with Fargate launch type
+- Configure Application Load Balancer for routing
+- Migrate from single EC2 → ECS cluster
+
+**Phase 2 - CI/CD Pipeline:**
+- GitHub repository → AWS CodePipeline trigger on push
+- CodeBuild stage: build Docker images, run tests
+- Push images → Amazon ECR
+- CodeDeploy stage: deploy to ECS with blue/green deployment
+- Automated rollback on failure
+
+**Phase 3 - Advanced Features:**
+- Service Auto Scaling based on CPU/memory
+- Service Mesh with AWS App Mesh for advanced traffic management
+- CloudWatch Container Insights for detailed monitoring
+
+**Architecture Comparison:**
+
+*Current (MVP on EC2):*
+```
+User → EC2 (Docker Compose with all services) → RDS
+```
+
+*After ECS Migration:*
+```
+User → ALB → ECS Services (independent auth/user/fitness/ai) → RDS
+                ↓
+            Fargate Tasks (auto-scale)
+```
+
+### Difficulties Encountered:
+
+- **ECS vs EKS Decision:** Initially confused about when to use ECS vs EKS. ECS simpler but AWS-specific, EKS industry standard but much more complex.
+
+- **Task Definition Complexity:** ECS Task Definitions have many configuration options (CPU, memory, networking mode, volume mounts, environment variables, secrets). Hard to optimize correctly.
+
+- **Fargate Pricing Model:** Fargate pricing based on vCPU and memory allocated per second. Difficult to estimate costs accurately vs flat EC2 pricing.
+
+- **Service Discovery:** When migrating to microservices on ECS, services need to communicate with each other. AWS Cloud Map for service discovery has learning curve.
+
+### How It Was Resolved:
+
+- **Platform Decision:** Decided to use ECS for MVP based on criteria: production-ready, AWS-integrated, manageable complexity, lower cost than EKS. Reserve EKS for future if need Kubernetes expertise or multi-cloud.
+
+- **Task Definitions:** Started with simple task definitions, iterate gradually. Used AWS Copilot CLI (tool simplifying ECS deployments) for initial setup, then refine manually.
+
+- **Cost Management:** Used AWS Pricing Calculator to estimate Fargate costs. Set up CloudWatch alarms for cost thresholds. Consider Savings Plans for Fargate if predictable baseline.
+
+- **Service Discovery:** Implemented AWS Cloud Map for service-to-service communication. Combined with Environment Variables for flexibility.
+
+### AWS Skills / Services Learned:
+
+**Services:**
+- Amazon Lightsail Containers
+- Amazon ECS (Elastic Container Service)
+- AWS Fargate (serverless compute for containers)
+- Amazon EKS (Elastic Kubernetes Service)
+- AWS CodePipeline (for container CI/CD)
+- Amazon ECR (Elastic Container Registry)
+- AWS Cloud Map (service discovery)
+- Application Load Balancer (ALB)
+- AWS Copilot CLI
+
+**Skills:**
+- Container orchestration strategies
+- ECS vs EKS evaluation and selection
+- Fargate serverless container management
+- Kubernetes fundamentals (EKS)
+- CI/CD pipeline design for containers
+- Microservices deployment patterns
+- Service discovery and inter-service communication
+- Container cost optimization
+
+### Connection to Fitness Assistant Architecture:
+
+**Immediate Actions:**
+- Design ECS cluster architecture
+- Create production Dockerfiles (if not yet available)
+- Plan Task Definitions for each service
+- Design ALB routing rules
+
+**Medium-term Goals:**
+- Implement full CI/CD pipeline
+- Setup auto-scaling policies
+- Migrate production traffic from EC2 → ECS
+
+### Related Workshop Sections:
+
+- [5.6 Network Infrastructure](../../5-Workshop/5.6-Network-Infrastructure/) - VPC and ALB setup
+- [5.9 EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/) - Container migration strategy

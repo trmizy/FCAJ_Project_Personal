@@ -4,7 +4,6 @@ date: 2026-07-15
 weight: 5
 chapter: false
 pre: " <b> 1.5. </b> "
-draft: true
 ---
 
 # WORKLOG TUẦN 5
