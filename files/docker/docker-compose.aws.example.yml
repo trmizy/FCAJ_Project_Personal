@@ -1,0 +1,154 @@
+# Reference example only. Adapt image URIs, ports, and environment
+# variables to match your actual ECR repositories and Secrets Manager
+# values. Do not commit a real .env file alongside this on the EC2 host.
+#
+# This describes the MVP topology only: frontend, application gateway,
+# auth-service, user-service, fitness-service, ai-service, payment-service,
+# gym-service (+ Ollama/Qdrant), and Redis, running on a single EC2 host,
+# with PostgreSQL migrated to Amazon RDS instead of a local container.
+#
+# chat-service is intentionally NOT included — it adds real-time Socket.IO
+# infrastructure that's out of MVP scope. gym-service and payment-service
+# ARE included: both now ship a production Dockerfile in the source repo
+# (this was not yet true when the Proposal's MVP scope was first drafted —
+# see content/2-Proposal/#8-mvp-scope for the corrected reasoning).
+
+services:
+  web:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/fitness-assistant/frontend:${IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+
+  api-gateway:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/fitness-assistant/gateway:${IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      AUTH_SERVICE_URL: http://auth-service:3001
+      FITNESS_SERVICE_URL: http://fitness-service:3002
+      AI_SERVICE_URL: http://ai-service:3003
+      USER_SERVICE_URL: http://user-service:3004
+      PAYMENT_SERVICE_URL: http://payment-service:3007
+      GYM_SERVICE_URL: http://gym-service:3006
+      CORS_ORIGIN: <YOUR_FRONTEND_ORIGIN>
+      JWT_SECRET: <FROM_SECRETS_MANAGER>
+    depends_on:
+      - auth-service
+      - user-service
+      - fitness-service
+      - ai-service
+      - payment-service
+      - gym-service
+
+  auth-service:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/fitness-assistant/auth-service:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://<TODO_DATABASE_USER>:<FROM_SECRETS_MANAGER>@<TODO_RDS_ENDPOINT>:5432/gymcoach_auth
+      JWT_SECRET: <FROM_SECRETS_MANAGER>
+      JWT_REFRESH_SECRET: <FROM_SECRETS_MANAGER>
+
+  user-service:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/fitness-assistant/user-service:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://<TODO_DATABASE_USER>:<FROM_SECRETS_MANAGER>@<TODO_RDS_ENDPOINT>:5432/gymcoach_user
+      AUTH_SERVICE_URL: http://auth-service:3001
+      PAYMENT_SERVICE_URL: http://payment-service:3007
+      ANTHROPIC_API_KEY: <FROM_SECRETS_MANAGER>
+      INBODY_VISION_MODEL: claude-sonnet-4-6
+    volumes:
+      - user_uploads:/app/backend/services/user-service/uploads
+    depends_on:
+      - payment-service
+
+  fitness-service:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/fitness-assistant/fitness-service:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://<TODO_DATABASE_USER>:<FROM_SECRETS_MANAGER>@<TODO_RDS_ENDPOINT>:5432/gymcoach_fitness
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    depends_on:
+      - redis
+
+  ai-service:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/fitness-assistant/ai-service:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://<TODO_DATABASE_USER>:<FROM_SECRETS_MANAGER>@<TODO_RDS_ENDPOINT>:5432/gymcoach_ai
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: "6333"
+      USER_SERVICE_URL: http://user-service:3004
+      FITNESS_SERVICE_URL: http://fitness-service:3002
+      PAYMENT_SERVICE_URL: http://payment-service:3007
+      LLM_PROVIDER: ollama
+      LLM_BASE_URL: http://ollama:11434
+      LLM_MODEL: llama3.2:3b
+    depends_on:
+      - redis
+      - qdrant
+      - ollama
+      - payment-service
+
+  payment-service:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/fitness-assistant/payment-service:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://<TODO_DATABASE_USER>:<FROM_SECRETS_MANAGER>@<TODO_RDS_ENDPOINT>:5432/gymcoach_payment
+      AUTH_SERVICE_URL: http://auth-service:3001
+      GYM_SERVICE_URL: http://gym-service:3006
+      USER_SERVICE_URL: http://user-service:3004
+      PAYMENT_PROVIDER: MOCK
+      FRONTEND_URL: <YOUR_FRONTEND_ORIGIN>
+
+  gym-service:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/fitness-assistant/gym-service:${IMAGE_TAG}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://<TODO_DATABASE_USER>:<FROM_SECRETS_MANAGER>@<TODO_RDS_ENDPOINT>:5432/gymcoach_gym
+      AUTH_SERVICE_URL: http://auth-service:3001
+      PAYMENT_SERVICE_URL: http://payment-service:3007
+    depends_on:
+      - payment-service
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    # WARNING: sizing note — this container needs meaningfully more CPU/RAM
+    # than a Free Tier-eligible EC2 instance provides. See
+    # content/5-Workshop/5.9-EC2-Deployment/ before choosing an instance type.
+
+volumes:
+  user_uploads:
+  redis_data:
+  qdrant_data:
+  ollama_data:
