@@ -7,64 +7,94 @@ pre: " <b> 1.7. </b> "
 draft: false
 ---
 
-{{% notice note %}}
-Dates in this page are placeholders (`[TODO_DATE]`) until the confirmed internship schedule is available.
-{{% /notice %}}
+# WEEK 7 WORKLOG
 
-### Week Objectives
+### Week 7 Objectives:
 
-- Create Amazon ECR repositories for each service included in the MVP.
-- Build, tag and push production Docker images.
-- Create the IAM Role that EC2 will use to pull from ECR.
+- Complete Module 6: Data & Analytics
+- Learn the architecture, deployment, and operational best practices for building an enterprise Data Lake
+- Master the full data analytics lifecycle, from ingestion to processing and advanced visualization on AWS
 
-### Tasks Performed
+### Tasks to be carried out this week:
 
-- Created one ECR repository per MVP service (frontend, gateway, auth-service, user-service, fitness-service, ai-service, payment-service, gym-service), matching the actual `Dockerfile`/`Dockerfile.production.example` built in Week 3.
-- Authenticated Docker to ECR (`aws ecr get-login-password`), built each image locally, tagged it with the ECR repository URI, and pushed it.
-- Verified each image appeared in its ECR repository with the expected tag.
-- Drafted an IAM policy granting only the ECR pull permissions EC2 needs (`ecr:GetAuthorizationToken`, `ecr:BatchGetImage`, `ecr:GetDownloadUrlForLayer`), and created an IAM Role for EC2 with that policy attached.
-- **Correction from an earlier pass:** this week's plan originally excluded `gym-service`/`payment-service` because they had no production Dockerfile at the time (see the struck-through Risk row in [Proposal §22](../../2-Proposal/#22-risks)). Both gained one since, so this week's scope was updated to build/push all eight MVP images, not six.
+| Task | Start Date | Completion Date | Reference Materials |
+| --- | --- | --- | --- |
+| Study and complete Module 6: Data & Analytics | 31-7-2026 | 06-8-2026 | 70: https://000070.awsstudygroup.com/ <br>72: https://000072.awsstudygroup.com/ <br>73: https://000073.awsstudygroup.com/ |
 
-### Results Achieved
+### Week 7 Achievements:
 
-- ECR repositories created and populated for MVP services.
-- IAM Role for EC2 defined with least-privilege ECR pull permissions.
-- TODO: Record final image tags used for the first deployment.
+**Overview:**
 
-### Difficulties
+During this week, my primary focus shifted toward big data processing and business intelligence by completing Module 6 (Data & Analytics). The coursework involved designing scalable Data Lake infrastructures, executing complex analytics pipelines, and rendering actionable insights using AWS native visualization tools.
 
-- Authentication errors on first `docker login` attempt to ECR (expired token / wrong region).
+**Note:** The execution phase of Lab 70 (Building a Datalake with Your Data) required an AWS Cloud9 environment. Since AWS Cloud9 is currently inaccessible in my environment, I skipped the hands-on execution for this specific lab, though I thoroughly analyzed the architectural principles and theoretical concepts provided.
 
-### How It Was Resolved
+**Learned theory:**
 
-- Re-ran `aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <account>.dkr.ecr.<region>.amazonaws.com` and confirmed the AWS CLI profile/region matched the ECR repository's region.
+- **Data Lake Foundation:** Grasped the architectural blueprints for building highly scalable, secure, and cost-effective Data Lakes using Amazon S3 to store both structured and unstructured data.
 
-### AWS Skills / Services Learned
+- **Analytics Pipeline:** Mastered the end-to-end data processing workflow, spanning data ingestion mechanisms, robust ETL (Extract, Transform, Load) operations, and high-performance querying logic.
 
-- Amazon ECR repository creation, image lifecycle, and IAM least-privilege policy design for ECR pull access.
+- **Data Visualization:** Learned how to translate raw data feeds and analytical query results into interactive, dynamic dashboards and comprehensive business intelligence reports utilizing Amazon QuickSight.
 
-### Evidence Still Required
+**Hands-on labs:**
 
-- TODO: Screenshot of ECR repositories with pushed images.
-- TODO: Terminal output of `docker push` for each service.
-- TODO: IAM Role/policy screenshot (with account ID redacted).
+- Engineered a conceptual Data Lake infrastructure designed to securely ingest, catalog, and query organizational datasets
+- Executed the comprehensive Analytics on AWS workshop, gaining practical experience in integrating various AWS analytics services to process and analyze large-scale data sets
+- Successfully configured Amazon QuickSight, established secure connections with backend data sources, curated datasets, and published visual dashboards to drive business insights
+- Skipped the active execution of Lab 70 due to the dependency on AWS Cloud9, focusing entirely on mastering the theoretical deployment framework instead
 
-### Day-by-Day / Task Table
+**Applied to Fitness Assistant:**
 
-| Day | Task | Start Date | Completion Date | Reference |
-| --- | ---- | ---------- | ---------------- | --------- |
-| 1 | Create ECR repositories | [TODO_DATE] | [TODO_DATE] | [Workshop 5.8](../../5-Workshop/5.8-ECR/) |
-| 2 | Build, tag and push images | [TODO_DATE] | [TODO_DATE] | [Workshop 5.8](../../5-Workshop/5.8-ECR/) |
-| 3 | Draft and attach IAM Role for EC2 | [TODO_DATE] | [TODO_DATE] | [Workshop 5.11](../../5-Workshop/5.11-IAM-Secrets/) |
-| 4 | Verify images and permissions | [TODO_DATE] | [TODO_DATE] | — |
+Designed Data Lake strategy for Fitness Assistant analytics:
+- Data sources: workout logs, nutrition tracking, InBody measurements, user behavior, AI interactions
+- Architecture: S3 (raw data) → Glue Crawler → Data Catalog → Athena/QuickSight
+- Use cases: workout analytics, nutrition patterns, user engagement metrics, AI performance monitoring
+- Implementation: S3 bucket structure, partitioning strategy, QuickSight dashboards
 
-### Completion Checklist
+### Difficulties Encountered:
 
-- [ ] ECR repositories created for MVP services
-- [ ] Images built, tagged and pushed
-- [ ] IAM Role created with least-privilege ECR pull policy
-- [ ] `gym-service`/`payment-service` images built and pushed alongside the rest of the MVP (scope correction documented, not silently changed)
+- **Cloud9 Limitation:** Unable to access AWS Cloud9, resulting in skipped hands-on for Lab 70
+- **Data Schema Design:** Balancing normalization vs denormalization for analytics
+- **Partitioning Strategy:** Deciding optimal partition granularity
+- **QuickSight Learning Curve:** Many visualization options overwhelming initially
 
-### Related Workshop Section
+### How It Was Resolved:
 
-- [5.8 ECR](../../5-Workshop/5.8-ECR/)
+- **Cloud9:** Focused on architectural patterns from documentation
+- **Schema Design:** Started simple, iterate based on query patterns
+- **Partitioning:** Follow best practice (date-based, 128MB-1GB per partition)
+- **QuickSight:** Started with simple visualizations, gradually explored advanced features
+
+### AWS Skills / Services Learned:
+
+**Services:**
+- Amazon S3 (Data Lake storage)
+- AWS Glue (ETL, Data Catalog, Crawlers)
+- Amazon Athena (serverless SQL queries)
+- Amazon QuickSight (business intelligence)
+- AWS Lake Formation
+- Amazon Kinesis
+
+**Skills:**
+- Data Lake architecture design
+- ETL pipeline development
+- Serverless SQL querying
+- BI dashboard creation
+- Data partitioning strategies
+- Analytics cost optimization
+
+### Connection to Fitness Assistant Architecture:
+
+**Immediate Applications:**
+- Design S3 structure for application logs
+- Plan data schema for analytics
+- Identify key metrics to track
+
+**Future Enhancements:**
+- Implement Data Lake for user behavior analytics
+- Build QuickSight dashboards for business insights
+
+### Related Workshop Sections:
+
+- [5.8 ECR](../../5-Workshop/5.8-ECR/) - Containerization for data processing jobs

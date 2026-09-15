@@ -7,64 +7,181 @@ pre: " <b> 1.7. </b> "
 draft: false
 ---
 
-{{% notice note %}}
-Các mốc thời gian trong trang này là placeholder (`[TODO_DATE]`) cho đến khi có lịch thực tập chính thức.
-{{% /notice %}}
+# WORKLOG TUẦN 7
 
-### Mục tiêu tuần
+### Mục tiêu tuần 7:
 
-- Tạo Amazon ECR repository cho từng service thuộc phạm vi MVP.
-- Build, tag và push Docker image production.
-- Tạo IAM Role để EC2 dùng khi pull image từ ECR.
+- Hoàn thành Module 6: Data & Analytics
+- Học architecture, deployment, và operational best practices để xây dựng enterprise Data Lake
+- Nắm vững full data analytics lifecycle, từ ingestion đến processing và advanced visualization trên AWS
 
-### Công việc đã thực hiện
+### Công việc thực hiện tuần này:
 
-- Tạo một ECR repository cho mỗi service trong MVP (frontend, gateway, auth-service, user-service, fitness-service, ai-service, payment-service, gym-service), khớp với `Dockerfile`/`Dockerfile.production.example` đã xây ở Tuần 3.
-- Đăng nhập Docker vào ECR (`aws ecr get-login-password`), build từng image ở local, gắn tag theo URI của ECR repository, rồi push lên.
-- Xác nhận từng image đã xuất hiện trong ECR repository tương ứng với đúng tag.
-- Soạn thảo IAM policy chỉ cấp đúng quyền pull ECR mà EC2 cần (`ecr:GetAuthorizationToken`, `ecr:BatchGetImage`, `ecr:GetDownloadUrlForLayer`), và tạo IAM Role cho EC2 gắn kèm policy này.
-- **Điều chỉnh so với bản kế hoạch trước đó:** kế hoạch tuần này ban đầu loại `gym-service`/`payment-service` vì lúc đó chưa có Dockerfile production (xem dòng Risk đã gạch ngang ở [Proposal §22](../../2-Proposal/#22-rủi-ro)). Sau đó cả hai đã có, nên phạm vi tuần này được cập nhật thành build/push đủ 8 image thuộc MVP, không phải 6.
+| Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
+| --- | --- | --- | --- |
+| Học và hoàn thành Module 6: Data & Analytics | 31-7-2026 | 06-8-2026 | 70: https://000070.awsstudygroup.com/ <br>72: https://000072.awsstudygroup.com/ <br>73: https://000073.awsstudygroup.com/ |
 
-### Kết quả đạt được
+### Kết quả đạt được tuần 7:
 
-- Đã tạo và đưa image lên ECR repository cho các service thuộc MVP.
-- Đã định nghĩa IAM Role cho EC2 với quyền pull ECR theo nguyên tắc least privilege.
-- TODO: Ghi lại tag image cuối cùng dùng cho lần deploy đầu tiên.
+**Tổng quan:**
 
-### Khó khăn
+Trong tuần này, focus chính của mình chuyển sang big data processing và business intelligence bằng cách hoàn thành Module 6 (Data & Analytics). Coursework bao gồm designing scalable Data Lake infrastructures, executing complex analytics pipelines, và rendering actionable insights sử dụng AWS native visualization tools.
 
-- Lỗi xác thực ở lần `docker login` đầu tiên vào ECR (token hết hạn / sai region).
+**Lưu ý:** Execution phase của Lab 70 (Building a Datalake with Your Data) yêu cầu AWS Cloud9 environment. Do AWS Cloud9 hiện không accessible trong environment của mình, mình skip hands-on execution cho lab này, nhưng thoroughly analyzed architectural principles và theoretical concepts được cung cấp.
 
-### Cách giải quyết
+**Kiến thức lý thuyết học được:**
 
-- Chạy lại `aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <account>.dkr.ecr.<region>.amazonaws.com` và xác nhận profile/region của AWS CLI khớp với region của ECR repository.
+- **Data Lake Foundation:** Nắm architectural blueprints để build highly scalable, secure, và cost-effective Data Lakes sử dụng Amazon S3 để store cả structured và unstructured data.
 
-### Kỹ năng / Dịch vụ AWS đã học
+- **Analytics Pipeline:** Master end-to-end data processing workflow, spanning data ingestion mechanisms, robust ETL (Extract, Transform, Load) operations, và high-performance querying logic.
 
-- Tạo repository Amazon ECR, vòng đời image, và thiết kế IAM policy least-privilege cho quyền pull ECR.
+- **Data Visualization:** Học cách translate raw data feeds và analytical query results thành interactive, dynamic dashboards và comprehensive business intelligence reports sử dụng Amazon QuickSight.
 
-### Bằng chứng cần bổ sung
+**Hands-on labs đã thực hiện:**
 
-- TODO: Screenshot ECR repository đã có image được push.
-- TODO: Output terminal chạy `docker push` cho từng service.
-- TODO: Screenshot IAM Role/policy (đã che account ID).
+- Engineer conceptual Data Lake infrastructure designed để securely ingest, catalog, và query organizational datasets
+- Execute comprehensive Analytics on AWS workshop, gain practical experience trong việc integrate các AWS analytics services để process và analyze large-scale data sets
+- Successfully configure Amazon QuickSight, establish secure connections với backend data sources, curate datasets, và publish visual dashboards để drive business insights
+- Skip active execution của Lab 70 do dependency on AWS Cloud9, focus entirely vào mastering theoretical deployment framework
 
-### Bảng theo ngày / task
+**Áp dụng vào Fitness Assistant:**
 
-| Ngày | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
-| --- | --- | --- | --- | --- |
-| 1 | Tạo ECR repository | [TODO_DATE] | [TODO_DATE] | [Workshop 5.8](../../5-Workshop/5.8-ECR/) |
-| 2 | Build, tag và push image | [TODO_DATE] | [TODO_DATE] | [Workshop 5.8](../../5-Workshop/5.8-ECR/) |
-| 3 | Soạn thảo và gắn IAM Role cho EC2 | [TODO_DATE] | [TODO_DATE] | [Workshop 5.11](../../5-Workshop/5.11-IAM-Secrets/) |
-| 4 | Xác minh image và quyền hạn | [TODO_DATE] | [TODO_DATE] | — |
+**Data Lake Strategy cho Fitness Assistant:**
 
-### Checklist hoàn thành
+Fitness Assistant generate nhiều loại data có thể benefit từ Data Lake architecture:
 
-- [ ] Đã tạo ECR repository cho các service MVP
-- [ ] Đã build, tag và push image
-- [ ] Đã tạo IAM Role với policy pull ECR least-privilege
-- [ ] Đã build và push image của `gym-service`/`payment-service` cùng phần còn lại của MVP (điều chỉnh phạm vi có ghi chép rõ, không âm thầm thay đổi)
+**1. Data Sources cần collect:**
+- **User workout logs:** Exercise records, sets, reps, weights, duration
+- **Nutrition tracking:** Meals, calories, macros, meal photos
+- **InBody measurements:** Weekly/monthly body composition data
+- **User behavior analytics:** App usage patterns, feature adoption, user flows
+- **AI interaction logs:** Chatbot conversations, AI recommendations, feedback
+- **System metrics:** API latency, error rates, service health
 
-### Liên kết Workshop tương ứng
+**2. Data Lake Architecture Design:**
 
-- [5.8 ECR](../../5-Workshop/5.8-ECR/)
+```
+Data Sources → Amazon S3 (Raw Data Lake)
+                ↓
+           AWS Glue Crawler (Auto-discover schema)
+                ↓
+           AWS Glue Data Catalog
+                ↓
+      ┌─────────┴─────────┐
+      ↓                   ↓
+Amazon Athena      Amazon QuickSight
+(Ad-hoc queries)   (Dashboards/BI)
+```
+
+**3. Use Cases cho Data Analytics:**
+
+**Workout Analytics:**
+- Most popular exercises by demographics
+- Average workout duration trends
+- Equipment usage patterns
+- Progress tracking aggregations
+- Workout completion rates
+
+**Nutrition Analytics:**
+- Common dietary patterns
+- Macro distribution trends
+- Meal timing analysis
+- Calorie intake vs fitness goals correlation
+
+**User Engagement:**
+- Daily/Weekly/Monthly Active Users (DAU/WAU/MAU)
+- Feature adoption rates
+- User retention cohorts
+- Churn prediction indicators
+
+**AI Performance:**
+- AI recommendation accuracy
+- User satisfaction với AI responses
+- Common AI query patterns
+- AI response time analysis
+
+**4. Implementation Plan:**
+
+**Phase 1 - Data Collection Setup:**
+- Setup S3 bucket với proper folder structure (year/month/day partitions)
+- Implement application logging để stream data to S3
+- Configure lifecycle policies cho data retention
+
+**Phase 2 - Data Cataloging:**
+- Run AWS Glue Crawler để auto-discover schemas
+- Create Glue Data Catalog tables
+- Setup partitioning strategy
+
+**Phase 3 - Analytics & Visualization:**
+- Write Athena queries cho common analytics
+- Build QuickSight dashboards cho:
+  - User engagement metrics
+  - Workout trends analysis
+  - Nutrition patterns overview
+  - AI performance monitoring
+  - Business KPIs tracking
+
+**5. Cost Optimization:**
+- Use S3 Intelligent-Tiering cho automatic cost optimization
+- Partition data properly để reduce Athena scan costs
+- Use QuickSight SPICE để cache frequent queries
+- Implement data retention policies (keep detailed logs for 90 days, aggregated data for longer)
+
+### Khó khăn gặp phải:
+
+- **Cloud9 Limitation:** Không access được AWS Cloud9 (region restrictions / account limitations), resulting in skipped hands-on cho Lab 70. However, conceptual understanding vẫn được maintain through documentation study.
+
+- **Data Schema Design:** Designing optimal data schema cho analytics challenging - balance giữa normalization (storage efficiency) và denormalization (query performance).
+
+- **Partitioning Strategy:** Decide partition keys phức tạp - partition too granular = too many small files (performance hit), partition too coarse = scan unnecessary data (cost issue).
+
+- **QuickSight Learning Curve:** QuickSight có nhiều visualization options và configuration settings, overwhelming lúc đầu.
+
+### Cách giải quyết:
+
+- **Cloud9 Workaround:** Focus vào architectural patterns và best practices từ lab documentation. Study AWS documentation và video tutorials để understand Data Lake implementation.
+
+- **Schema Design:** Research common analytics patterns trong fitness/health domain. Start với simple schema, iterate based on actual query patterns. Consider using semi-structured data (JSON in S3) cho flexibility.
+
+- **Partitioning Strategy:** Follow best practice: partition by date (year/month/day) cho time-series data. Aim for partition size ~128MB-1GB. Use Glue Crawler partition projection cho automatic partition discovery.
+
+- **QuickSight Learning:** Start với simple visualizations (line charts, bar charts), gradually explore advanced features. Use QuickSight tutorials và sample datasets để practice.
+
+### Kỹ năng / Dịch vụ AWS đã học:
+
+**Services:**
+- Amazon S3 (Data Lake storage)
+- AWS Glue (ETL, Data Catalog, Crawlers)
+- AWS Glue DataBrew (data preparation)
+- Amazon Athena (serverless SQL queries)
+- Amazon QuickSight (business intelligence, visualization)
+- AWS Lake Formation (data lake governance)
+- Amazon Kinesis (real-time data streaming)
+- AWS Glue Streaming ETL
+
+**Skills:**
+- Data Lake architecture design
+- ETL pipeline development
+- Data cataloging và metadata management
+- Serverless SQL querying với Athena
+- Business intelligence dashboard creation
+- Data partitioning strategies
+- Cost optimization cho analytics workloads
+- Data governance và access control
+
+### Liên kết với Fitness Assistant Architecture:
+
+**Immediate Applications:**
+- Design S3 bucket structure cho application logs
+- Plan data schema cho workout/nutrition analytics
+- Identify key metrics to track
+
+**Future Enhancements:**
+- Implement Data Lake cho user behavior analytics
+- Build QuickSight dashboards cho business insights
+- Setup real-time analytics với Kinesis (optional)
+- Create ML pipelines sử dụng data lake (advanced)
+
+### Liên kết Workshop tương ứng:
+
+- [5.8 ECR](../../5-Workshop/5.8-ECR/) - Containerization cho data processing jobs
