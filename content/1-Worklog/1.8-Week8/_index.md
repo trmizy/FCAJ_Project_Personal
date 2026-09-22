@@ -7,25 +7,23 @@ pre: " <b> 1.8. </b> "
 draft: false
 ---
 
-{{% notice note %}}
-Dates in this page are placeholders (`[TODO_DATE]`) until the confirmed internship schedule is available. Do not replace them with invented dates.
-{{% /notice %}}
-
 # WEEK 8 WORKLOG
 
 ### Week 8 Objectives:
 
 - Complete Module 7: AI/ML on AWS, and understand how AWS offers managed machine learning infrastructure through Amazon SageMaker.
 - Attend the SageMaker Immersion Day workshop (Lab 200) to get hands-on exposure to a managed ML workflow, as a point of comparison against the self-hosted LLM approach already used in the Fitness Assistant's `ai-service`.
-- Complete the 3rd required on-site office day.
 - Continue the personal project: deploy the MVP container stack to EC2, building on the ECR image and IAM Role set up in Week 7.
 
 ### Tasks to be carried out this week:
 
 | Task | Start Date | Completion Date | Reference Materials |
 | --- | --- | --- | --- |
-| Study and complete Module 7: AI/ML on AWS, including SageMaker Immersion Day | [TODO_DATE] | [TODO_DATE] | 200: https://000200.awsstudygroup.com/ |
-| Deploy the MVP stack to EC2 (personal project) | [TODO_DATE] | [TODO_DATE] | [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/) |
+| Study Module 7 (AI/ML on AWS) | 07-8-2026 | 08-8-2026 | 200: https://000200.awsstudygroup.com/ |
+| Complete SageMaker Immersion Day (Lab 200) | 09-8-2026 | 09-8-2026 | 200: https://000200.awsstudygroup.com/ |
+| Launch EC2, attach IAM Role and Security Group | 10-8-2026 | 10-8-2026 | [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/) |
+| Install Docker/Docker Compose, pull images from ECR, deploy `docker-compose.aws.example.yml` | 11-8-2026 | 12-8-2026 | [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/) |
+| Validate containers and resource usage | 13-8-2026 | 13-8-2026 | — |
 
 ### Week 8 Achievements:
 
@@ -41,7 +39,6 @@ This week was split between the FCJ curriculum (Module 7: AI/ML on AWS) and the 
 **Hands-on labs:**
 
 - Completed the SageMaker Immersion Day workshop (Lab 200): created a notebook instance, trained a sample model, and deployed it to a real-time inference endpoint.
-- Attended the 3rd on-site office day.
 - Continued the personal project's EC2 deployment: launched an EC2 instance in the public subnet, attached the IAM Role created in Week 7, and applied the EC2 Security Group from Week 5.
 - Installed Docker Engine and the Docker Compose plugin, logged in to ECR, and pulled the MVP images.
 - Wrote a `docker-compose.aws.example.yml` describing how the MVP services (frontend, gateway, auth-service, user-service, fitness-service, ai-service) are wired together on EC2, pointing `DATABASE_URL` at the RDS endpoint from Week 6 instead of a local Postgres container.
@@ -70,43 +67,6 @@ Working through the SageMaker lab made it easier to justify, in writing, why the
 **Skills:**
 - Comparing managed vs. self-hosted ML inference cost and operational trade-offs
 - Practical instance-sizing decisions for containerized workloads with an embedded LLM
-
-### Connection to Fitness Assistant Architecture:
-
-**Immediate Applications:**
-- Documented the reasoning for self-hosting the LLM instead of using a managed SageMaker endpoint, as a design-decision record for the Proposal.
-- MVP containers now running on EC2, connected to RDS.
-
-**Future Enhancements:**
-- Revisit the SageMaker option if the AI feature set grows enough that operating Ollama/Qdrant directly becomes a bigger burden than paying for a managed endpoint.
-- TODO: Confirm the final instance type chosen and record actual CPU/RAM usage under load.
-
-### Evidence Still Required:
-
-- TODO: Screenshot of the SageMaker Immersion Day notebook/endpoint.
-- TODO: Screenshot of the EC2 instance details.
-- TODO: `docker ps` output showing running containers.
-- TODO: `docker compose logs` excerpt showing successful startup.
-- TODO: Sign-in evidence for the 3rd office day.
-
-### Day-by-Day / Task Table
-
-| Day | Task | Start Date | Completion Date | Reference |
-| --- | ---- | ---------- | ---------------- | --------- |
-| 1 | Study Module 7 (AI/ML on AWS) | [TODO_DATE] | [TODO_DATE] | 200: https://000200.awsstudygroup.com/ |
-| 2 | Complete SageMaker Immersion Day (Lab 200) | [TODO_DATE] | [TODO_DATE] | 200: https://000200.awsstudygroup.com/ |
-| 3 | Launch EC2, attach IAM Role and Security Group | [TODO_DATE] | [TODO_DATE] | [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/) |
-| 4 | Install Docker/Docker Compose, pull images from ECR, deploy `docker-compose.aws.example.yml` | [TODO_DATE] | [TODO_DATE] | [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/) |
-| 5 | Validate containers and resource usage; 3rd office day | [TODO_DATE] | [TODO_DATE] | — |
-
-### Completion Checklist
-
-- [ ] Module 7 (AI/ML on AWS) studied
-- [ ] SageMaker Immersion Day (Lab 200) completed
-- [ ] 3rd office day attended
-- [ ] EC2 launched with correct IAM Role and Security Group
-- [ ] Docker/Docker Compose installed, images pulled from ECR, stack started
-- [ ] Instance-sizing risk for Ollama/AI service documented
 
 ### Related Workshop Section
 

@@ -7,25 +7,23 @@ pre: " <b> 1.8. </b> "
 draft: false
 ---
 
-{{% notice note %}}
-Các mốc thời gian trong trang này là placeholder (`[TODO_DATE]`) cho đến khi có lịch thực tập chính thức. Không tự thay bằng ngày bịa đặt.
-{{% /notice %}}
-
 # WORKLOG TUẦN 8
 
 ### Mục tiêu tuần 8:
 
 - Hoàn thành Module 7: AI/ML on AWS, hiểu cách AWS cung cấp hạ tầng machine learning managed thông qua Amazon SageMaker.
 - Tham gia workshop SageMaker Immersion Day (Lab 200) để trải nghiệm thực tế một managed ML workflow, làm điểm so sánh với cách self-host LLM đang dùng ở `ai-service` của Fitness Assistant.
-- Hoàn thành buổi lên văn phòng thứ 3 (trong tổng 10 buổi bắt buộc).
 - Tiếp tục personal project: deploy MVP container stack lên EC2, dựa trên ECR image và IAM Role đã tạo ở Tuần 7.
 
 ### Công việc thực hiện tuần này:
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
 | --- | --- | --- | --- |
-| Học và hoàn thành Module 7: AI/ML on AWS, bao gồm SageMaker Immersion Day | [TODO_DATE] | [TODO_DATE] | 200: https://000200.awsstudygroup.com/ |
-| Deploy MVP stack lên EC2 (personal project) | [TODO_DATE] | [TODO_DATE] | [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/) |
+| Học Module 7 (AI/ML on AWS) | 07-8-2026 | 08-8-2026 | 200: https://000200.awsstudygroup.com/ |
+| Hoàn thành SageMaker Immersion Day (Lab 200) | 09-8-2026 | 09-8-2026 | 200: https://000200.awsstudygroup.com/ |
+| Khởi tạo EC2, gắn IAM Role và Security Group | 10-8-2026 | 10-8-2026 | [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/) |
+| Cài Docker/Docker Compose, pull image từ ECR, deploy `docker-compose.aws.example.yml` | 11-8-2026 | 12-8-2026 | [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/) |
+| Kiểm tra container và mức sử dụng tài nguyên | 13-8-2026 | 13-8-2026 | — |
 
 ### Kết quả đạt được tuần 8:
 
@@ -41,7 +39,6 @@ Tuần này chia làm hai phần: chương trình FCJ (Module 7: AI/ML on AWS) v
 **Hands-on labs đã thực hiện:**
 
 - Hoàn thành workshop SageMaker Immersion Day (Lab 200): tạo notebook instance, train một model mẫu, và deploy lên real-time inference endpoint.
-- Tham dự buổi lên văn phòng thứ 3.
 - Tiếp tục phần EC2 deployment của personal project: khởi tạo EC2 instance trong public subnet, gắn IAM Role đã tạo ở Tuần 7, và áp dụng Security Group EC2 từ Tuần 5.
 - Cài đặt Docker Engine và Docker Compose plugin, đăng nhập ECR, pull image MVP.
 - Viết file `docker-compose.aws.example.yml` mô tả cách các service MVP (frontend, gateway, auth-service, user-service, fitness-service, ai-service) kết nối với nhau trên EC2, trỏ `DATABASE_URL` tới endpoint RDS từ Tuần 6 thay vì container Postgres local.
@@ -70,43 +67,6 @@ Làm qua lab SageMaker giúp dễ giải thích bằng văn bản hơn lý do pr
 **Skills:**
 - So sánh đánh đổi chi phí/vận hành giữa managed và self-hosted ML inference
 - Ra quyết định sizing instance thực tế cho workload container có LLM nhúng kèm
-
-### Liên kết với Fitness Assistant Architecture:
-
-**Immediate Applications:**
-- Ghi lại lý do self-host LLM thay vì dùng managed SageMaker endpoint, làm design-decision record cho Proposal.
-- Container MVP hiện đã chạy trên EC2, kết nối tới RDS.
-
-**Future Enhancements:**
-- Cân nhắc lại phương án SageMaker nếu tập tính năng AI mở rộng đến mức tự vận hành Ollama/Qdrant trở thành gánh nặng lớn hơn chi phí trả cho managed endpoint.
-- TODO: Xác nhận loại instance cuối cùng được chọn và ghi lại mức sử dụng CPU/RAM thực tế khi tải.
-
-### Bằng chứng cần bổ sung:
-
-- TODO: Screenshot notebook/endpoint của SageMaker Immersion Day.
-- TODO: Screenshot chi tiết EC2 instance.
-- TODO: Output lệnh `docker ps` thể hiện container đang chạy.
-- TODO: Trích đoạn `docker compose logs` cho thấy khởi động thành công.
-- TODO: Bằng chứng điểm danh buổi lên văn phòng thứ 3.
-
-### Bảng theo ngày / task
-
-| Ngày | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
-| --- | --- | --- | --- | --- |
-| 1 | Học Module 7 (AI/ML on AWS) | [TODO_DATE] | [TODO_DATE] | 200: https://000200.awsstudygroup.com/ |
-| 2 | Hoàn thành SageMaker Immersion Day (Lab 200) | [TODO_DATE] | [TODO_DATE] | 200: https://000200.awsstudygroup.com/ |
-| 3 | Khởi tạo EC2, gắn IAM Role và Security Group | [TODO_DATE] | [TODO_DATE] | [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/) |
-| 4 | Cài Docker/Docker Compose, pull image từ ECR, deploy `docker-compose.aws.example.yml` | [TODO_DATE] | [TODO_DATE] | [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/) |
-| 5 | Kiểm tra container, mức sử dụng tài nguyên; buổi lên văn phòng thứ 3 | [TODO_DATE] | [TODO_DATE] | — |
-
-### Checklist hoàn thành
-
-- [ ] Đã học Module 7 (AI/ML on AWS)
-- [ ] Đã hoàn thành SageMaker Immersion Day (Lab 200)
-- [ ] Đã tham dự buổi lên văn phòng thứ 3
-- [ ] Đã khởi tạo EC2 với đúng IAM Role và Security Group
-- [ ] Đã cài Docker/Docker Compose, pull image từ ECR, khởi động stack
-- [ ] Đã ghi lại rủi ro kích thước instance cho Ollama/AI service
 
 ### Liên kết Workshop tương ứng
 
