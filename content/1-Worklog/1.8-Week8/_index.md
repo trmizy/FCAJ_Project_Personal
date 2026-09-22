@@ -15,16 +15,6 @@ draft: false
 - Attend the SageMaker Immersion Day workshop (Lab 200) to get hands-on exposure to a managed ML workflow, as a point of comparison against the self-hosted LLM approach already used in the Fitness Assistant's `ai-service`.
 - Continue the personal project: deploy the MVP container stack to EC2, building on the ECR image and IAM Role set up in Week 7.
 
-### Tasks to be carried out this week:
-
-| Task | Start Date | Completion Date | Reference Materials |
-| --- | --- | --- | --- |
-| Study Module 7 (AI/ML on AWS) | 07-8-2026 | 08-8-2026 | 200: https://000200.awsstudygroup.com/ |
-| Complete SageMaker Immersion Day (Lab 200) | 09-8-2026 | 09-8-2026 | 200: https://000200.awsstudygroup.com/ |
-| Launch EC2, attach IAM Role and Security Group | 10-8-2026 | 10-8-2026 | [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/) |
-| Install Docker/Docker Compose, pull images from ECR, deploy `docker-compose.aws.example.yml` | 11-8-2026 | 12-8-2026 | [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/) |
-| Validate containers and resource usage | 13-8-2026 | 13-8-2026 | — |
-
 ### Week 8 Achievements:
 
 **Overview:**

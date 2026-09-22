@@ -15,16 +15,6 @@ draft: false
 - Tham gia workshop SageMaker Immersion Day (Lab 200) để trải nghiệm thực tế một managed ML workflow, làm điểm so sánh với cách self-host LLM đang dùng ở `ai-service` của Fitness Assistant.
 - Tiếp tục personal project: deploy MVP container stack lên EC2, dựa trên ECR image và IAM Role đã tạo ở Tuần 7.
 
-### Công việc thực hiện tuần này:
-
-| Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
-| --- | --- | --- | --- |
-| Học Module 7 (AI/ML on AWS) | 07-8-2026 | 08-8-2026 | 200: https://000200.awsstudygroup.com/ |
-| Hoàn thành SageMaker Immersion Day (Lab 200) | 09-8-2026 | 09-8-2026 | 200: https://000200.awsstudygroup.com/ |
-| Khởi tạo EC2, gắn IAM Role và Security Group | 10-8-2026 | 10-8-2026 | [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/) |
-| Cài Docker/Docker Compose, pull image từ ECR, deploy `docker-compose.aws.example.yml` | 11-8-2026 | 12-8-2026 | [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/) |
-| Kiểm tra container và mức sử dụng tài nguyên | 13-8-2026 | 13-8-2026 | — |
-
 ### Kết quả đạt được tuần 8:
 
 **Tổng quan:**
