@@ -1,5 +1,5 @@
-baseURL = "/"
-relativeURLs = true
+baseURL = "https://trmizy.github.io/FCAJ_Project_Personal/"
+relativeURLs = false
 canonifyURLs = false
 defaultContentLanguage = "en"
 
