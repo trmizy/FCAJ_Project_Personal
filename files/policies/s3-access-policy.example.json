@@ -1,0 +1,22 @@
+{
+  "_comment": "Planned, not yet in use — see content/5-Workshop/5.10-S3-Storage/. Only attach this once an actual S3 client has been added to user-service and verified.",
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "UserUploadsBucketReadWrite",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::<YOUR_BUCKET_NAME>/*"
+    },
+    {
+      "Sid": "UserUploadsBucketList",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::<YOUR_BUCKET_NAME>"
+    }
+  ]
+}
