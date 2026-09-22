@@ -1,5 +1,5 @@
 baseURL = "/"
-relativeURLs = false
+relativeURLs = true
 canonifyURLs = false
 defaultContentLanguage = "en"
 
