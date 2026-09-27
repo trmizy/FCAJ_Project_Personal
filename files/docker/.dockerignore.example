@@ -1,0 +1,19 @@
+# Reference .dockerignore — adapt per service as needed.
+node_modules
+**/node_modules
+.env
+.env.*
+!.env.example
+dist
+**/dist
+.git
+.github
+*.log
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+docs
+test
+training
+data
