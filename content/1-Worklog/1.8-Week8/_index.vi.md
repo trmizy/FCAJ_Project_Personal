@@ -1,5 +1,5 @@
 ---
-title: "Worklog Tuần 8"
+title: "Tuần 8"
 date: 2026-07-15
 weight: 8
 chapter: false
@@ -11,53 +11,149 @@ draft: false
 
 ### Mục tiêu tuần 8:
 
-- Hoàn thành Module 7: AI/ML on AWS, hiểu cách AWS cung cấp hạ tầng machine learning managed thông qua Amazon SageMaker.
-- Tham gia workshop SageMaker Immersion Day (Lab 200) để trải nghiệm thực tế một managed ML workflow, làm điểm so sánh với cách self-host LLM đang dùng ở `ai-service` của Fitness Assistant.
-- Tiếp tục personal project: deploy MVP container stack lên EC2, dựa trên ECR image và IAM Role đã tạo ở Tuần 7.
+- Hoàn thành Module 7: AI/ML service on AWS
+- Trải nghiệm AWS SageMaker thông qua workshop Immersion Day
+- Tiếp tục tích hợp vào môi trường công ty
+
+### Công việc thực hiện tuần này:
+
+| Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
+| --- | --- | --- | --- |
+| Học và hoàn thành Module 7: AI/ML service on AWS | 07-8-2026 | 13-8-2026 | Lab 200: https://000200.awsstudygroup.com/ |
 
 ### Kết quả đạt được tuần 8:
 
 **Tổng quan:**
 
-Tuần này chia làm hai phần: chương trình FCJ (Module 7: AI/ML on AWS) và phần AI của chính personal project. Học về managed ML infrastructure của SageMaker hoá ra lại là điểm đối chiếu hữu ích cho một quyết định đã có sẵn trong project Fitness Assistant: `ai-service` đang self-host LLM (Ollama, model mặc định `llama3.2:3b`) và vector database (Qdrant) thay vì gọi một managed AWS ML endpoint.
+Trong tuần này, mình shift focus sang Artificial Intelligence và Machine Learning trên AWS bằng cách hoàn thành Module 7. Mình gain practical exposure với AWS SageMaker thông qua hands-on workshop. In addition, mình continue engage với team và professional community.
 
 **Kiến thức lý thuyết học được:**
 
-- **Amazon SageMaker fundamentals:** SageMaker giúp bỏ qua phần "undifferentiated heavy lifting" khi provision hạ tầng training/inference — managed notebook instance, built-in algorithm, và deploy model lên hosted endpoint chỉ với vài thao tác.
-- **Đánh đổi giữa managed vs self-hosted inference:** SageMaker endpoint tính phí theo instance-hour trong lúc chạy và scale qua cấu hình, trong khi self-host LLM trên EC2 có chi phí cố định nhưng người vận hành phải tự chọn size và quản lý instance — liên quan trực tiếp tới bài toán sizing của `ai-service` đã đặt ra trong project này.
+- **AI/ML on AWS:** Hiểu fundamentals của Machine Learning workflows trên cloud, các service chính của AWS cho ML lifecycle.
+
+- **AWS SageMaker:** Học cách build, train, và deploy machine learning models nhanh chóng sử dụng SageMaker's fully managed infrastructure.
 
 **Hands-on labs đã thực hiện:**
 
-- Hoàn thành workshop SageMaker Immersion Day (Lab 200): tạo notebook instance, train một model mẫu, và deploy lên real-time inference endpoint.
-- Tiếp tục phần EC2 deployment của personal project: khởi tạo EC2 instance trong public subnet, gắn IAM Role đã tạo ở Tuần 7, và áp dụng Security Group EC2 từ Tuần 5.
-- Cài đặt Docker Engine và Docker Compose plugin, đăng nhập ECR, pull image MVP.
-- Viết file `docker-compose.aws.example.yml` mô tả cách các service MVP (frontend, gateway, auth-service, user-service, fitness-service, ai-service) kết nối với nhau trên EC2, trỏ `DATABASE_URL` tới endpoint RDS từ Tuần 6 thay vì container Postgres local.
-- Khởi động stack và kiểm tra trạng thái, log của container.
+- Successfully completed SageMaker Immersion Day workshop (Lab 200), getting hands-on experience với deploying và testing ML models
+- Thử nghiệm các tính năng của SageMaker: notebook instances, training jobs, model deployment, real-time inference endpoints
 
 **Áp dụng vào Fitness Assistant:**
 
-Làm qua lab SageMaker giúp dễ giải thích bằng văn bản hơn lý do project chọn self-host LLM thay vì dùng managed endpoint: ở quy mô hiện tại, một EC2 instance chi phí cố định chạy Ollama rẻ hơn so với trả theo giờ cho SageMaker endpoint, đồng thời giữ được toàn quyền kiểm soát model gợi ý tập luyện. Đánh đổi được nêu rõ khi size EC2 instance tuần này là: instance giờ phải tính đủ cho cả AI workload chứ không chỉ phần còn lại của stack — `ai-service` phụ thuộc vào Ollama và Qdrant, cả hai đều cần nhiều CPU/RAM hơn hẳn so với `t3.micro`.
+**ML Use Cases cho Fitness Assistant:**
+
+Sau khi học về AWS ML services, mình identify potential ML applications:
+
+**1. Workout Recommendations (AI Service đã có - Enhancement):**
+- Current: Ollama self-hosted LLM cho workout recommendations
+- Enhancement opportunity: Evaluate Amazon Bedrock vs self-hosted
+- Trade-off analysis: Cost (per-request vs fixed EC2), Control (full vs managed), Latency
+
+**2. Exercise Form Analysis (Future Enhancement):**
+- Use case: Analyze workout videos/photos để check form correctness
+- AWS Service: Amazon Rekognition Custom Labels hoặc SageMaker custom model
+- Training data: Labeled videos của correct vs incorrect exercise forms
+- Deployment: Real-time inference endpoint hoặc batch processing
+
+**3. Personalized Nutrition Recommendations:**
+- Use case: Recommend meals based on user preferences, goals, dietary restrictions
+- Approach: SageMaker model trained trên user nutrition data và outcomes
+- Features: User demographics, fitness goals, past meal ratings, macro targets
+- Output: Personalized meal suggestions
+
+**4. Workout Progress Prediction:**
+- Use case: Predict user's future performance based on historical data
+- ML Model: Time-series forecasting với SageMaker built-in algorithms
+- Features: Past workout performance, consistency, nutrition adherence
+- Value: Help users set realistic goals
+
+**5. Churn Prediction:**
+- Use case: Identify users at risk of stopping app usage
+- Model: Binary classification (churn/not churn)
+- Features: Login frequency, workout completion rate, feature usage patterns
+- Action: Trigger retention campaigns for at-risk users
+
+**SageMaker vs Self-Hosted Decision:**
+
+**For AI Service (LLM-based recommendations):**
+- **Current:** Self-hosted Ollama trên EC2
+- **Pros:** Fixed cost, full control, no per-request charges
+- **Cons:** Require larger EC2 instance, manual scaling, maintenance overhead
+- **Consideration:** Evaluate Amazon Bedrock for managed alternative
+
+**For Computer Vision (Exercise Form):**
+- **Recommendation:** Use SageMaker hoặc Rekognition
+- **Reason:** Model training infrastructure costly để self-host, managed services cost-effective for this use case
+
+**Implementation Roadmap:**
+
+**Phase 1 - Current State:**
+- Self-hosted Ollama LLM cho text-based recommendations
+- Continue current approach, document sizing requirements
+
+**Phase 2 - Enhancement (3-6 months):**
+- Pilot Amazon Bedrock integration (parallel với Ollama)
+- A/B test quality và cost của both approaches
+- Collect data cho future ML models (exercise form images, user interactions)
+
+**Phase 3 - Advanced ML (6-12 months):**
+- Train custom SageMaker model cho exercise form analysis
+- Implement personalized nutrition recommendation system
+- Build churn prediction model
 
 ### Khó khăn gặp phải:
 
-- **Đường cong học SageMaker:** console của SageMaker có nhiều thành phần (notebook instance, training job, model registry, endpoint) nên mất thời gian để map sang flow self-host đơn giản hơn đang dùng trong project.
-- **Sizing EC2 cho AI workload:** `t3.micro` (1 vCPU, 1 GiB RAM) không thực tế để chạy Ollama cùng phần còn lại của stack — đây được xác định là rủi ro về tài nguyên, không bị bỏ qua.
+- **SageMaker Learning Curve:** SageMaker console có nhiều components (notebook instance, training job, model registry, endpoint), overwhelming lúc đầu.
+
+- **Cost Understanding:** SageMaker pricing model phức tạp (instance hours, training costs, inference costs, storage). Khó estimate costs cho production workloads.
+
+- **Model Selection:** AWS có nhiều ML services (SageMaker, Bedrock, Rekognition, Comprehend, Personalize). Confusing về khi nào dùng service nào.
+
+- **Integration Planning:** Unclear về cách integrate SageMaker endpoints với existing Fitness Assistant architecture.
 
 ### Cách giải quyết:
 
-- **SageMaker:** làm hết lab Immersion Day từ đầu đến cuối thay vì lướt qua, dùng endpoint đã deploy làm điểm neo cụ thể để hình dung managed alternative sẽ trông như thế nào.
-- **Sizing instance:** ghi lại kích thước instance tối thiểu khuyến nghị cho toàn bộ AI stack ở [Workshop 5.9](../../5-Workshop/5.9-EC2-Deployment/), và ghi chú rằng instance nhỏ hơn (ví dụ Free Tier) chỉ thực tế chạy được MVP nếu không có AI service dùng Ollama, hoặc AI service được trỏ tới một endpoint LLM từ xa/managed khác.
+- **Learning:** Complete full Immersion Day workshop end-to-end thay vì skim. Take notes về key concepts và best practices.
+
+- **Cost Analysis:** Use AWS Pricing Calculator để estimate costs. So sánh SageMaker costs với current self-hosted approach cho Fitness Assistant use case.
+
+- **Service Selection:** Create decision matrix: 
+  - Bedrock: Pre-trained foundation models (LLM, text generation)
+  - SageMaker: Custom model training và deployment
+  - Rekognition: Pre-trained computer vision (object/face detection)
+  - Use SageMaker khi need custom model, use managed services (Bedrock/Rekognition) khi pre-trained sufficient.
+
+- **Integration:** Design architecture diagram cho SageMaker endpoint integration với API Gateway → Lambda → SageMaker pattern.
 
 ### Kỹ năng / Dịch vụ AWS đã học:
 
 **Services:**
-- Amazon SageMaker (notebook instance, training job, real-time inference endpoint)
-- Cấu hình khởi tạo EC2 (AMI, instance type, IAM Role, Security Group, EBS)
+- Amazon SageMaker (notebook instances, training jobs, model deployment, endpoints)
+- SageMaker Built-in Algorithms
+- SageMaker Studio
+- Amazon Bedrock (overview, comparison với SageMaker)
+- Amazon Rekognition (overview)
 
 **Skills:**
-- So sánh đánh đổi chi phí/vận hành giữa managed và self-hosted ML inference
-- Ra quyết định sizing instance thực tế cho workload container có LLM nhúng kèm
+- ML workflow trên AWS cloud
+- Model training và deployment best practices
+- Managed vs self-hosted ML infrastructure trade-offs
+- Cost optimization cho ML workloads
+- Real-time inference endpoint design
+- Batch prediction strategies
 
-### Liên kết Workshop tương ứng
+### Liên kết với Fitness Assistant Architecture:
 
-- [5.9 EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/)
+**Immediate Applications:**
+- Document current AI service architecture
+- Cost analysis: Self-hosted vs managed alternatives
+- Plan data collection strategy cho future ML models
+
+**Future Enhancements:**
+- Exercise form analysis với computer vision
+- Personalized recommendations với custom ML models
+- Churn prediction và user engagement optimization
+
+### Liên kết Workshop tương ứng:
+
+- [5.9 EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/) - AI service deployment strategies
