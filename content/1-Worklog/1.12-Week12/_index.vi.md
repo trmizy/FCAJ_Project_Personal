@@ -1,5 +1,5 @@
 ---
-title: "Worklog Tuần 12"
+title: "Tuần 12"
 date: 2026-07-15
 weight: 12
 chapter: false
@@ -7,66 +7,61 @@ pre: " <b> 1.12. </b> "
 draft: false
 ---
 
-{{% notice note %}}
-Các mốc thời gian trong trang này là placeholder (`[TODO_DATE]`) cho đến khi có lịch thực tập chính thức.
-{{% /notice %}}
+# WORKLOG TUẦN 12
 
-### Mục tiêu tuần
+### Mục tiêu tuần 12:
 
-- Dọn dẹp toàn bộ tài nguyên AWS đã tạo để thử nghiệm nhằm tránh phát sinh chi phí.
-- Thu thập và sắp xếp toàn bộ screenshot/bằng chứng thu thập trong quá trình thực tập.
-- Hoàn thiện báo cáo song ngữ, viết phần tự đánh giá và reflection.
+- Finalize và aggregate 12-week technical worklog documentation cho culminating internship report
 
-### Công việc đã thực hiện
+### Công việc thực hiện tuần này:
 
-- Thực hiện đúng trình tự clean-up ở [Workshop 5.16](../../5-Workshop/5.16-Cleanup/) theo thứ tự phụ thuộc (container → alarm/SNS → object S3 nếu có → image ECR → RDS → EC2/EIP → networking → IAM/Secrets).
-- Thu thập và sắp xếp toàn bộ screenshot vào cấu trúc thư mục `static/images/`, khớp mỗi ảnh với đúng bước workshop mà nó minh họa.
-- Rà soát từng trang báo cáo để tìm các đánh dấu `TODO` và xác nhận mục nào còn tồn đọng, mục nào đã giải quyết.
-- Hoàn thiện mục [Self-evaluation](../../6-Self-evaluation/) và [Sharing and Feedback](../../7-Feedback/).
-- Rà soát kiến trúc cuối cùng so với những gì thực sự đã triển khai, viết [Conclusion](../../5-Workshop/5.17-Conclusion/) so sánh trung thực giữa kế hoạch và kết quả (bao gồm cả những phần chưa hoàn thành).
+| Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
+| --- | --- | --- | --- |
+| Finalize và aggregate 12-week technical worklog documentation cho culminating internship report | 05-9-2026 | 10-9-2026 | |
 
-### Kết quả đạt được
+### Kết quả đạt được tuần 12:
 
-- Tài nguyên AWS đã được dọn dẹp (hoặc có lý do rõ ràng nếu cố tình giữ lại tài nguyên nào đó, ví dụ để chấm điểm/demo).
-- Báo cáo song ngữ hoàn chỉnh với đầy đủ các mục.
-- TODO: Có người thứ hai (mentor hoặc bạn học) đọc lại lần cuối trước khi nộp.
+**Tổng quan:**
 
-### Khó khăn
+Trong final week này, primary operational focus của mình là review, refine, và aggregate comprehensive 12-week worklog documentation. Effort này serve để systematize all knowledge và outcomes achieved throughout internship và project lifecycle, ensuring full readiness cho final internship report.
 
-- Một số tài nguyên có ràng buộc phụ thuộc khiến việc xóa sai thứ tự bị chặn (ví dụ Security Group vẫn đang được một ENI tham chiếu, hoặc IAM Role vẫn gắn với instance profile đang sử dụng).
+**Kiến thức lý thuyết học được:**
 
-### Cách giải quyết
+- **Documentation and Reporting:** Enhanced skills trong việc systematize information và present technical documentation theo clear, professional, và logical manner.
 
-- Tuân theo checklist clean-up có thứ tự phụ thuộc rõ ràng ở [Workshop 5.16](../../5-Workshop/5.16-Cleanup/) thay vì xóa tùy tiện, và kiểm tra lại console Billing/Resource Explorer sau đó để xác nhận không còn tài nguyên nào chạy ngoài dự kiến.
+- **Retrospective Assessment:** Systematically reviewed entire project lifecycle, từ ideation và architectural design đến infrastructure deployment và environment testing.
 
-### Kỹ năng / Dịch vụ AWS đã học
+**Hands-on labs đã thực hiện:**
 
-- Kỹ năng gỡ bỏ tài nguyên an toàn, có tính đến phụ thuộc.
-- Sử dụng AWS Billing và Resource Explorer để xác minh tài khoản đã sạch sau khi dọn dẹp.
+- Completed detailed documentation cho all internship weeks within worklog system
+- Conducted thorough reviews của spelling, grammar, và overall document formatting
+- Packaged all finalized materials để support polished và professional final report
 
-### Bằng chứng cần bổ sung
+**Fitness Assistant Project Summary:**
 
-- TODO: Screenshot Billing dashboard cho thấy không còn tài nguyên chạy ngoài dự kiến sau clean-up.
-- TODO: Danh sách cuối cùng các tài nguyên cố tình giữ lại, kèm lý do.
+**Architecture Achievements:**
+- Designed và documented cloud-native architecture
+- Containerized microservices deployment
+- Database migration strategy (RDS PostgreSQL)
+- Security best practices implementation
+- Cost optimization strategies
 
-### Bảng theo ngày / task
+**Technical Skills Gained:**
+- AWS core services (EC2, RDS, S3, ECR, VPC, IAM)
+- Container orchestration (Docker, ECS concepts)
+- Serverless architecture patterns
+- Data analytics (Glue, Athena, QuickSight)
+- AI/ML services (SageMaker, Bedrock)
+- Security và compliance best practices
 
-| Ngày | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
-| --- | --- | --- | --- | --- |
-| 1 | Dọn dẹp tài nguyên AWS theo đúng thứ tự phụ thuộc | [TODO_DATE] | [TODO_DATE] | [Workshop 5.16](../../5-Workshop/5.16-Cleanup/) |
-| 2 | Sắp xếp screenshot và bằng chứng | [TODO_DATE] | [TODO_DATE] | `static/images/` |
-| 3 | Hoàn thiện mục Self-evaluation và Feedback | [TODO_DATE] | [TODO_DATE] | [Self-evaluation](../../6-Self-evaluation/), [Feedback](../../7-Feedback/) |
-| 4 | Rà soát cuối cùng và viết Conclusion | [TODO_DATE] | [TODO_DATE] | [Workshop 5.17](../../5-Workshop/5.17-Conclusion/) |
+**Community Contributions:**
+- Published technical blogs về cost optimization và security
+- Participated trong FCAJ Community Day events
+- Shared knowledge với AWS Study Group VN community
 
-### Checklist hoàn thành
-
-- [ ] Đã dọn dẹp tài nguyên AWS theo đúng thứ tự phụ thuộc
-- [ ] Đã kiểm tra Billing dashboard để phát hiện tài nguyên còn sót
-- [ ] Đã sắp xếp toàn bộ screenshot và liên kết vào báo cáo
-- [ ] Đã hoàn thiện mục Self-evaluation và Feedback
-- [ ] Đã viết Conclusion trung thực so với Proposal ban đầu
-
-### Liên kết Workshop tương ứng
-
-- [5.16 Cleanup](../../5-Workshop/5.16-Cleanup/)
-- [5.17 Conclusion](../../5-Workshop/5.17-Conclusion/)
+**Project Outcomes:**
+- Production-ready deployment documentation
+- Comprehensive architecture diagrams
+- Cost analysis và optimization recommendations
+- Security hardening checklist
+- Scalability và reliability planning

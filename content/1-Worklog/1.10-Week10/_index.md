@@ -1,5 +1,5 @@
 ---
-title: "Week 10 Worklog"
+title: "Week 10"
 date: 2026-07-15
 weight: 10
 chapter: false
@@ -7,65 +7,55 @@ pre: " <b> 1.10. </b> "
 draft: false
 ---
 
-{{% notice note %}}
-Dates in this page are placeholders (`[TODO_DATE]`) until the confirmed internship schedule is available.
-{{% /notice %}}
+# WORKLOG WEEK 10
 
-### Week Objectives
+### Week 10 Objectives:
 
-- Set up centralized logging with Amazon CloudWatch Logs.
-- Configure basic CloudWatch metrics and alarms for EC2 and RDS.
-- Set up an Amazon SNS topic with email notification for alarms.
+- Contribute technical articles to the community about advanced AWS security and AI topics
+- Work on frontend development for group project
+- Connect with professional community through office visits and events
 
-### Tasks Performed
+### Work Completed This Week:
 
-- Installed and configured the CloudWatch Agent on the EC2 instance to ship container/application logs and host-level metrics (memory, disk) that are not available by default from basic EC2 monitoring.
-- Created CloudWatch Log Groups with an explicit retention period (not "Never expire", to control cost).
-- Created a CloudWatch Dashboard summarizing EC2 CPU, memory (via the Agent), disk usage, and RDS CPU/connections/storage.
-- Created a CloudWatch Alarm for high EC2 CPU utilization and one for EC2 status check failures.
-- Created an Amazon SNS topic, subscribed an email address to it, and confirmed the subscription.
-- Wired the alarms to publish to the SNS topic, and sent a test notification to confirm the full chain: **Metric → Alarm → SNS → Email**.
+| Task | Start Date | Completion Date | Reference Materials |
+| --- | --- | --- | --- |
+| Wrote 2 technical blogs for AWS Study Group VN Facebook group:<br>- Blog 1: Secure Multi-tenant RAG with Amazon Bedrock and Verified Permissions<br>- Blog 2: Limit AWS Management Console access with Trusted Networks | 21-8-2026 | 27-8-2026 | |
+| Developed frontend for group project (Homepage, Navbar, Footer, Product details, Cart, Order management, Checkout pages) | 21-8-2026 | 27-8-2026 | |
 
-### Results Achieved
+### Week 10 Results:
 
-- Working log pipeline from containers to CloudWatch Logs.
-- Alarms configured and (pending test) verified to notify by email.
-- TODO: Confirm the test alarm actually fired and the email was received; attach evidence.
+**Overview:**
 
-### Difficulties
+This week was highly productive, balancing deep technical research for community blogs with hands-on development for the group project. I explored advanced AI security and identity management on AWS, and actively participated in the local tech community.
 
-- Basic EC2 monitoring does not report memory or disk usage — this required the CloudWatch Agent rather than relying on the default EC2 metrics.
+**Theoretical Knowledge Gained:**
 
-### How It Was Resolved
+- **AI Security:** Researched Secure Multi-tenant RAG architectures using Amazon Bedrock and Verified Permissions for Zero-Trust data authorization.
 
-- Installed and configured the CloudWatch Agent with a JSON configuration file (see `cloudwatch-agent-config.example.json`) to collect memory and disk metrics in addition to the default CPU/network metrics.
+- **Identity & Access Management:** Deepened knowledge of perimeter security by restricting AWS Management Console access using Resource Control Policies (RCPs) and Sign-in Resource-Based Policies.
 
-### AWS Skills / Services Learned
+- **Frontend Development:** Applied web development principles to build critical UI components including Homepage, Navigation elements, Product Details, Cart, and Order/Checkout pages.
 
-- Amazon CloudWatch (Logs, Metrics, Alarms, Dashboards), CloudWatch Agent configuration, Amazon SNS topics and email subscriptions.
+**Hands-on Labs Completed:**
 
-### Evidence Still Required
+- Successfully wrote and published two advanced technical blogs on AWS Study Group VN group
+- Made significant progress on frontend development for the group project, successfully implementing index, navbar, footer, cart, product detail, order, order detail, and confirm order pages
+- Attended FCAJ Community Day event, building strong connections
 
-- TODO: Screenshot of the CloudWatch Dashboard.
-- TODO: Screenshot of a triggered alarm.
-- TODO: Screenshot/email showing the SNS notification received.
+**Application to Fitness Assistant:**
 
-### Day-by-Day / Task Table
+**Security Enhancements from Blog Research:**
+- Multi-tenant data isolation patterns applicable to user workout data
+- IAM best practices for console access restrictions
+- Zero-trust architecture principles
 
-| Day | Task | Start Date | Completion Date | Reference |
-| --- | ---- | ---------- | ---------------- | --------- |
-| 1 | Install and configure CloudWatch Agent | [TODO_DATE] | [TODO_DATE] | [Workshop 5.12](../../5-Workshop/5.12-Monitoring-Alerting/) |
-| 2 | Create Log Groups with retention policy | [TODO_DATE] | [TODO_DATE] | [Workshop 5.12](../../5-Workshop/5.12-Monitoring-Alerting/) |
-| 3 | Create CloudWatch Alarms (EC2 CPU, status check, RDS) | [TODO_DATE] | [TODO_DATE] | [Workshop 5.12](../../5-Workshop/5.12-Monitoring-Alerting/) |
-| 4 | Create SNS topic, subscribe email, test the alarm chain | [TODO_DATE] | [TODO_DATE] | [Workshop 5.12](../../5-Workshop/5.12-Monitoring-Alerting/) |
+**Frontend Development Skills:**
+- Component-based architecture
+- Responsive design patterns
+- User flow optimization (similar to workout planning flows)
 
-### Completion Checklist
+### Related Workshop Links:
 
-- [ ] CloudWatch Agent installed and shipping logs/metrics
-- [ ] Log Groups created with a defined retention period
-- [ ] Alarms created for EC2 and RDS
-- [ ] SNS topic created, email subscribed, test notification confirmed
-
-### Related Workshop Section
-
-- [5.12 Monitoring and Alerting](../../5-Workshop/5.12-Monitoring-Alerting/)
+- [3.2 Blog 2](../../3-BlogsPosted/3.2-Blog2/) - Secure Multi-tenant RAG blog
+- [3.3 Blog 3](../../3-BlogsPosted/3.3-Blog3/) - AWS Console access restriction blog
+- [4.2 Event 2](../../4-EventParticipated/4.2-Event2/) - FCAJ Community Day

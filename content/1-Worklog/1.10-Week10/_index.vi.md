@@ -1,5 +1,5 @@
 ---
-title: "Worklog Tuần 10"
+title: "Tuần 10"
 date: 2026-07-15
 weight: 10
 chapter: false
@@ -7,65 +7,55 @@ pre: " <b> 1.10. </b> "
 draft: false
 ---
 
-{{% notice note %}}
-Các mốc thời gian trong trang này là placeholder (`[TODO_DATE]`) cho đến khi có lịch thực tập chính thức.
-{{% /notice %}}
+# WORKLOG TUẦN 10
 
-### Mục tiêu tuần
+### Mục tiêu tuần 10:
 
-- Thiết lập logging tập trung với Amazon CloudWatch Logs.
-- Cấu hình metric và alarm cơ bản cho EC2 và RDS.
-- Thiết lập Amazon SNS topic kèm thông báo qua email cho alarm.
+- Contribute technical articles cho community về advanced AWS security và AI topics
+- Work on frontend development cho group project
+- Connect với professional community thông qua office visits và events
 
-### Công việc đã thực hiện
+### Công việc thực hiện tuần này:
 
-- Cài đặt và cấu hình CloudWatch Agent trên EC2 để gửi log container/ứng dụng và metric cấp host (memory, disk) không có sẵn mặc định từ basic EC2 monitoring.
-- Tạo CloudWatch Log Group với retention period tường minh (không để "Never expire") để kiểm soát chi phí.
-- Tạo CloudWatch Dashboard tổng hợp CPU EC2, memory (qua Agent), dung lượng đĩa, và CPU/connections/storage của RDS.
-- Tạo CloudWatch Alarm cho CPU EC2 cao và một alarm cho lỗi status check của EC2.
-- Tạo Amazon SNS topic, đăng ký một địa chỉ email và xác nhận subscription.
-- Gắn alarm để publish tới SNS topic, gửi thông báo test để xác nhận toàn bộ chuỗi: **Metric → Alarm → SNS → Email**.
+| Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
+| --- | --- | --- | --- |
+| Viết 2 technical blogs cho AWS Study Group VN Facebook group:<br>- Blog 1: Secure Multi-tenant RAG với Amazon Bedrock và Verified Permissions<br>- Blog 2: Limit AWS Management Console access với Trusted Networks | 21-8-2026 | 27-8-2026 | |
+| Develop frontend của group project (Homepage, Navbar, Footer, Product details, Cart, Order management, Checkout pages) | 21-8-2026 | 27-8-2026 | |
 
-### Kết quả đạt được
+### Kết quả đạt được tuần 10:
 
-- Pipeline log từ container tới CloudWatch Logs hoạt động.
-- Alarm đã cấu hình và (đang chờ kiểm tra) được xác nhận gửi thông báo qua email.
-- TODO: Xác nhận alarm test thực sự kích hoạt và email đã nhận được; đính kèm bằng chứng.
+**Tổng quan:**
 
-### Khó khăn
+Tuần này highly productive, balancing deep technical research cho community blogs với hands-on development cho group project. Mình explore advanced AI security và identity management trên AWS, và actively participate trong local tech community.
 
-- Basic EC2 monitoring không báo cáo memory hoặc dung lượng đĩa — cần dùng CloudWatch Agent thay vì chỉ dựa vào metric mặc định của EC2.
+**Kiến thức lý thuyết học được:**
 
-### Cách giải quyết
+- **AI Security:** Research Secure Multi-tenant RAG architectures sử dụng Amazon Bedrock và Verified Permissions cho Zero-Trust data authorization.
 
-- Cài đặt và cấu hình CloudWatch Agent với file cấu hình JSON (xem `cloudwatch-agent-config.example.json`) để thu thập metric memory và disk bên cạnh metric CPU/network mặc định.
+- **Identity & Access Management:** Deepen knowledge của perimeter security bằng cách restrict AWS Management Console access sử dụng Resource Control Policies (RCPs) và Sign-in Resource-Based Policies.
 
-### Kỹ năng / Dịch vụ AWS đã học
+- **Frontend Development:** Apply web development principles để build critical UI components bao gồm Homepage, Navigation elements, Product Details, Cart, và Order/Checkout pages.
 
-- Amazon CloudWatch (Logs, Metrics, Alarms, Dashboards), cấu hình CloudWatch Agent, Amazon SNS topic và subscription email.
+**Hands-on labs đã thực hiện:**
 
-### Bằng chứng cần bổ sung
+- Successfully wrote và published two advanced technical blogs trên AWS Study Group VN group
+- Made significant progress on frontend development của group project, successfully implementing index, navbar, footer, cart, product detail, order, order detail, và confirm order pages
+- Attended FCAJ Community Day event, building strong connections
 
-- TODO: Screenshot CloudWatch Dashboard.
-- TODO: Screenshot alarm đã kích hoạt.
-- TODO: Screenshot/email thể hiện đã nhận thông báo SNS.
+**Áp dụng vào Fitness Assistant:**
 
-### Bảng theo ngày / task
+**Security Enhancements từ Blog Research:**
+- Multi-tenant data isolation patterns applicable cho user workout data
+- IAM best practices cho console access restrictions
+- Zero-trust architecture principles
 
-| Ngày | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
-| --- | --- | --- | --- | --- |
-| 1 | Cài và cấu hình CloudWatch Agent | [TODO_DATE] | [TODO_DATE] | [Workshop 5.12](../../5-Workshop/5.12-Monitoring-Alerting/) |
-| 2 | Tạo Log Group với chính sách retention | [TODO_DATE] | [TODO_DATE] | [Workshop 5.12](../../5-Workshop/5.12-Monitoring-Alerting/) |
-| 3 | Tạo CloudWatch Alarm (CPU EC2, status check, RDS) | [TODO_DATE] | [TODO_DATE] | [Workshop 5.12](../../5-Workshop/5.12-Monitoring-Alerting/) |
-| 4 | Tạo SNS topic, đăng ký email, kiểm tra chuỗi alarm | [TODO_DATE] | [TODO_DATE] | [Workshop 5.12](../../5-Workshop/5.12-Monitoring-Alerting/) |
+**Frontend Development Skills:**
+- Component-based architecture
+- Responsive design patterns
+- User flow optimization (similar to workout planning flows)
 
-### Checklist hoàn thành
+### Liên kết Workshop tương ứng:
 
-- [ ] Đã cài CloudWatch Agent và gửi log/metric
-- [ ] Đã tạo Log Group với retention period xác định
-- [ ] Đã tạo alarm cho EC2 và RDS
-- [ ] Đã tạo SNS topic, đăng ký email, xác nhận thông báo test
-
-### Liên kết Workshop tương ứng
-
-- [5.12 Monitoring and Alerting](../../5-Workshop/5.12-Monitoring-Alerting/)
+- [3.2 Blog 2](../../3-BlogsPosted/3.2-Blog2/) - Secure Multi-tenant RAG blog
+- [3.3 Blog 3](../../3-BlogsPosted/3.3-Blog3/) - AWS Console access restriction blog
+- [4.2 Event 2](../../4-EventParticipated/4.2-Event2/) - FCAJ Community Day
