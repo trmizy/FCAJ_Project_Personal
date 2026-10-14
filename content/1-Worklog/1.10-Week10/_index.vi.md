@@ -19,8 +19,8 @@ draft: false
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
 | --- | --- | --- | --- |
-| Viết 2 technical blogs cho AWS Study Group VN Facebook group:<br>- Blog 1: Secure Multi-tenant RAG với Amazon Bedrock và Verified Permissions<br>- Blog 2: Limit AWS Management Console access với Trusted Networks | 21-8-2026 | 27-8-2026 | |
-| Develop frontend của group project (Homepage, Navbar, Footer, Product details, Cart, Order management, Checkout pages) | 21-8-2026 | 27-8-2026 | |
+| Viết 2 technical blogs cho AWS Study Group VN Facebook group:<br>- Blog 1: Secure Multi-tenant RAG với Amazon Bedrock và Verified Permissions<br>- Blog 2: Limit AWS Management Console access với Trusted Networks | 05-10-2026 | 10-10-2026 | |
+| Develop frontend của group project (Homepage, Navbar, Footer, Product details, Cart, Order management, Checkout pages) | 05-10-2026 | 10-10-2026 | |
 
 ### Kết quả đạt được tuần 10:
 

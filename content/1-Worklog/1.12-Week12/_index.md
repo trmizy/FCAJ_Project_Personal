@@ -17,7 +17,7 @@ draft: false
 
 | Task | Start Date | Completion Date | Reference Materials |
 | --- | --- | --- | --- |
-| Finalized and aggregated 12-week technical worklog documentation for culminating internship report | 05-9-2026 | 10-9-2026 | |
+| Finalized and aggregated 12-week technical worklog documentation for culminating internship report | 19-10-2026 | 19-10-2026 | |
 
 ### Week 12 Results:
 

@@ -60,6 +60,6 @@ Lambda (hoặc Chat Fargate task) của mỗi service chỉ đọc/ghi database 
 
 ### Khác biệt so với kế hoạch MVP ban đầu
 
-Phiên bản trước của Workshop (xem [Worklog](../../../1-Worklog/) tuần 5–9) lên kế hoạch một EC2 host chạy toàn bộ Docker Compose stack, một instance Amazon RDS và cặp Ollama + Qdrant self-host cho AI. Mục "Future Architecture" của kế hoạch đó đã gọi tên đúng hướng đi sau này: ECS/Fargate thay cho một host duy nhất, Amazon Bedrock thay cho Ollama self-host. Kiến trúc thật còn đi xa hơn: Lambda cho sáu trong bảy service, Aurora Serverless thay cho một RDS instance, và OpenSearch Serverless thay cho Qdrant.
+Phiên bản trước của Workshop lên kế hoạch một EC2 host chạy toàn bộ Docker Compose stack, một instance Amazon RDS và cặp Ollama + Qdrant self-host cho AI ([Tuần 6](../../../1-Worklog/1.6-Week6/) trong Worklog so sánh kế hoạch đó với thiết kế được chọn). Mục "Future Architecture" của kế hoạch đó đã gọi tên đúng hướng đi sau này: ECS/Fargate thay cho một host duy nhất, Amazon Bedrock thay cho Ollama self-host. Kiến trúc thật còn đi xa hơn: Lambda cho sáu trong bảy service, Aurora Serverless thay cho một RDS instance, và OpenSearch Serverless thay cho Qdrant.
 
 Cách từng service được xây dựng thực tế nằm trong [Hướng dẫn triển khai](../../5.4-Deployment-Guide/); các trang từ [5.2.2](../5.2.2-Architecture-Diagram/) trở đi mô tả hệ thống ở trạng thái hiện tại.

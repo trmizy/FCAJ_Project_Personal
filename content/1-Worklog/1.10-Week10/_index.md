@@ -19,8 +19,8 @@ draft: false
 
 | Task | Start Date | Completion Date | Reference Materials |
 | --- | --- | --- | --- |
-| Wrote 2 technical blogs for AWS Study Group VN Facebook group:<br>- Blog 1: Secure Multi-tenant RAG with Amazon Bedrock and Verified Permissions<br>- Blog 2: Limit AWS Management Console access with Trusted Networks | 21-8-2026 | 27-8-2026 | |
-| Developed frontend for group project (Homepage, Navbar, Footer, Product details, Cart, Order management, Checkout pages) | 21-8-2026 | 27-8-2026 | |
+| Wrote 2 technical blogs for AWS Study Group VN Facebook group:<br>- Blog 1: Secure Multi-tenant RAG with Amazon Bedrock and Verified Permissions<br>- Blog 2: Limit AWS Management Console access with Trusted Networks | 05-10-2026 | 10-10-2026 | |
+| Developed frontend for group project (Homepage, Navbar, Footer, Product details, Cart, Order management, Checkout pages) | 05-10-2026 | 10-10-2026 | |
 
 ### Week 10 Results:
 

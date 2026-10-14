@@ -18,7 +18,7 @@ draft: false
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
 | --- | --- | --- | --- |
-| Viết blog post về EC2 cost optimization và publish lên AWS Study Group VN Facebook group | 14-8-2026 | 20-8-2026 | |
+| Viết blog post về EC2 cost optimization và publish lên AWS Study Group VN Facebook group | 28-9-2026 | 03-10-2026 | |
 
 ### Kết quả đạt được tuần 9:
 

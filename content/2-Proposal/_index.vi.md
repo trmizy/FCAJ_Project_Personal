@@ -177,10 +177,10 @@ Thời gian thực tập từ 3/8 đến 19/10/2026. Các mốc ngày bên dư�
 | Giai đoạn | Thời gian | Hoạt động chính |
 |---|---|---|
 | 1. Học và phân tích | Tháng 8/2026 (tuần 1–3) | Kiến thức nền AWS (các module FCJ), audit ứng dụng, chạy local, thiết kế triển khai |
-| 2. Nền tảng và service đầu tiên | 26–27/8/2026 | VPC và NAT, Aurora, Auth Lambda, API Gateway, frontend S3; database và role của User |
-| 3. Các service lõi | 2–8/9/2026 | Fitness (2/9), Gym và Payment (8/9) cùng jobs và schedule |
-| 4. AI | 15/9/2026 | Bedrock, SQS worker, jobs, OpenSearch Serverless, schedule tri thức, route AI |
-| 5. Chat và dữ liệu | 22–23/9/2026 | Chat trên ECS Fargate phía sau ALB; image migrator và restore 7 database |
+| 2. Nền tảng và service đầu tiên | 26–27/8/2026 (tuần 4) | VPC và NAT, Aurora, Auth Lambda, API Gateway, frontend S3; database và role của User |
+| 3. Các service lõi | 2–8/9/2026 (tuần 5–6) | Fitness (2/9), Gym và Payment (8/9) cùng jobs và schedule |
+| 4. AI | 15/9/2026 (tuần 7) | Bedrock, SQS worker, jobs, OpenSearch Serverless, schedule tri thức, route AI |
+| 5. Chat và dữ liệu | 22–23/9/2026 (tuần 8) | Chat trên ECS Fargate phía sau ALB; image migrator và restore 7 database |
 | 6. Kiểm thử và báo cáo | Tháng 10/2026 (tuần 10–12) | Kiểm thử end-to-end và sửa lỗi, CI/CD, alarm, kiểm soát chi phí, báo cáo và dọn dẹp |
 
 ### 8. Ước tính ngân sách {#budget}

@@ -14,18 +14,21 @@ draft: false
 - Hoàn thành Module 7: AI/ML service on AWS
 - Trải nghiệm AWS SageMaker thông qua workshop Immersion Day
 - Tiếp tục tích hợp vào môi trường công ty
+- Triển khai Chat service trên ECS Fargate và migrate dữ liệu local lên Aurora
 
 ### Công việc thực hiện tuần này:
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
 | --- | --- | --- | --- |
-| Học và hoàn thành Module 7: AI/ML service on AWS | 07-8-2026 | 13-8-2026 | Lab 200: https://000200.awsstudygroup.com/ |
+| Học và hoàn thành Module 7: AI/ML service on AWS | 21-9-2026 | 26-9-2026 | Lab 200: https://000200.awsstudygroup.com/ |
+| Triển khai Chat service trên ECS Fargate phía sau Application Load Balancer | 22-9-2026 | 22-9-2026 | [5.4.10 Chat Service trên ECS Fargate](../../5-Workshop/5.4-Deployment-Guide/5.4.10-Chat-Service-ECS/) |
+| Migrate dữ liệu của bảy database local lên Aurora bằng một Fargate task chạy một lần | 23-9-2026 | 23-9-2026 | [5.4.11 Migration dữ liệu lên Aurora](../../5-Workshop/5.4-Deployment-Guide/5.4.11-Data-Migration/) |
 
 ### Kết quả đạt được tuần 8:
 
 **Tổng quan:**
 
-Trong tuần này, mình shift focus sang Artificial Intelligence và Machine Learning trên AWS bằng cách hoàn thành Module 7. Mình gain practical exposure với AWS SageMaker thông qua hands-on workshop. In addition, mình continue engage với team và professional community.
+Trong tuần này, mình shift focus sang Artificial Intelligence và Machine Learning trên AWS bằng cách hoàn thành Module 7. Mình gain practical exposure với AWS SageMaker thông qua hands-on workshop. In addition, mình continue engage với team và professional community. Song song với module, mình triển khai Chat service trên ECS Fargate (22/09) và chuyển dữ liệu của bảy database local lên Aurora (23/09).
 
 **Kiến thức lý thuyết học được:**
 
@@ -45,9 +48,9 @@ Trong tuần này, mình shift focus sang Artificial Intelligence và Machine Le
 Sau khi học về AWS ML services, mình identify potential ML applications:
 
 **1. Workout Recommendations (AI Service đã có - Enhancement):**
-- Current: Ollama self-hosted LLM cho workout recommendations
-- Enhancement opportunity: Evaluate Amazon Bedrock vs self-hosted
-- Trade-off analysis: Cost (per-request vs fixed EC2), Control (full vs managed), Latency
+- Current: Amazon Bedrock (Nova Pro), thay cho Ollama self-hosted từ Tuần 7
+- Enhancement opportunity: đánh giá chất lượng và chi phí theo token của Bedrock trên dữ liệu thật
+- Trade-off đã cân nhắc khi chuyển: Cost (per-request vs fixed EC2), Control (full vs managed), Latency
 
 **2. Exercise Form Analysis (Future Enhancement):**
 - Use case: Analyze workout videos/photos để check form correctness
@@ -76,10 +79,10 @@ Sau khi học về AWS ML services, mình identify potential ML applications:
 **SageMaker vs Self-Hosted Decision:**
 
 **For AI Service (LLM-based recommendations):**
-- **Current:** Self-hosted Ollama trên EC2
+- **Trước Tuần 7:** Self-hosted Ollama trên EC2
 - **Pros:** Fixed cost, full control, no per-request charges
 - **Cons:** Require larger EC2 instance, manual scaling, maintenance overhead
-- **Consideration:** Evaluate Amazon Bedrock for managed alternative
+- **Kết quả:** đã chuyển sang Amazon Bedrock ở Tuần 7: không còn instance phải sizing, tính tiền theo request, quyền gọi model qua IAM
 
 **For Computer Vision (Exercise Form):**
 - **Recommendation:** Use SageMaker hoặc Rekognition
@@ -87,13 +90,12 @@ Sau khi học về AWS ML services, mình identify potential ML applications:
 
 **Implementation Roadmap:**
 
-**Phase 1 - Current State:**
-- Self-hosted Ollama LLM cho text-based recommendations
-- Continue current approach, document sizing requirements
+**Phase 1 - Đã hoàn thành (Tuần 7):**
+- Amazon Bedrock thay cho Ollama self-hosted cho text-based recommendations
+- Vector search trên OpenSearch Serverless thay cho Qdrant
 
 **Phase 2 - Enhancement (3-6 months):**
-- Pilot Amazon Bedrock integration (parallel với Ollama)
-- A/B test quality và cost của both approaches
+- Theo dõi chất lượng và chi phí của Bedrock trên dữ liệu thật, thử các model và prompt khác nhau
 - Collect data cho future ML models (exercise form images, user interactions)
 
 **Phase 3 - Advanced ML (6-12 months):**
@@ -115,7 +117,7 @@ Sau khi học về AWS ML services, mình identify potential ML applications:
 
 - **Learning:** Complete full Immersion Day workshop end-to-end thay vì skim. Take notes về key concepts và best practices.
 
-- **Cost Analysis:** Use AWS Pricing Calculator để estimate costs. So sánh SageMaker costs với current self-hosted approach cho Fitness Assistant use case.
+- **Cost Analysis:** Use AWS Pricing Calculator để estimate costs. So sánh SageMaker costs với chi phí Bedrock hiện tại cho Fitness Assistant use case.
 
 - **Service Selection:** Create decision matrix: 
   - Bedrock: Pre-trained foundation models (LLM, text generation)
@@ -146,7 +148,7 @@ Sau khi học về AWS ML services, mình identify potential ML applications:
 
 **Immediate Applications:**
 - Document current AI service architecture
-- Cost analysis: Self-hosted vs managed alternatives
+- Cost analysis: Bedrock (tính theo request) so với SageMaker endpoint
 - Plan data collection strategy cho future ML models
 
 **Future Enhancements:**
@@ -157,3 +159,5 @@ Sau khi học về AWS ML services, mình identify potential ML applications:
 ### Liên kết Workshop tương ứng:
 
 - [5.4.8 AI Service — database, queue và Bedrock](../../5-Workshop/5.4-Deployment-Guide/5.4.8-AI-Service-Core/) - Triển khai AI service trên Amazon Bedrock
+- [5.4.10 Chat Service trên ECS Fargate](../../5-Workshop/5.4-Deployment-Guide/5.4.10-Chat-Service-ECS/) - Triển khai trong tuần
+- [5.4.11 Migration dữ liệu lên Aurora](../../5-Workshop/5.4-Deployment-Guide/5.4.11-Data-Migration/) - Restore 7/7 database trong tuần

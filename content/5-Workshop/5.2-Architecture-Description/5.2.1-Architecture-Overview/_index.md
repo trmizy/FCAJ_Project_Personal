@@ -60,6 +60,6 @@ Each service's Lambda (or the Chat Fargate task) reads its own database only, re
 
 ### How This Differs From the Original MVP Plan
 
-The earlier version of this Workshop (see the [Worklog](../../../1-Worklog/) for Weeks 5–9) planned a single EC2 host running the whole Docker Compose stack, one Amazon RDS instance, and a self-hosted Ollama + Qdrant pair for AI. That plan's own "Future Architecture" note already named the direction this ended up taking: ECS/Fargate instead of a single host, and Amazon Bedrock instead of self-hosted Ollama. The real architecture went further: Lambda for six of the seven services, Aurora Serverless instead of a single RDS instance, and OpenSearch Serverless instead of Qdrant.
+The earlier version of this Workshop planned a single EC2 host running the whole Docker Compose stack, one Amazon RDS instance, and a self-hosted Ollama + Qdrant pair for AI ([Week 6](../../../1-Worklog/1.6-Week6/) of the Worklog compares that plan with the chosen design). That plan's own "Future Architecture" note already named the direction this ended up taking: ECS/Fargate instead of a single host, and Amazon Bedrock instead of self-hosted Ollama. The real architecture went further: Lambda for six of the seven services, Aurora Serverless instead of a single RDS instance, and OpenSearch Serverless instead of Qdrant.
 
 How each service was actually built is documented step by step in the [Deployment Guide](../../5.4-Deployment-Guide/); the pages from [5.2.2](../5.2.2-Architecture-Diagram/) onward describe the system as it stands now.

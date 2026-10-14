@@ -13,18 +13,20 @@ pre: " <b> 1.6. </b> "
 - Complete Module 5: Container services
 - Master the orchestration and deployment of containerized applications across Lightsail, ECS, and EKS
 - Engage with the professional community and integrate further into the office environment
+- Deploy the Gym and Payment services, and plan where the Chat service will run
 
 ### Tasks to be carried out this week:
 
 | Task | Start Date | Completion Date | Reference Materials |
 | --- | --- | --- | --- |
-| Study and complete Module 5: Container services | 24-7-2026 | 30-7-2026 | 46: https://000046.awsstudygroup.com/ <br>67: https://000067.awsstudygroup.com/ <br>152: https://000152.awsstudygroup.com/ |
+| Study and complete Module 5: Container services | 07-9-2026 | 12-9-2026 | 46: https://000046.awsstudygroup.com/ <br>67: https://000067.awsstudygroup.com/ <br>152: https://000152.awsstudygroup.com/ |
+| Deploy the Gym and Payment services (databases, functions and schedules) | 08-9-2026 | 08-9-2026 | [5.4.6 Gym Service](../../5-Workshop/5.4-Deployment-Guide/5.4.6-Gym-Service/) <br>[5.4.7 Payment Service](../../5-Workshop/5.4-Deployment-Guide/5.4.7-Payment-Service/) |
 
 ### Week 6 Achievements:
 
 **Overview:**
 
-During this week, I focused exclusively on AWS Container services (Module 5), exploring how to run and orchestrate containers at varying scales of complexity using Amazon Lightsail, ECS, and EKS. Beyond technical skill acquisition, I deepened my professional involvement by working from the office for the second time and actively participating in a weekend technology meetup.
+During this week, I focused on AWS Container services (Module 5), exploring how to run and orchestrate containers at varying scales of complexity using Amazon Lightsail, ECS, and EKS. On 8 September I also deployed the Gym and Payment services. Beyond technical skill acquisition, I deepened my professional involvement by working from the office for the second time and actively participating in a weekend technology meetup.
 
 **Learned theory:**
 
@@ -46,7 +48,7 @@ During this week, I focused exclusively on AWS Container services (Module 5), ex
 
 **Container Strategy Evaluation:**
 
-After [Week 5](../1.5-Week5/), six of the seven services were planned for Lambda. The question for this week was narrower: where should the one service that needs a long-running process run? That service is Chat, which keeps a Socket.IO connection open for every user. I compared the three platforms from the module:
+By this week Auth, User and Fitness were running on Lambda (see [Week 5](../1.5-Week5/)), and Gym and Payment followed on 8 September. The question for this week was narrower: where should the one service that needs a long-running process run? That service is Chat, which keeps a Socket.IO connection open for every user. I compared the three platforms from the module:
 
 1. **Amazon Lightsail Containers:**
    - **Pros:** Simple setup, predictable pricing ($10-40/month), good for MVP
@@ -56,7 +58,7 @@ After [Week 5](../1.5-Week5/), six of the seven services were planned for Lambda
 2. **Amazon ECS with Fargate:**
    - **Pros:** Serverless (no server management), good AWS integration, cost-effective for small-medium scale
    - **Cons:** Vendor lock-in (AWS-specific), learning curve
-   - **Decision:** **Chosen for the Chat service.** The same cluster can also run one-off tasks, later used for the database migration job
+   - **Decision:** **Chosen for the Chat service**, deployed in [Week 8](../1.8-Week8/). The same cluster can also run one-off tasks, later used for the database migration job
 
 3. **Amazon EKS (Kubernetes):**
    - **Pros:** Industry standard, portable, powerful orchestration

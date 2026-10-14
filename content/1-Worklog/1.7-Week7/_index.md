@@ -14,18 +14,20 @@ draft: false
 - Complete Module 6: Data & Analytics
 - Learn the architecture, deployment, and operational best practices for building an enterprise Data Lake
 - Master the full data analytics lifecycle, from ingestion to processing and advanced visualization on AWS
+- Deploy the AI service: Amazon Bedrock, the SQS worker and OpenSearch Serverless vector search
 
 ### Tasks to be carried out this week:
 
 | Task | Start Date | Completion Date | Reference Materials |
 | --- | --- | --- | --- |
-| Study and complete Module 6: Data & Analytics | 31-7-2026 | 06-8-2026 | 70: https://000070.awsstudygroup.com/ <br>72: https://000072.awsstudygroup.com/ <br>73: https://000073.awsstudygroup.com/ |
+| Study and complete Module 6: Data & Analytics | 14-9-2026 | 19-9-2026 | 70: https://000070.awsstudygroup.com/ <br>72: https://000072.awsstudygroup.com/ <br>73: https://000073.awsstudygroup.com/ |
+| Deploy the AI service: database, SQS queue and worker, Amazon Bedrock, OpenSearch Serverless vector search, AI schedules and routes | 15-9-2026 | 15-9-2026 | [5.4.8 AI Service — database, queue and Bedrock](../../5-Workshop/5.4-Deployment-Guide/5.4.8-AI-Service-Core/) <br>[5.4.9 AI Service — vector search, scheduling and API](../../5-Workshop/5.4-Deployment-Guide/5.4.9-AI-Service-Vector-Search/) |
 
 ### Week 7 Achievements:
 
 **Overview:**
 
-During this week, my primary focus shifted toward big data processing and business intelligence by completing Module 6 (Data & Analytics). The coursework involved designing scalable Data Lake infrastructures, executing complex analytics pipelines, and rendering actionable insights using AWS native visualization tools.
+During this week, my primary focus shifted toward big data processing and business intelligence by completing Module 6 (Data & Analytics). The coursework involved designing scalable Data Lake infrastructures, executing complex analytics pipelines, and rendering actionable insights using AWS native visualization tools. On 15 September I also deployed the AI service.
 
 **Note:** The execution phase of Lab 70 (Building a Datalake with Your Data) required an AWS Cloud9 environment. Since AWS Cloud9 is currently inaccessible in my environment, I skipped the hands-on execution for this specific lab, though I thoroughly analyzed the architectural principles and theoretical concepts provided.
 
@@ -51,6 +53,11 @@ Designed Data Lake strategy for Fitness Assistant analytics:
 - Architecture: S3 (raw data) → Glue Crawler → Data Catalog → Athena/QuickSight
 - Use cases: workout analytics, nutrition patterns, user engagement metrics, AI performance monitoring
 - Implementation: S3 bucket structure, partitioning strategy, QuickSight dashboards
+
+**AI service deployed this week:**
+- The AI database on Aurora, an SQS queue with a dead-letter queue, and a worker function for long generations
+- Amazon Bedrock (Nova Pro for chat and vision, Cohere Embed Multilingual v3 for embeddings) in place of the self-hosted Ollama model
+- OpenSearch Serverless for vector search, reached privately through a VPC endpoint, and five AI schedules on EventBridge Scheduler
 
 ### Difficulties Encountered:
 
@@ -97,4 +104,5 @@ Designed Data Lake strategy for Fitness Assistant analytics:
 
 ### Related Workshop Sections:
 
-- [5.4.11 Data migration to Aurora](../../5-Workshop/5.4-Deployment-Guide/5.4.11-Data-Migration/) - Containerized data migration job (ECR + Fargate)
+- [5.4.8 AI Service — database, queue and Bedrock](../../5-Workshop/5.4-Deployment-Guide/5.4.8-AI-Service-Core/) - The AI service deployed this week
+- [5.4.9 AI Service — vector search, scheduling and API](../../5-Workshop/5.4-Deployment-Guide/5.4.9-AI-Service-Vector-Search/) - OpenSearch Serverless, AI schedules and routes

@@ -17,7 +17,7 @@ draft: false
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
 | --- | --- | --- | --- |
-| Finalize và aggregate 12-week technical worklog documentation cho culminating internship report | 05-9-2026 | 10-9-2026 | |
+| Finalize và aggregate 12-week technical worklog documentation cho culminating internship report | 19-10-2026 | 19-10-2026 | |
 
 ### Kết quả đạt được tuần 12:
 

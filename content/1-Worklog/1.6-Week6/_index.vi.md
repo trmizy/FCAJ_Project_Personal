@@ -13,18 +13,20 @@ pre: " <b> 1.6. </b> "
 - Hoàn thành Module 5: Container services
 - Nắm vững orchestration và deployment của containerized applications trên Lightsail, ECS, và EKS
 - Tham gia cộng đồng chuyên nghiệp và tích hợp sâu hơn vào môi trường làm việc
+- Triển khai Gym và Payment service, và lên kế hoạch nơi chạy Chat service
 
 ### Công việc thực hiện tuần này:
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
 | --- | --- | --- | --- |
-| Học và hoàn thành Module 5: Container services | 24-7-2026 | 30-7-2026 | 46: https://000046.awsstudygroup.com/ <br>67: https://000067.awsstudygroup.com/ <br>152: https://000152.awsstudygroup.com/ |
+| Học và hoàn thành Module 5: Container services | 07-9-2026 | 12-9-2026 | 46: https://000046.awsstudygroup.com/ <br>67: https://000067.awsstudygroup.com/ <br>152: https://000152.awsstudygroup.com/ |
+| Triển khai Gym và Payment service (database, function và schedule) | 08-9-2026 | 08-9-2026 | [5.4.6 Gym Service](../../5-Workshop/5.4-Deployment-Guide/5.4.6-Gym-Service/) <br>[5.4.7 Payment Service](../../5-Workshop/5.4-Deployment-Guide/5.4.7-Payment-Service/) |
 
 ### Kết quả đạt được tuần 6:
 
 **Tổng quan:**
 
-Trong tuần này, mình tập trung hoàn toàn vào AWS Container services (Module 5), khám phá cách chạy và orchestrate containers ở các mức độ complexity khác nhau sử dụng Amazon Lightsail, ECS, và EKS. Ngoài việc học kỹ thuật, mình còn tham gia sâu hơn vào cộng đồng chuyên nghiệp và môi trường công ty.
+Trong tuần này, mình tập trung vào AWS Container services (Module 5), khám phá cách chạy và orchestrate containers ở các mức độ complexity khác nhau sử dụng Amazon Lightsail, ECS, và EKS. Ngày 08/09, mình cũng triển khai Gym và Payment service. Ngoài việc học kỹ thuật, mình còn tham gia sâu hơn vào cộng đồng chuyên nghiệp và môi trường công ty.
 
 **Kiến thức lý thuyết học được:**
 
@@ -46,7 +48,7 @@ Trong tuần này, mình tập trung hoàn toàn vào AWS Container services (Mo
 
 **Container Strategy Evaluation:**
 
-Sau [Tuần 5](../1.5-Week5/), sáu trong bảy service đã được lên kế hoạch chạy trên Lambda. Câu hỏi của tuần này hẹp hơn: service duy nhất cần process chạy liên tục nên chạy ở đâu? Đó là Chat, service giữ một kết nối Socket.IO cho mỗi người dùng. Mình so sánh ba nền tảng trong module:
+Đến tuần này, Auth, User và Fitness đã chạy trên Lambda (xem [Tuần 5](../1.5-Week5/)), và Gym, Payment theo sau vào ngày 08/09. Câu hỏi của tuần này hẹp hơn: service duy nhất cần process chạy liên tục nên chạy ở đâu? Đó là Chat, service giữ một kết nối Socket.IO cho mỗi người dùng. Mình so sánh ba nền tảng trong module:
 
 1. **Amazon Lightsail Containers:**
    - **Pros:** Simple setup, predictable pricing ($10-40/month), good cho MVP
@@ -56,7 +58,7 @@ Sau [Tuần 5](../1.5-Week5/), sáu trong bảy service đã được lên kế 
 2. **Amazon ECS with Fargate:**
    - **Pros:** Serverless (không manage servers), good AWS integration, cost-effective cho small-medium scale
    - **Cons:** Vendor lock-in (AWS-specific), learning curve
-   - **Decision:** **Chọn cho Chat service.** Cùng cluster còn chạy được các task một lần, sau này dùng cho job migration database
+   - **Decision:** **Chọn cho Chat service**, triển khai ở [Tuần 8](../1.8-Week8/). Cùng cluster còn chạy được các task một lần, sau này dùng cho job migration database
 
 3. **Amazon EKS (Kubernetes):**
    - **Pros:** Industry standard, portable, powerful orchestration

@@ -18,7 +18,7 @@ draft: false
 
 | Task | Start Date | Completion Date | Reference Materials |
 | --- | --- | --- | --- |
-| Wrote blog post about EC2 cost optimization and published to AWS Study Group VN Facebook group | 14-8-2026 | 20-8-2026 | |
+| Wrote blog post about EC2 cost optimization and published to AWS Study Group VN Facebook group | 28-9-2026 | 03-10-2026 | |
 
 ### Week 9 Results:
 

@@ -177,10 +177,10 @@ The internship runs from 3 August to 19 October 2026. Dates below are taken from
 | Phase | Period | Main activities |
 |---|---|---|
 | 1. Learning and analysis | August 2026 (weeks 1–3) | AWS fundamentals (FCJ modules), application audit, local run, deployment design |
-| 2. Foundation and first service | 26–27 August 2026 | VPC and NAT, Aurora, Auth Lambda, API Gateway, S3 frontend; User database and role |
-| 3. Core services | 2–8 September 2026 | Fitness (2 Sep), Gym and Payment (8 Sep) with their jobs and schedules |
-| 4. AI | 15 September 2026 | Bedrock, SQS worker, jobs, OpenSearch Serverless, knowledge schedules, AI routes |
-| 5. Chat and data | 22–23 September 2026 | Chat on ECS Fargate behind an ALB; migrator image and restore of the 7 databases |
+| 2. Foundation and first service | 26–27 August 2026 (week 4) | VPC and NAT, Aurora, Auth Lambda, API Gateway, S3 frontend; User database and role |
+| 3. Core services | 2–8 September 2026 (weeks 5–6) | Fitness (2 Sep), Gym and Payment (8 Sep) with their jobs and schedules |
+| 4. AI | 15 September 2026 (week 7) | Bedrock, SQS worker, jobs, OpenSearch Serverless, knowledge schedules, AI routes |
+| 5. Chat and data | 22–23 September 2026 (week 8) | Chat on ECS Fargate behind an ALB; migrator image and restore of the 7 databases |
 | 6. Validation and report | October 2026 (weeks 10–12) | End-to-end tests and fixes, CI/CD, alarms, cost controls, report and clean-up |
 
 ### 8. Budget Estimation {#budget}

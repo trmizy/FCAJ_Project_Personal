@@ -12,19 +12,21 @@ pre: " <b> 1.5. </b> "
 
 - Hoàn thành Module 3: Tối ưu hóa hệ thống, tập trung sâu vào System Performance và Cost Optimization strategies
 - Hoàn thành Module 4: Hiện đại hóa ứng dụng bằng cách khám phá và implement Serverless và Microservices architectures
+- Triển khai Fitness service theo cùng khuôn mẫu với Auth và User
 
 ### Công việc thực hiện tuần này:
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
 | --- | --- | --- | --- |
-| Hoàn thành Module 3: Tối ưu hóa hệ thống | 17-7-2026 | 23-7-2026 | **Module 3 - Performance:** <br>15: https://000015.awsstudygroup.com/ <br>16: https://000016.awsstudygroup.com/ <br>17: https://000017.awsstudygroup.com/ <br>23: https://000023.awsstudygroup.com/ <br>24: https://000024.awsstudygroup.com/ <br>25: https://000025.awsstudygroup.com/ <br>35: https://000035.awsstudygroup.com/ <br>**Module 3 - Optimizing costs:** <br>32: https://000032.awsstudygroup.com/ <br>34: https://000034.awsstudygroup.com/ <br>40: https://000040.awsstudygroup.com/ <br>42: https://000042.awsstudygroup.com/ |
-| Hoàn thành Module 4: Hiện đại hóa ứng dụng | 17-7-2026 | 23-7-2026 | **Module 4 - Modernize the application:** <br>47: https://000047.awsstudygroup.com/ <br>50: https://000050.awsstudygroup.com/ <br>51: https://000051.awsstudygroup.com/ <br>52: https://000052.awsstudygroup.com/ <br>53: https://000053.awsstudygroup.com/ <br>54: https://000054.awsstudygroup.com/ <br>55: https://000055.awsstudygroup.com/ <br>56: https://000056.awsstudygroup.com/ |
+| Hoàn thành Module 3: Tối ưu hóa hệ thống | 31-8-2026 | 05-9-2026 | **Module 3 - Performance:** <br>15: https://000015.awsstudygroup.com/ <br>16: https://000016.awsstudygroup.com/ <br>17: https://000017.awsstudygroup.com/ <br>23: https://000023.awsstudygroup.com/ <br>24: https://000024.awsstudygroup.com/ <br>25: https://000025.awsstudygroup.com/ <br>35: https://000035.awsstudygroup.com/ <br>**Module 3 - Optimizing costs:** <br>32: https://000032.awsstudygroup.com/ <br>34: https://000034.awsstudygroup.com/ <br>40: https://000040.awsstudygroup.com/ <br>42: https://000042.awsstudygroup.com/ |
+| Hoàn thành Module 4: Hiện đại hóa ứng dụng | 31-8-2026 | 05-9-2026 | **Module 4 - Modernize the application:** <br>47: https://000047.awsstudygroup.com/ <br>50: https://000050.awsstudygroup.com/ <br>51: https://000051.awsstudygroup.com/ <br>52: https://000052.awsstudygroup.com/ <br>53: https://000053.awsstudygroup.com/ <br>54: https://000054.awsstudygroup.com/ <br>55: https://000055.awsstudygroup.com/ <br>56: https://000056.awsstudygroup.com/ |
+| Triển khai Fitness service (database và migration, HTTP và jobs function, hai schedule nhắc lịch tập) | 02-9-2026 | 02-9-2026 | [5.4.5 Fitness Service](../../5-Workshop/5.4-Deployment-Guide/5.4.5-Fitness-Service/) |
 
 ### Kết quả đạt được tuần 5:
 
 **Tổng quan:**
 
-Trong tuần intensive này, mình hoàn thành hai major tracks: system performance/cost optimization (Module 3) và application modernization (Module 4). Khối lượng lab work rất lớn bao gồm containerization, serverless computing, data lakes và cost analytics phức tạp. Module 4 cũng trả lời câu hỏi thiết kế lớn nhất của dự án: phần lớn Fitness Assistant không cần server.
+Trong tuần intensive này, mình hoàn thành hai major tracks: system performance/cost optimization (Module 3) và application modernization (Module 4). Khối lượng lab work rất lớn bao gồm containerization, serverless computing, data lakes và cost analytics phức tạp. Module 4 cũng giải thích khuôn mẫu mà việc triển khai đã theo từ Tuần 4 (phần lớn Fitness Assistant không cần server), và mình áp dụng nó cho Fitness service ngày 02/09.
 
 **Lưu ý:** Một số sections trong modernization labs (cụ thể labs 47, 54, và 55) yêu cầu sử dụng AWS Cloud9. Do AWS Cloud9 hiện không khả dụng trong environment của mình, các sections này được strategically skipped, nhưng architectural concepts underlying vẫn được study thoroughly.
 
@@ -46,9 +48,9 @@ Trong tuần intensive này, mình hoàn thành hai major tracks: system perform
 
 **Áp dụng vào Fitness Assistant:**
 
-**Hướng hiện đại hóa (quyết định thiết kế chính):**
+**Hướng hiện đại hóa (khuôn mẫu chung cho mọi service):**
 - Ứng dụng vốn đã tách thành các service (auth, user, fitness, gym, payment, ai, chat) chạy chung bằng Docker Compose ở local. Sáu service chỉ trả lời các HTTP request ngắn hoặc chạy job theo lịch, đúng với mô hình Lambda; chỉ có chat là phải giữ kết nối Socket.IO.
-- Quyết định: chạy sáu HTTP service thành Lambda function phía sau một API Gateway HTTP API, thay cho container application gateway làm điểm vào duy nhất.
+- Mỗi HTTP service trong sáu service chạy thành Lambda function phía sau một API Gateway HTTP API, thay cho container application gateway làm điểm vào duy nhất (Auth và User từ Tuần 4, Fitness trong tuần này).
 - Việc chạy theo lịch (settlement buổi tập, nhắc lịch tập, payout, đối soát thanh toán, làm mới tri thức AI) chuyển từ timer chạy trong process sang EventBridge Scheduler, gọi một jobs function riêng cho mỗi service.
 - Việc AI tốn thời gian (tạo kế hoạch tập và dinh dưỡng) chuyển sang SQS queue và một worker function, để không HTTP call nào phải chờ quá giới hạn ~30 giây của API Gateway. Việc này cũng thay luôn hàng đợi Redis/BullMQ, vốn cần một cache cluster chạy liên tục.
 - Chat vẫn chạy bằng container; chạy ở đâu được đánh giá ở [Tuần 6](../1.6-Week6/).
@@ -85,7 +87,7 @@ Trong tuần intensive này, mình hoàn thành hai major tracks: system perform
 
 - **Cold Start Mitigation:** Chấp nhận cold start cho môi trường DEV, nơi nó chỉ ảnh hưởng request đầu tiên sau một khoảng idle. Provisioned concurrency là phương án cho production, nên các API đồng bộ không cần ở lại trên container.
 
-- **Cost Forecasting:** Sử dụng AWS Pricing Calculator để estimate costs. Setup granular billing alerts. Lên kế hoạch deploy từng service một để kiểm tra chi phí sau mỗi bước.
+- **Cost Forecasting:** Sử dụng AWS Pricing Calculator để estimate costs. Setup granular billing alerts. Deploy từng service một (Auth và User ở Tuần 4, Fitness trong tuần này) để kiểm tra chi phí sau mỗi bước.
 
 ### Kỹ năng / Dịch vụ AWS đã học:
 

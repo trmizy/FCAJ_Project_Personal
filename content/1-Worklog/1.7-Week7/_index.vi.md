@@ -14,18 +14,20 @@ draft: false
 - Hoàn thành Module 6: Data & Analytics
 - Học architecture, deployment, và operational best practices để xây dựng enterprise Data Lake
 - Nắm vững full data analytics lifecycle, từ ingestion đến processing và advanced visualization trên AWS
+- Triển khai AI service: Amazon Bedrock, SQS worker và vector search trên OpenSearch Serverless
 
 ### Công việc thực hiện tuần này:
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
 | --- | --- | --- | --- |
-| Học và hoàn thành Module 6: Data & Analytics | 31-7-2026 | 06-8-2026 | 70: https://000070.awsstudygroup.com/ <br>72: https://000072.awsstudygroup.com/ <br>73: https://000073.awsstudygroup.com/ |
+| Học và hoàn thành Module 6: Data & Analytics | 14-9-2026 | 19-9-2026 | 70: https://000070.awsstudygroup.com/ <br>72: https://000072.awsstudygroup.com/ <br>73: https://000073.awsstudygroup.com/ |
+| Triển khai AI service: database, SQS queue và worker, Amazon Bedrock, vector search trên OpenSearch Serverless, schedule và route của AI | 15-9-2026 | 15-9-2026 | [5.4.8 AI Service — database, queue và Bedrock](../../5-Workshop/5.4-Deployment-Guide/5.4.8-AI-Service-Core/) <br>[5.4.9 AI Service — vector search, lịch chạy và API](../../5-Workshop/5.4-Deployment-Guide/5.4.9-AI-Service-Vector-Search/) |
 
 ### Kết quả đạt được tuần 7:
 
 **Tổng quan:**
 
-Trong tuần này, focus chính của mình chuyển sang big data processing và business intelligence bằng cách hoàn thành Module 6 (Data & Analytics). Coursework bao gồm designing scalable Data Lake infrastructures, executing complex analytics pipelines, và rendering actionable insights sử dụng AWS native visualization tools.
+Trong tuần này, focus chính của mình chuyển sang big data processing và business intelligence bằng cách hoàn thành Module 6 (Data & Analytics). Coursework bao gồm designing scalable Data Lake infrastructures, executing complex analytics pipelines, và rendering actionable insights sử dụng AWS native visualization tools. Ngày 15/09, mình cũng triển khai AI service.
 
 **Lưu ý:** Execution phase của Lab 70 (Building a Datalake with Your Data) yêu cầu AWS Cloud9 environment. Do AWS Cloud9 hiện không accessible trong environment của mình, mình skip hands-on execution cho lab này, nhưng thoroughly analyzed architectural principles và theoretical concepts được cung cấp.
 
@@ -127,6 +129,11 @@ Amazon Athena      Amazon QuickSight
 - Use QuickSight SPICE để cache frequent queries
 - Implement data retention policies (keep detailed logs for 90 days, aggregated data for longer)
 
+**AI service triển khai trong tuần:**
+- Database của AI trên Aurora, SQS queue kèm dead-letter queue, và một worker function cho các tác vụ sinh nội dung dài
+- Amazon Bedrock (Nova Pro cho chat và vision, Cohere Embed Multilingual v3 cho embedding) thay cho model Ollama tự host
+- OpenSearch Serverless cho vector search, truy cập private qua VPC endpoint, cùng năm schedule của AI trên EventBridge Scheduler
+
 ### Khó khăn gặp phải:
 
 - **Cloud9 Limitation:** Không access được AWS Cloud9 (region restrictions / account limitations), resulting in skipped hands-on cho Lab 70. However, conceptual understanding vẫn được maintain through documentation study.
@@ -184,4 +191,5 @@ Amazon Athena      Amazon QuickSight
 
 ### Liên kết Workshop tương ứng:
 
-- [5.4.11 Migration dữ liệu lên Aurora](../../5-Workshop/5.4-Deployment-Guide/5.4.11-Data-Migration/) - Job migration dữ liệu chạy bằng container (ECR + Fargate)
+- [5.4.8 AI Service — database, queue và Bedrock](../../5-Workshop/5.4-Deployment-Guide/5.4.8-AI-Service-Core/) - AI service triển khai trong tuần
+- [5.4.9 AI Service — vector search, lịch chạy và API](../../5-Workshop/5.4-Deployment-Guide/5.4.9-AI-Service-Vector-Search/) - OpenSearch Serverless, schedule và route của AI

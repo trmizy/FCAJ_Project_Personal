@@ -13,18 +13,21 @@ pre: " <b> 1.4. </b> "
 - Complete self-study of Module 3: Optimizing the system
 - Deepen understanding across the Operate, Security, and Reliability pillars of the AWS Well-Architected Framework
 - Turn the module's lessons into concrete requirements for the Fitness Assistant's AWS design
+- Start the AWS deployment: shared network, Aurora, the Auth service behind API Gateway, the frontend on S3 and the User service
 
 ### Tasks to be carried out this week:
 
 | Task | Start Date | Completion Date | Reference Materials |
 | --- | --- | --- | --- |
-| Study and complete Module 3: Optimizing the system | 10-7-2026 | 16-7-2026 | **Operate:** <br>22: https://000022.awsstudygroup.com/ <br>27: https://000027.awsstudygroup.com/ <br>29: https://000029.awsstudygroup.com/ <br>31: https://000031.awsstudygroup.com/ <br>58: https://000058.awsstudygroup.com/ <br>**Security:** <br>18: https://000018.awsstudygroup.com/ <br>26: https://000026.awsstudygroup.com/ <br>30: https://000030.awsstudygroup.com/ <br>33: https://000033.awsstudygroup.com/ <br>44: https://000044.awsstudygroup.com/ <br>**Reliability:** <br>13: https://000013.awsstudygroup.com/ <br>19: https://000019.awsstudygroup.com/ <br>20: https://000020.awsstudygroup.com/ |
+| Study and complete Module 3: Optimizing the system | 24-8-2026 | 29-8-2026 | **Operate:** <br>22: https://000022.awsstudygroup.com/ <br>27: https://000027.awsstudygroup.com/ <br>29: https://000029.awsstudygroup.com/ <br>31: https://000031.awsstudygroup.com/ <br>58: https://000058.awsstudygroup.com/ <br>**Security:** <br>18: https://000018.awsstudygroup.com/ <br>26: https://000026.awsstudygroup.com/ <br>30: https://000030.awsstudygroup.com/ <br>33: https://000033.awsstudygroup.com/ <br>44: https://000044.awsstudygroup.com/ <br>**Reliability:** <br>13: https://000013.awsstudygroup.com/ <br>19: https://000019.awsstudygroup.com/ <br>20: https://000020.awsstudygroup.com/ |
+| Deploy the shared network (VPC, subnets, NAT Gateway, security groups), Aurora PostgreSQL Serverless v2, the Auth service on Lambda behind API Gateway, and the frontend on S3 | 26-8-2026 | 27-8-2026 | [5.4.1 Shared network](../../5-Workshop/5.4-Deployment-Guide/5.4.1-Shared-Network/) <br>[5.4.2 Auth Service and API Gateway](../../5-Workshop/5.4-Deployment-Guide/5.4.2-Auth-Service-API-Gateway/) <br>[5.4.3 Frontend on S3](../../5-Workshop/5.4-Deployment-Guide/5.4.3-Frontend-S3/) |
+| Deploy the User service (database, Lambda functions and schedules) | 27-8-2026 | 27-8-2026 | [5.4.4 User Service](../../5-Workshop/5.4-Deployment-Guide/5.4.4-User-Service/) |
 
 ### Week 4 Achievements:
 
 **Overview:**
 
-During this week, I focused on system optimization (Module 3) by exploring three crucial pillars: Operations, Security, and Reliability. Besides the labs, I used each pillar as a checklist for the Fitness Assistant: what its AWS design must guarantee for access control, private networking, secrets, backups and monitoring, and what it would still cost while nobody is using it.
+During this week, I focused on system optimization (Module 3) by exploring three crucial pillars: Operations, Security, and Reliability. Besides the labs, I used each pillar as a checklist for the Fitness Assistant: what its AWS design must guarantee for access control, private networking, secrets, backups and monitoring, and what it would still cost while nobody is using it. The deployment itself also started this week: the shared network, Aurora, the Auth service behind API Gateway and the frontend on S3 on 26–27 August, then the User service on 27 August.
 
 **Learned theory:**
 
@@ -56,7 +59,7 @@ During this week, I focused on system optimization (Module 3) by exploring three
 **Applied to Fitness Assistant:**
 
 - **Cost:** The lab saves money by stopping idle EC2 instances on a schedule. For this project I took the idea one step further: use compute that costs nothing while idle (Lambda for the HTTP services and jobs, Aurora Serverless v2 with a low capacity floor), so there is nothing to stop. What still costs money when idle (NAT Gateway, load balancer, VPC endpoints) became the "sleep mode" in the [budget](../../2-Proposal/#budget).
-- **Security requirements:** one IAM role per function, scoped to its own secret, queue and model; database credentials in Secrets Manager, one secret per service database; compute and database only in private subnets; security groups that reference each other instead of IP ranges.
+- **Security requirements (applied from the Auth service onward):** one IAM role per function, scoped to its own secret, queue and model; database credentials in Secrets Manager, one secret per service database; compute and database only in private subnets; security groups that reference each other instead of IP ranges.
 - **Reliability requirements:** private subnets in two Availability Zones, Aurora automated backups, load-balancer health checks that replace an unhealthy container, and a dead-letter queue so a failing background job is not retried forever.
 - **Monitoring plan:** CloudWatch Logs for every function and task from day one, then alarms on the few signals that matter: function errors and throttles, dead-letter queue depth, database capacity and the chat target's health.
 

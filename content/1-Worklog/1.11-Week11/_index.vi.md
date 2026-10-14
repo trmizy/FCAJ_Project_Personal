@@ -18,7 +18,7 @@ draft: false
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
 | --- | --- | --- | --- |
-| Continue developing và fixing frontend components based on team leader's feedback (focus on Homepage, Navbar, Footer, Product detail, Cart, Order, Checkout pages) | 28-8-2026 | 03-9-2026 | |
+| Continue developing và fixing frontend components based on team leader's feedback (focus on Homepage, Navbar, Footer, Product detail, Cart, Order, Checkout pages) | 12-10-2026 | 17-10-2026 | |
 
 ### Kết quả đạt được tuần 11:
 

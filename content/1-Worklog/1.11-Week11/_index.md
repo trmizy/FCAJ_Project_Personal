@@ -18,7 +18,7 @@ draft: false
 
 | Task | Start Date | Completion Date | Reference Materials |
 | --- | --- | --- | --- |
-| Continued developing and fixing frontend components based on team leader's feedback (focus on Homepage, Navbar, Footer, Product detail, Cart, Order, Checkout pages) | 28-8-2026 | 03-9-2026 | |
+| Continued developing and fixing frontend components based on team leader's feedback (focus on Homepage, Navbar, Footer, Product detail, Cart, Order, Checkout pages) | 12-10-2026 | 17-10-2026 | |
 
 ### Week 11 Results:
 

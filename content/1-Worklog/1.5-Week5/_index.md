@@ -12,19 +12,21 @@ pre: " <b> 1.5. </b> "
 
 - Complete Module 3: Optimizing the system, focusing aggressively on System Performance and Cost Optimization strategies
 - Complete Module 4: Modernize the application by exploring and implementing Serverless and Microservices architectures
+- Deploy the Fitness service with the same pattern as Auth and User
 
 ### Tasks to be carried out this week:
 
 | Task | Start Date | Completion Date | Reference Materials |
 | --- | --- | --- | --- |
-| Complete Module 3: Optimizing the system | 17-7-2026 | 23-7-2026 | **Module 3 - Performance:** <br>15: https://000015.awsstudygroup.com/ <br>16: https://000016.awsstudygroup.com/ <br>17: https://000017.awsstudygroup.com/ <br>23: https://000023.awsstudygroup.com/ <br>24: https://000024.awsstudygroup.com/ <br>25: https://000025.awsstudygroup.com/ <br>35: https://000035.awsstudygroup.com/ <br>**Module 3 - Optimizing costs:** <br>32: https://000032.awsstudygroup.com/ <br>34: https://000034.awsstudygroup.com/ <br>40: https://000040.awsstudygroup.com/ <br>42: https://000042.awsstudygroup.com/ |
-| Complete Module 4: Modernize the application | 17-7-2026 | 23-7-2026 | **Module 4 - Modernize the application:** <br>47: https://000047.awsstudygroup.com/ <br>50: https://000050.awsstudygroup.com/ <br>51: https://000051.awsstudygroup.com/ <br>52: https://000052.awsstudygroup.com/ <br>53: https://000053.awsstudygroup.com/ <br>54: https://000054.awsstudygroup.com/ <br>55: https://000055.awsstudygroup.com/ <br>56: https://000056.awsstudygroup.com/ |
+| Complete Module 3: Optimizing the system | 31-8-2026 | 05-9-2026 | **Module 3 - Performance:** <br>15: https://000015.awsstudygroup.com/ <br>16: https://000016.awsstudygroup.com/ <br>17: https://000017.awsstudygroup.com/ <br>23: https://000023.awsstudygroup.com/ <br>24: https://000024.awsstudygroup.com/ <br>25: https://000025.awsstudygroup.com/ <br>35: https://000035.awsstudygroup.com/ <br>**Module 3 - Optimizing costs:** <br>32: https://000032.awsstudygroup.com/ <br>34: https://000034.awsstudygroup.com/ <br>40: https://000040.awsstudygroup.com/ <br>42: https://000042.awsstudygroup.com/ |
+| Complete Module 4: Modernize the application | 31-8-2026 | 05-9-2026 | **Module 4 - Modernize the application:** <br>47: https://000047.awsstudygroup.com/ <br>50: https://000050.awsstudygroup.com/ <br>51: https://000051.awsstudygroup.com/ <br>52: https://000052.awsstudygroup.com/ <br>53: https://000053.awsstudygroup.com/ <br>54: https://000054.awsstudygroup.com/ <br>55: https://000055.awsstudygroup.com/ <br>56: https://000056.awsstudygroup.com/ |
+| Deploy the Fitness service (database and migrations, HTTP and jobs functions, two reminder schedules) | 02-9-2026 | 02-9-2026 | [5.4.5 Fitness Service](../../5-Workshop/5.4-Deployment-Guide/5.4.5-Fitness-Service/) |
 
 ### Week 5 Achievements:
 
 **Overview:**
 
-During this intensive week, I accomplished two major tracks: system performance/cost optimization (Module 3) and application modernization (Module 4). The extensive lab workload spanned containerization, robust serverless computing, data lakes, and complex cost analytics. Module 4 also answered the biggest design question of the project: most of the Fitness Assistant does not need servers at all.
+During this intensive week, I accomplished two major tracks: system performance/cost optimization (Module 3) and application modernization (Module 4). The extensive lab workload spanned containerization, robust serverless computing, data lakes, and complex cost analytics. Module 4 also explained the pattern the deployment had followed since Week 4 (most of the Fitness Assistant does not need servers at all), and I applied it to the Fitness service on 2 September.
 
 **Note:** Certain sections within the modernization labs (specifically 47, 54, and 55) mandated the use of AWS Cloud9. As AWS Cloud9 is currently inaccessible in my environment, these specific sections were strategically skipped, while the underlying architectural concepts were still thoroughly studied.
 
@@ -46,9 +48,9 @@ During this intensive week, I accomplished two major tracks: system performance/
 
 **Applied to Fitness Assistant:**
 
-**Modernization Path (the main design decision):**
+**Modernization Path (the pattern every service follows):**
 - The application is already split into services (auth, user, fitness, gym, payment, ai, chat) that run together with Docker Compose locally. Six of them only answer short HTTP requests or run scheduled jobs, which is exactly the Lambda model; only chat has to keep a Socket.IO connection open.
-- Decision: run the six HTTP services as Lambda functions behind one API Gateway HTTP API, which replaces the application gateway container as the single entry point.
+- Each of the six HTTP services runs as Lambda functions behind one API Gateway HTTP API, which replaces the application gateway container as the single entry point (Auth and User since Week 4, Fitness this week).
 - Scheduled work (session settlement, workout reminders, payouts, payment reconciliation, AI knowledge refresh) moves from timers inside the process to EventBridge Scheduler, which invokes one jobs function per service.
 - Long AI work (workout and nutrition plan generation) moves to an SQS queue and a worker function, so no HTTP call has to wait past API Gateway's ~30-second limit. This also replaces the Redis/BullMQ queue, which would have needed a cache cluster running all the time.
 - Chat stays a container; where to run it is evaluated in [Week 6](../1.6-Week6/).
@@ -85,7 +87,7 @@ During this intensive week, I accomplished two major tracks: system performance/
 
 - **Cold Start Mitigation:** Accepted cold starts for the DEV environment, where they only affect the first request after an idle period. Provisioned concurrency remains the option for production, so the synchronous APIs did not need to stay on containers.
 
-- **Cost Forecasting:** Used AWS Pricing Calculator to estimate costs. Set up granular billing alerts. Planned to deploy one service at a time so the cost of each step could be checked.
+- **Cost Forecasting:** Used AWS Pricing Calculator to estimate costs. Set up granular billing alerts. Deployed one service at a time (Auth and User in Week 4, Fitness this week), so the cost of each step could be checked.
 
 ### AWS Skills / Services Learned:
 

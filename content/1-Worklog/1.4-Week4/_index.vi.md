@@ -13,18 +13,21 @@ pre: " <b> 1.4. </b> "
 - Hoàn thành tự học Module 3: Tối ưu hóa hệ thống
 - Tìm hiểu sâu hơn về 3 trụ cột của AWS Well-Architected Framework: Operate, Security và Reliability
 - Biến những gì học được thành yêu cầu cụ thể cho thiết kế AWS của Fitness Assistant
+- Bắt đầu triển khai lên AWS: hạ tầng mạng dùng chung, Aurora, Auth service sau API Gateway, frontend trên S3 và User service
 
 ### Công việc thực hiện tuần này:
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
 | --- | --- | --- | --- |
-| Học và hoàn thành Module 3: Tối ưu hóa hệ thống | 10-7-2026 | 16-7-2026 | **Operate:** <br>22: https://000022.awsstudygroup.com/ <br>27: https://000027.awsstudygroup.com/ <br>29: https://000029.awsstudygroup.com/ <br>31: https://000031.awsstudygroup.com/ <br>58: https://000058.awsstudygroup.com/ <br>**Security:** <br>18: https://000018.awsstudygroup.com/ <br>26: https://000026.awsstudygroup.com/ <br>30: https://000030.awsstudygroup.com/ <br>33: https://000033.awsstudygroup.com/ <br>44: https://000044.awsstudygroup.com/ <br>**Reliability:** <br>13: https://000013.awsstudygroup.com/ <br>19: https://000019.awsstudygroup.com/ <br>20: https://000020.awsstudygroup.com/ |
+| Học và hoàn thành Module 3: Tối ưu hóa hệ thống | 24-8-2026 | 29-8-2026 | **Operate:** <br>22: https://000022.awsstudygroup.com/ <br>27: https://000027.awsstudygroup.com/ <br>29: https://000029.awsstudygroup.com/ <br>31: https://000031.awsstudygroup.com/ <br>58: https://000058.awsstudygroup.com/ <br>**Security:** <br>18: https://000018.awsstudygroup.com/ <br>26: https://000026.awsstudygroup.com/ <br>30: https://000030.awsstudygroup.com/ <br>33: https://000033.awsstudygroup.com/ <br>44: https://000044.awsstudygroup.com/ <br>**Reliability:** <br>13: https://000013.awsstudygroup.com/ <br>19: https://000019.awsstudygroup.com/ <br>20: https://000020.awsstudygroup.com/ |
+| Triển khai hạ tầng mạng dùng chung (VPC, subnet, NAT Gateway, security group), Aurora PostgreSQL Serverless v2, Auth service trên Lambda sau API Gateway và frontend trên S3 | 26-8-2026 | 27-8-2026 | [5.4.1 Hạ tầng mạng dùng chung](../../5-Workshop/5.4-Deployment-Guide/5.4.1-Shared-Network/) <br>[5.4.2 Auth Service và API Gateway](../../5-Workshop/5.4-Deployment-Guide/5.4.2-Auth-Service-API-Gateway/) <br>[5.4.3 Frontend trên Amazon S3](../../5-Workshop/5.4-Deployment-Guide/5.4.3-Frontend-S3/) |
+| Triển khai User service (database, Lambda function và schedule) | 27-8-2026 | 27-8-2026 | [5.4.4 User Service](../../5-Workshop/5.4-Deployment-Guide/5.4.4-User-Service/) |
 
 ### Kết quả đạt được tuần 4:
 
 **Tổng quan:**
 
-Trong tuần này, mình tập trung vào tối ưu hóa hệ thống (Module 3) thông qua việc khám phá ba trụ cột quan trọng: Operations, Security và Reliability. Ngoài các lab, mình dùng từng trụ cột như một checklist cho Fitness Assistant: thiết kế AWS phải đảm bảo những gì về kiểm soát truy cập, mạng private, secret, backup và giám sát, và hệ thống vẫn tốn bao nhiêu tiền khi không có ai dùng.
+Trong tuần này, mình tập trung vào tối ưu hóa hệ thống (Module 3) thông qua việc khám phá ba trụ cột quan trọng: Operations, Security và Reliability. Ngoài các lab, mình dùng từng trụ cột như một checklist cho Fitness Assistant: thiết kế AWS phải đảm bảo những gì về kiểm soát truy cập, mạng private, secret, backup và giám sát, và hệ thống vẫn tốn bao nhiêu tiền khi không có ai dùng. Cũng trong tuần này, việc triển khai bắt đầu: hạ tầng mạng, Aurora, Auth service sau API Gateway và frontend trên S3 trong hai ngày 26–27/08, rồi User service ngày 27/08.
 
 **Kiến thức lý thuyết học được:**
 
@@ -56,7 +59,7 @@ Trong tuần này, mình tập trung vào tối ưu hóa hệ thống (Module 3)
 **Áp dụng vào Fitness Assistant:**
 
 - **Chi phí:** Lab tiết kiệm tiền bằng cách tắt EC2 instance idle theo lịch. Với dự án này, mình đi xa hơn một bước: dùng loại compute không tốn tiền khi idle (Lambda cho các HTTP service và job, Aurora Serverless v2 với capacity tối thiểu thấp), nên không có gì cần tắt. Những thứ vẫn tốn tiền khi idle (NAT Gateway, load balancer, VPC endpoint) trở thành "chế độ ngủ" trong [ngân sách](../../2-Proposal/#budget).
-- **Yêu cầu bảo mật:** mỗi function một IAM role, chỉ có quyền trên secret, queue và model của chính nó; credential database nằm trong Secrets Manager, mỗi database của service một secret; compute và database chỉ nằm trong private subnet; security group tham chiếu lẫn nhau thay vì mở theo dải IP.
+- **Yêu cầu bảo mật (áp dụng từ Auth service trở đi):** mỗi function một IAM role, chỉ có quyền trên secret, queue và model của chính nó; credential database nằm trong Secrets Manager, mỗi database của service một secret; compute và database chỉ nằm trong private subnet; security group tham chiếu lẫn nhau thay vì mở theo dải IP.
 - **Yêu cầu về độ tin cậy:** private subnet trải trên hai Availability Zone, automated backup của Aurora, health check của load balancer để thay container bị lỗi, và dead-letter queue để job nền bị lỗi không bị retry mãi.
 - **Kế hoạch giám sát:** CloudWatch Logs cho mọi function và task ngay từ đầu, sau đó đặt alarm cho vài tín hiệu quan trọng: lỗi và throttle của function, độ sâu dead-letter queue, capacity của database và health của Chat target.
 

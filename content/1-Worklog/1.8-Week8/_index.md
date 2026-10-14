@@ -14,18 +14,21 @@ draft: false
 - Complete Module 7: AI/ML service on AWS
 - Experience AWS SageMaker through the Immersion Day workshop
 - Continue integration into corporate environment
+- Deploy the Chat service on ECS Fargate and migrate the local data to Aurora
 
 ### Tasks to be carried out this week:
 
 | Task | Start Date | Completion Date | Reference Materials |
 | --- | --- | --- | --- |
-| Study and complete Module 7: AI/ML service on AWS | 07-8-2026 | 13-8-2026 | Lab 200: https://000200.awsstudygroup.com/ |
+| Study and complete Module 7: AI/ML service on AWS | 21-9-2026 | 26-9-2026 | Lab 200: https://000200.awsstudygroup.com/ |
+| Deploy the Chat service on ECS Fargate behind an Application Load Balancer | 22-9-2026 | 22-9-2026 | [5.4.10 Chat Service on ECS Fargate](../../5-Workshop/5.4-Deployment-Guide/5.4.10-Chat-Service-ECS/) |
+| Migrate the data of the seven local databases to Aurora with a one-off Fargate task | 23-9-2026 | 23-9-2026 | [5.4.11 Data migration to Aurora](../../5-Workshop/5.4-Deployment-Guide/5.4.11-Data-Migration/) |
 
 ### Week 8 Achievements:
 
 **Overview:**
 
-During this week, I shifted my focus to Artificial Intelligence and Machine Learning on AWS by completing Module 7. I gained practical exposure to AWS SageMaker through hands-on workshops. In addition, I continued to engage with the team and professional community.
+During this week, I shifted my focus to Artificial Intelligence and Machine Learning on AWS by completing Module 7. I gained practical exposure to AWS SageMaker through hands-on workshops. In addition, I continued to engage with the team and professional community. Alongside the module, I deployed the Chat service on ECS Fargate (22 September) and moved the data of the seven local databases to Aurora (23 September).
 
 **Learned theory:**
 
@@ -40,7 +43,7 @@ During this week, I shifted my focus to Artificial Intelligence and Machine Lear
 
 **Applied to Fitness Assistant:**
 
-Identified ML use cases: workout recommendations enhancement, exercise form analysis, personalized nutrition, progress prediction, and churn prediction. Analyzed trade-offs between self-hosted Ollama (current) vs managed services (Amazon Bedrock/SageMaker) based on cost, control, and scalability considerations.
+Identified ML use cases: workout recommendations enhancement, exercise form analysis, personalized nutrition, progress prediction, and churn prediction. Compared SageMaker with the Amazon Bedrock setup that had replaced the self-hosted Ollama model the week before (Ollama needed a larger EC2 instance, manual scaling and maintenance; Bedrock is billed per request), based on cost, control, and scalability considerations.
 
 ### Difficulties Encountered:
 
@@ -71,3 +74,5 @@ Identified ML use cases: workout recommendations enhancement, exercise form anal
 ### Related Workshop Sections:
 
 - [5.4.8 AI Service — database, queue and Bedrock](../../5-Workshop/5.4-Deployment-Guide/5.4.8-AI-Service-Core/) - AI service deployment on Amazon Bedrock
+- [5.4.10 Chat Service on ECS Fargate](../../5-Workshop/5.4-Deployment-Guide/5.4.10-Chat-Service-ECS/) - Deployed this week
+- [5.4.11 Data migration to Aurora](../../5-Workshop/5.4-Deployment-Guide/5.4.11-Data-Migration/) - 7 of 7 databases restored this week
