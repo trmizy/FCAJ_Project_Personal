@@ -12,7 +12,7 @@ pre: " <b> 1.4. </b> "
 
 - Hoàn thành tự học Module 3: Tối ưu hóa hệ thống
 - Tìm hiểu sâu hơn về 3 trụ cột của AWS Well-Architected Framework: Operate, Security và Reliability
-- Áp dụng kiến thức vào việc tối ưu kiến trúc Fitness Assistant
+- Biến những gì học được thành yêu cầu cụ thể cho thiết kế AWS của Fitness Assistant
 
 ### Công việc thực hiện tuần này:
 
@@ -24,7 +24,7 @@ pre: " <b> 1.4. </b> "
 
 **Tổng quan:**
 
-Trong tuần này, mình tập trung vào tối ưu hóa hệ thống (Module 3) thông qua việc khám phá ba trụ cột quan trọng: Operations, Security và Reliability. Mình đã thực hành các giải pháp thực tế để giảm chi phí, theo dõi tập trung, kiểm soát truy cập nghiêm ngặt và xây dựng kiến trúc mạng vững chắc cho Fitness Assistant project.
+Trong tuần này, mình tập trung vào tối ưu hóa hệ thống (Module 3) thông qua việc khám phá ba trụ cột quan trọng: Operations, Security và Reliability. Ngoài các lab, mình dùng từng trụ cột như một checklist cho Fitness Assistant: thiết kế AWS phải đảm bảo những gì về kiểm soát truy cập, mạng private, secret, backup và giám sát, và hệ thống vẫn tốn bao nhiêu tiền khi không có ai dùng.
 
 **Kiến thức lý thuyết học được:**
 
@@ -38,27 +38,27 @@ Trong tuần này, mình tập trung vào tối ưu hóa hệ thống (Module 3)
 
 - **Operate:** 
   - Cấu hình Lambda function để tự động bật/tắt EC2 instances theo schedule (giảm cost khi dev environment không dùng)
-  - Setup CloudWatch dashboards để monitor metrics của Fitness Assistant services
-  - Apply resource tags cho các services (Environment: dev/prod, Service: auth/user/fitness/ai)
+  - Setup CloudWatch dashboards cho các resource trong lab
+  - Thực hành gắn tag và dùng Resource Groups để tìm resource theo môi trường và service
   - Thử nghiệm Systems Manager Session Manager để access EC2 không cần SSH key
 
 - **Security:**
   - Implement IAM Permission Boundaries để limit quyền của developer users
   - Configure Security Groups với least privilege principle (chỉ mở ports cần thiết)
   - Research AWS WAF rules để protect API endpoints khỏi common attacks (SQL injection, XSS)
-  - Tìm hiểu KMS encryption cho RDS database và S3 buckets (nơi lưu user workout data)
+  - Tìm hiểu KMS encryption at rest cho database và S3 bucket
 
 - **Reliability:**
-  - Design backup policy cho RDS database dùng AWS Backup (daily snapshots, 7-day retention)
+  - Thiết kế backup plan với AWS Backup (daily snapshots, 7-day retention)
   - Nghiên cứu multi-AZ deployment cho production environment (đảm bảo high availability)
   - Evaluate VPC Peering vs Transit Gateway cho future microservices expansion
 
 **Áp dụng vào Fitness Assistant:**
 
-- Thiết kế cost optimization strategy: schedule để tắt dev environment EC2 ngoài giờ làm việc
-- Plan monitoring stack: CloudWatch Logs cho centralized logging, custom metrics cho API latency/error rate
-- Security hardening checklist: IAM roles với least privilege, Security Groups strict rules, encryption at rest cho sensitive data
-- Backup và disaster recovery plan: automated daily backups, cross-region backup cho production (future)
+- **Chi phí:** Lab tiết kiệm tiền bằng cách tắt EC2 instance idle theo lịch. Với dự án này, mình đi xa hơn một bước: dùng loại compute không tốn tiền khi idle (Lambda cho các HTTP service và job, Aurora Serverless v2 với capacity tối thiểu thấp), nên không có gì cần tắt. Những thứ vẫn tốn tiền khi idle (NAT Gateway, load balancer, VPC endpoint) trở thành "chế độ ngủ" trong [ngân sách](../../2-Proposal/#budget).
+- **Yêu cầu bảo mật:** mỗi function một IAM role, chỉ có quyền trên secret, queue và model của chính nó; credential database nằm trong Secrets Manager, mỗi database của service một secret; compute và database chỉ nằm trong private subnet; security group tham chiếu lẫn nhau thay vì mở theo dải IP.
+- **Yêu cầu về độ tin cậy:** private subnet trải trên hai Availability Zone, automated backup của Aurora, health check của load balancer để thay container bị lỗi, và dead-letter queue để job nền bị lỗi không bị retry mãi.
+- **Kế hoạch giám sát:** CloudWatch Logs cho mọi function và task ngay từ đầu, sau đó đặt alarm cho vài tín hiệu quan trọng: lỗi và throttle của function, độ sâu dead-letter queue, capacity của database và health của Chat target.
 
 ### Khó khăn gặp phải:
 
@@ -72,9 +72,9 @@ Trong tuần này, mình tập trung vào tối ưu hóa hệ thống (Module 3)
 
 - **Permission Boundaries:** Vẽ diagram để visualize relationship giữa identity-based policies, permission boundaries và resource-based policies. Practice với concrete examples trong lab.
 
-- **Cost optimization:** Quyết định implement "on-demand start" mechanism: dev có thể trigger Lambda function để start instances khi cần, instances tự động stop sau 2 giờ idle.
+- **Cost optimization:** Tránh hẳn trade-off thay vì tinh chỉnh lịch bật/tắt: service scale về 0 thì không cần bật/tắt, còn vài resource có chi phí cố định thì được chủ động tạm dừng giữa các đợt kiểm thử (xem [5.7 Dọn dẹp tài nguyên](../../5-Workshop/5.7-Cleanup/#pause)).
 
-- **Monitoring strategy:** Adopt "start simple, iterate" approach. Week 4 focus vào critical metrics (CPU, memory, disk, API error rate), sẽ expand monitoring dần theo experience.
+- **Monitoring strategy:** Áp dụng cách "start simple, iterate": có log trước (Lambda function và ECS task gửi log lên CloudWatch gần như không cần cấu hình), rồi mới đặt một danh sách ngắn alarm cho các tín hiệu ở trên. Các metric host của EC2 dùng trong lab (CPU, memory, disk) không áp dụng được, vì thiết kế serverless không có host nào để theo dõi.
 
 ### Kỹ năng / Dịch vụ AWS đã học:
 
@@ -99,11 +99,11 @@ Trong tuần này, mình tập trung vào tối ưu hóa hệ thống (Module 3)
 ### Liên kết với Fitness Assistant Architecture:
 
 Module 3 insights directly applicable:
-- **Operate:** CloudWatch monitoring cho microservices health checks, Lambda automation cho routine tasks
-- **Security:** IAM roles cho service-to-service communication, WAF protection cho API Gateway, KMS encryption cho user data
-- **Reliability:** Multi-AZ RDS deployment, automated backups, health checks với auto-recovery
+- **Operate:** CloudWatch Logs cho mọi Lambda function và Chat task; alarm cho lỗi, throttle, độ sâu dead-letter queue và capacity của database (dự kiến)
+- **Security:** mỗi function một role với quyền tối thiểu, credential trong Secrets Manager, KMS encryption cho dữ liệu người dùng; AWS WAF không gắn trực tiếp được vào API Gateway HTTP API nên được lên kế hoạch cùng CloudFront
+- **Reliability:** private subnet trên hai AZ, automated backup của Aurora, health check tự thay task bị lỗi, dead-letter queue cho job lỗi
 
 ### Liên kết Workshop tương ứng:
 
-- [5.2 Architecture Description](../../5-Workshop/5.2-Architecture-Description/) - Security và network design
-- [5.2.6 Scalability and Operations](../../5-Workshop/5.2-Architecture-Description/5.2.6-Scalability-Operations/) - Vận hành, logging và monitoring
+- [5.2.5 Bảo mật và IAM](../../5-Workshop/5.2-Architecture-Description/5.2.5-Security-IAM/) - Cô lập mạng, role quyền tối thiểu và secret
+- [5.2.6 Khả năng mở rộng và vận hành](../../5-Workshop/5.2-Architecture-Description/5.2.6-Scalability-Operations/) - Vận hành, logging và monitoring

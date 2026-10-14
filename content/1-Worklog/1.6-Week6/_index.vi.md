@@ -46,56 +46,54 @@ Trong tuần này, mình tập trung hoàn toàn vào AWS Container services (Mo
 
 **Container Strategy Evaluation:**
 
-Sau khi học 3 container platforms, mình evaluate phương án phù hợp nhất cho Fitness Assistant:
+Sau [Tuần 5](../1.5-Week5/), sáu trong bảy service đã được lên kế hoạch chạy trên Lambda. Câu hỏi của tuần này hẹp hơn: service duy nhất cần process chạy liên tục nên chạy ở đâu? Đó là Chat, service giữ một kết nối Socket.IO cho mỗi người dùng. Mình so sánh ba nền tảng trong module:
 
 1. **Amazon Lightsail Containers:**
    - **Pros:** Simple setup, predictable pricing ($10-40/month), good cho MVP
-   - **Cons:** Limited scaling, không suitable cho production growth
-   - **Decision:** Có thể dùng cho initial prototype testing
+   - **Cons:** Scaling hạn chế, và khó tích hợp với VPC private, IAM role riêng cho từng service và Secrets Manager mà phần còn lại của thiết kế đang dùng
+   - **Decision:** Không dùng
 
 2. **Amazon ECS with Fargate:**
    - **Pros:** Serverless (không manage servers), good AWS integration, cost-effective cho small-medium scale
    - **Cons:** Vendor lock-in (AWS-specific), learning curve
-   - **Decision:** **Recommended choice cho MVP** - balance giữa simplicity và production-readiness
+   - **Decision:** **Chọn cho Chat service.** Cùng cluster còn chạy được các task một lần, sau này dùng cho job migration database
 
 3. **Amazon EKS (Kubernetes):**
    - **Pros:** Industry standard, portable, powerful orchestration
-   - **Cons:** Complex setup, higher cost, overkill cho current scale
-   - **Decision:** Future consideration khi scale lên hoặc cần multi-cloud portability
+   - **Cons:** Setup phức tạp, tốn phí control plane cho mỗi cluster, quá mức cần thiết cho một container service duy nhất
+   - **Decision:** Không cần ở quy mô này
 
-**Implementation Plan cho Fitness Assistant:**
+**Implementation Plan cho Chat Service:**
 
-**Phase 1 - ECS Migration (Immediate):**
-- Containerize tất cả services (auth, user, fitness, ai, gateway)
-- Create ECS Task Definitions cho mỗi service
-- Setup ECS Service với Fargate launch type
-- Configure Application Load Balancer cho routing
-- Migrate từ single EC2 → ECS cluster
+**Phase 1 - Image và registry:**
+- Build production image của chat-service cho `linux/amd64`
+- Push lên một private repository Amazon ECR cùng region
 
-**Phase 2 - CI/CD Pipeline:**
-- GitHub repository → AWS CodePipeline trigger on push
-- CodeBuild stage: build Docker images, run tests
-- Push images → Amazon ECR
-- CodeDeploy stage: deploy to ECS với blue/green deployment
-- Automated rollback on failure
+**Phase 2 - Task và service:**
+- Một task definition: 0.5 vCPU / 1 GB, container port 3005, database URL và internal secret được inject từ Secrets Manager
+- Một ECS service dùng Fargate launch type trong các private application subnet
 
-**Phase 3 - Advanced Features:**
-- Service Auto Scaling based on CPU/memory
-- Service Mesh với AWS App Mesh cho advanced traffic management
-- CloudWatch Container Insights cho detailed monitoring
+**Phase 3 - Load balancer và routing:**
+- Application Load Balancer internet-facing ở public subnet, với IP target group được health check trên `/health`
+- Bật stickiness cho target group và tăng idle timeout, để kết nối Socket.IO không bị cắt
+- Listener rule trả 404 cho `/internal/*` và `/metrics`; các REST call dưới `/chat/*` đi tới ALB qua API Gateway
+
+**Về sau:**
+- Chỉ chạy nhiều hơn một Chat task sau khi có Socket.IO adapter dùng chung (hiện trạng thái phiên nằm trong memory)
+- CI/CD cho image; CloudWatch Container Insights và alarm cho health của target
 
 **Architecture Comparison:**
 
-*Current (MVP on EC2):*
+*Kế hoạch đầu tiên (lift-and-shift lên một host):*
 ```
-User → EC2 (Docker Compose với all services) → RDS
+User → EC2 (Docker Compose với tất cả service, Ollama, Qdrant, Redis) → RDS
 ```
 
-*After ECS Migration:*
+*Thiết kế được chọn:*
 ```
-User → ALB → ECS Services (auth/user/fitness/ai services độc lập) → RDS
-                ↓
-            Fargate Tasks (auto-scale)
+Browser → S3 static website (frontend)
+Browser → API Gateway (HTTP API) → Lambda (auth, user, fitness, gym, payment, ai) → Aurora PostgreSQL
+Browser → Chat ALB (Socket.IO; REST qua API Gateway /chat/*) → ECS Fargate (chat) → Aurora PostgreSQL
 ```
 
 ### Khó khăn gặp phải:
@@ -104,19 +102,19 @@ User → ALB → ECS Services (auth/user/fitness/ai services độc lập) → R
 
 - **Task Definition Complexity:** ECS Task Definitions có nhiều configuration options (CPU, memory, networking mode, volume mounts, environment variables, secrets). Khó để optimize correctly.
 
-- **Fargate Pricing Model:** Fargate pricing based on vCPU và memory allocated per second. Khó estimate costs accurately so với flat EC2 pricing.
+- **Fargate Pricing Model:** Fargate tính tiền theo vCPU và memory được cấp mỗi giây, và load balancer phía trước là chi phí cố định hằng tháng. Với lượng truy cập DEV, đường Chat chạy liên tục tốn hơn cả sáu Lambda service cộng lại.
 
-- **Service Discovery:** Khi migrate sang microservices trên ECS, services cần communicate với nhau. AWS Cloud Map cho service discovery có learning curve.
+- **Gọi giữa các service:** Trong Docker Compose, các service gọi nhau qua hostname trên cùng một network. Lambda function và Fargate task đứng sau load balancer đều không có điều đó, còn AWS Cloud Map cho service discovery lại có learning curve riêng.
 
 ### Cách giải quyết:
 
-- **Platform Decision:** Quyết định dùng ECS cho MVP dựa trên criteria: production-ready, AWS-integrated, manageable complexity, lower cost than EKS. Reserve EKS cho future nếu cần Kubernetes expertise hoặc multi-cloud.
+- **Platform Decision:** ECS trên Fargate chỉ cho Chat: production-ready, tích hợp tốt với AWS, độ phức tạp vừa phải, rẻ hơn EKS. EKS vẫn là lựa chọn nếu sau này dự án cần Kubernetes hoặc multi-cloud.
 
-- **Task Definitions:** Start với simple task definitions, iterate dần. Use AWS Copilot CLI (tool đơn giản hóa ECS deployments) cho initial setup, sau đó refine manually.
+- **Task Definitions:** Bắt đầu từ task definition nhỏ nhất chạy được (một container, một port, secret lấy từ Secrets Manager) và giữ mỗi thay đổi thành một revision mới.
 
-- **Cost Management:** Use AWS Pricing Calculator để estimate Fargate costs. Setup CloudWatch alarms cho cost thresholds. Consider Savings Plans cho Fargate nếu có predictable baseline.
+- **Cost Management:** Dùng AWS Pricing Calculator để ước tính chi phí Fargate và ALB. Giữ Chat ở một task nhỏ, có thể scale về 0 giữa các đợt kiểm thử; chỉ cân nhắc Savings Plans khi có baseline ổn định.
 
-- **Service Discovery:** Implement AWS Cloud Map cho service-to-service communication. Combine với Environment Variables cho flexibility.
+- **Gọi giữa các service:** Không dùng Cloud Map: lời gọi nội bộ là gọi thẳng Lambda theo đúng ARN của function, kèm một internal secret dùng chung, và Chat task cũng gọi Auth và User theo cách đó. API Gateway không có route `/internal/*`, nên các endpoint này không bao giờ public.
 
 ### Kỹ năng / Dịch vụ AWS đã học:
 
@@ -144,15 +142,14 @@ User → ALB → ECS Services (auth/user/fitness/ai services độc lập) → R
 ### Liên kết với Fitness Assistant Architecture:
 
 **Immediate Actions:**
-- Design ECS cluster architecture
-- Create Dockerfiles cho production (nếu chưa có)
-- Plan Task Definitions cho mỗi service
-- Design ALB routing rules
+- Dockerfile production cho chat-service (các service khác được đóng gói thành file ZIP cho Lambda thay vì image)
+- Một task definition và một ECS service cho Chat
+- ALB rule cho Socket.IO và để ẩn các path nội bộ
 
 **Medium-term Goals:**
 - Implement full CI/CD pipeline
-- Setup auto-scaling policies
-- Migrate production traffic từ EC2 → ECS
+- Socket.IO adapter dùng chung trước khi scale Chat lên nhiều task
+- Alarm cho health của Chat target
 
 ### Liên kết Workshop tương ứng:
 

@@ -56,13 +56,13 @@ content/            Site content (Markdown), English (_index.md) + Vietnamese (_
   2-Proposal/
   3-BlogsPosted/
   4-EventParticipated/
-  5-Workshop/         5.1–5.17, the main technical workshop
+  5-Workshop/         5.1–5.7, the main technical workshop (deploying the app on AWS)
   6-Self-evaluation/
   7-Feedback/
 layouts/            Small template customizations on top of hugo-theme-learn
 static/
-  images/            Screenshots, organized by section — see each folder's README.md
-  files/             Downloadable examples: Dockerfiles, compose files, IAM policies, scripts
+  images/            Photos and screenshots by section; the Workshop's deployment screenshots are in images/workshop/runbook/
+  files/             Downloadable extras (only a placeholder in templates/ for now)
 themes/hugo-theme-learn/   Git submodule — do not edit directly
 config.toml         Site config (bilingual menu, theme variant, etc.)
 ```
@@ -77,15 +77,13 @@ Add or edit the matching `_index.vi.md` file in the same folder. Every English p
 
 ## Adding Screenshots
 
-1. Save the image under the matching `static/images/<section>/...` folder (see that folder's `README.md` for the expected filenames).
-2. Reference it in Markdown with an absolute path and descriptive alt text: `![Description of what the screenshot shows](/images/workshop/ec2/01-ec2-instance-details.png)`.
+1. Save the image under the matching `static/images/<section>/...` folder (some folders have a `README.md` listing the expected filenames).
+2. Reference it in Markdown with an absolute path and descriptive alt text: `![Description of what the screenshot shows](/images/workshop/runbook/img001.jpg)`. The image render hook (`layouts/_default/_markup/render-image.html`) adds the GitHub Pages subpath to absolute paths, so they also work on the deployed site.
 3. Do not add a screenshot of something that was not actually done — see the root `TODO` policy below.
 
-## Adding the draw.io Architecture Diagram
+## Architecture Diagrams
 
-1. Replace `static/files/architecture/fitness-assistant-aws-architecture.drawio` with the real diagram source.
-2. Export a PNG and replace `static/images/workshop/architecture/fitness-assistant-aws-architecture.png`.
-3. Both files are currently placeholders — see each folder's `README.md`.
+The architecture diagrams in the Proposal (§3) and Workshop 5.2.2 are written in Mermaid inside the pages. Use the `{{< mermaid >}}` shortcode, not `{{% mermaid %}}`: the `%` form runs the diagram through Markdown, which turns `-->` into an en dash and breaks it. The theme bundles Mermaid 8.8, so avoid newer syntax such as `<-->`, and quote subgraph titles.
 
 ## Checking for Broken Internal Links
 
@@ -109,7 +107,7 @@ This report intentionally contains `[TODO_...]` placeholders and `TODO:` notes w
 
 - [ ] All `[TODO_FULL_NAME]`, `[TODO_PHONE]`, `[TODO_EMAIL]`, etc. placeholders replaced with real (but appropriately private) information
 - [ ] Real profile photo replaces `static/images/profile/avatar-placeholder.png`
-- [ ] Real architecture diagram replaces both placeholder files (see above)
+- [ ] Mermaid diagrams render on the deployed site (Proposal §3, Workshop 5.2.2)
 - [ ] `hugo server -D` runs without error and every page's navigation works
 - [ ] `hugo --minify` builds without error
 - [ ] No AWS access keys, passwords, or other secrets anywhere in the repository (`git grep` for suspicious strings before committing)

@@ -24,7 +24,7 @@ pre: " <b> 1.5. </b> "
 
 **Tổng quan:**
 
-Trong tuần intensive này, mình hoàn thành hai major tracks: system performance/cost optimization (Module 3) và application modernization (Module 4). Khối lượng lab work rất lớn bao gồm containerization, serverless computing, data lakes và cost analytics phức tạp.
+Trong tuần intensive này, mình hoàn thành hai major tracks: system performance/cost optimization (Module 3) và application modernization (Module 4). Khối lượng lab work rất lớn bao gồm containerization, serverless computing, data lakes và cost analytics phức tạp. Module 4 cũng trả lời câu hỏi thiết kế lớn nhất của dự án: phần lớn Fitness Assistant không cần server.
 
 **Lưu ý:** Một số sections trong modernization labs (cụ thể labs 47, 54, và 55) yêu cầu sử dụng AWS Cloud9. Do AWS Cloud9 hiện không khả dụng trong environment của mình, các sections này được strategically skipped, nhưng architectural concepts underlying vẫn được study thoroughly.
 
@@ -46,30 +46,32 @@ Trong tuần intensive này, mình hoàn thành hai major tracks: system perform
 
 **Áp dụng vào Fitness Assistant:**
 
+**Hướng hiện đại hóa (quyết định thiết kế chính):**
+- Ứng dụng vốn đã tách thành các service (auth, user, fitness, gym, payment, ai, chat) chạy chung bằng Docker Compose ở local. Sáu service chỉ trả lời các HTTP request ngắn hoặc chạy job theo lịch, đúng với mô hình Lambda; chỉ có chat là phải giữ kết nối Socket.IO.
+- Quyết định: chạy sáu HTTP service thành Lambda function phía sau một API Gateway HTTP API, thay cho container application gateway làm điểm vào duy nhất.
+- Việc chạy theo lịch (settlement buổi tập, nhắc lịch tập, payout, đối soát thanh toán, làm mới tri thức AI) chuyển từ timer chạy trong process sang EventBridge Scheduler, gọi một jobs function riêng cho mỗi service.
+- Việc AI tốn thời gian (tạo kế hoạch tập và dinh dưỡng) chuyển sang SQS queue và một worker function, để không HTTP call nào phải chờ quá giới hạn ~30 giây của API Gateway. Việc này cũng thay luôn hàng đợi Redis/BullMQ, vốn cần một cache cluster chạy liên tục.
+- Chat vẫn chạy bằng container; chạy ở đâu được đánh giá ở [Tuần 6](../1.6-Week6/).
+
 **Performance Optimization:**
-- Evaluate containerization strategy: migrate từ Docker Compose sang Amazon ECS cho better scaling và management
-- Design CI/CD pipeline: GitHub → AWS CodePipeline → CodeBuild → ECR → ECS deployment
-- Consider CloudFront CDN cho frontend assets để reduce latency
+- Với Lambda, memory là thông số sizing duy nhất (CPU tăng theo memory), nên không còn chuyện chọn instance type
+- Cân nhắc CloudFront CDN cho frontend assets để giảm latency, hoãn lại cho đến khi site có domain và HTTPS
 
 **Cost Optimization:**
-- Right-sizing analysis: monitor EC2 utilization, identify opportunities để downsize instances
-- Implement tagging strategy cho cost allocation by service (auth-service, fitness-service, ai-service)
-- Research Savings Plans và Reserved Instances cho predictable workloads
+- Dùng dịch vụ trả theo mức dùng cho tầng ứng dụng (Lambda, HTTP API vốn rẻ hơn REST API, SQS, EventBridge Scheduler) và Aurora Serverless v2 thay cho database instance kích thước cố định
+- Liệt kê các khoản vẫn tốn tiền khi ứng dụng idle (NAT Gateway, load balancer, VPC endpoint, capacity tối thiểu của database); đây trở thành các dòng chính trong [ngân sách](../../2-Proposal/#budget)
+- Một quy tắc đặt tên cho mọi resource (`fitness-assistant-dev-<service>-…`), để lọc chi phí và dọn dẹp theo từng service
+- Research Savings Plans cho predictable workloads (Compute Savings Plans áp dụng cả cho Lambda và Fargate)
 - Setup AWS Budgets và Cost Anomaly Detection alerts
 
-**Modernization Path:**
-- Evaluate serverless migration cho specific workloads:
-  - Notification service → Lambda + SQS
-  - Image processing (nutrition labels) → Lambda triggered by S3
-  - Daily stats aggregation → Lambda với scheduled EventBridge rules
-- Plan microservices decomposition strategy (future enhancement khi scale)
-- Consider API Gateway để replace application gateway container (better managed service)
+**CI/CD:**
+- Phác thảo pipeline: build package Lambda của từng service vào bucket deployments và image chat vào ECR, rồi cập nhật function và ECS service. Chưa xây dựng: việc deploy hiện làm thủ công và được ghi lại từng bước ở [5.4](../../5-Workshop/5.4-Deployment-Guide/); CI/CD là việc còn mở lớn nhất.
 
 ### Khó khăn gặp phải:
 
 - **Cloud9 Limitation:** Không access được AWS Cloud9 (có thể do region restrictions hoặc account limitations), dẫn đến skip một số hands-on steps trong labs 47, 54, 55. Tuy nhiên conceptual learning vẫn được maintain thông qua đọc documentation và video tutorials.
 
-- **Containerization Complexity:** Hiểu difference giữa Docker Compose (local dev) và ECS (production) requires learning curve về task definitions, services, và clusters.
+- **Chuyển từ Docker Compose sang serverless:** Trong Docker Compose, mỗi service là một container chạy liên tục và gọi các service khác qua hostname. Trên Lambda không có process chạy liên tục và cũng không có hostname, nên timer trong process, hàng đợi Redis và các lời gọi giữa service đều phải đổi cách làm.
 
 - **Serverless Cold Start Trade-offs:** Khi research Lambda migration, nhận ra cold start latency có thể impact user experience cho synchronous APIs. Cần evaluate carefully which workloads phù hợp với serverless.
 
@@ -79,11 +81,11 @@ Trong tuần intensive này, mình hoàn thành hai major tracks: system perform
 
 - **Cloud9 Workaround:** Sử dụng local development environment với AWS CLI và SAM CLI để simulate Cloud9 workflows. Đọc lab documentation thoroughly để understand intended outcomes.
 
-- **ECS Learning:** Vẽ comparison diagram giữa Docker Compose concepts và ECS equivalents. Practice với simple containerized apps trước khi apply vào Fitness Assistant.
+- **Chuyển đổi:** Liệt kê mọi phần chạy liên tục của từng service và chọn cho mỗi phần một dịch vụ managed thay thế: timer → EventBridge Scheduler và jobs function, Redis/BullMQ → SQS và worker, socket → container chat trên ECS, lời gọi HTTP giữa các service → gọi thẳng Lambda theo đúng ARN của function.
 
-- **Cold Start Mitigation:** Research provisioned concurrency cho critical Lambda functions. Plan hybrid approach: keep synchronous APIs trên containers, async workloads trên Lambda.
+- **Cold Start Mitigation:** Chấp nhận cold start cho môi trường DEV, nơi nó chỉ ảnh hưởng request đầu tiên sau một khoảng idle. Provisioned concurrency là phương án cho production, nên các API đồng bộ không cần ở lại trên container.
 
-- **Cost Forecasting:** Sử dụng AWS Pricing Calculator để estimate costs. Setup granular billing alerts. Plan phased migration để monitor costs incrementally.
+- **Cost Forecasting:** Sử dụng AWS Pricing Calculator để estimate costs. Setup granular billing alerts. Lên kế hoạch deploy từng service một để kiểm tra chi phí sau mỗi bước.
 
 ### Kỹ năng / Dịch vụ AWS đã học:
 
@@ -128,16 +130,16 @@ Trong tuần intensive này, mình hoàn thành hai major tracks: system perform
 ### Liên kết với Fitness Assistant Architecture:
 
 **Immediate Applications:**
-- Containerize tất cả services và deploy lên ECS thay vì single EC2
-- Setup CI/CD pipeline cho automated deployments
-- Implement CloudWatch monitoring và X-Ray tracing
+- Sáu HTTP service trên Lambda phía sau một API Gateway HTTP API
+- Job theo lịch trên EventBridge Scheduler; tác vụ AI dài qua SQS và worker function
+- CloudWatch Logs cho mọi function; X-Ray tracing bổ sung sau
 
 **Future Enhancements:**
-- Migrate notification service sang Lambda + SQS
-- Implement API Gateway cho better API management
+- CI/CD pipeline cho package Lambda và image chat
+- CloudFront và HTTPS cho frontend
 - Build data lake cho workout analytics và user behavior analysis
 
 ### Liên kết Workshop tương ứng:
 
-- [5.4.1 Hạ tầng mạng dùng chung](../../5-Workshop/5.4-Deployment-Guide/5.4.1-Shared-Network/) - VPC design cho Lambda và ECS
-- [5.2.4 Dịch vụ AWS và lý do lựa chọn](../../5-Workshop/5.2-Architecture-Description/5.2.4-AWS-Services-Selection/) - Lựa chọn serverless và container
+- [5.2.4 Dịch vụ AWS và lý do lựa chọn](../../5-Workshop/5.2-Architecture-Description/5.2.4-AWS-Services-Selection/) - Vì sao chọn Lambda, API Gateway, SQS và EventBridge Scheduler
+- [5.4.2 Auth Service và API Gateway](../../5-Workshop/5.4-Deployment-Guide/5.4.2-Auth-Service-API-Gateway/) - Service đầu tiên được triển khai theo mô hình này

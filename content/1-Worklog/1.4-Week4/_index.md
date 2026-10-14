@@ -12,7 +12,7 @@ pre: " <b> 1.4. </b> "
 
 - Complete self-study of Module 3: Optimizing the system
 - Deepen understanding across the Operate, Security, and Reliability pillars of the AWS Well-Architected Framework
-- Apply knowledge to optimize Fitness Assistant architecture
+- Turn the module's lessons into concrete requirements for the Fitness Assistant's AWS design
 
 ### Tasks to be carried out this week:
 
@@ -24,7 +24,7 @@ pre: " <b> 1.4. </b> "
 
 **Overview:**
 
-During this week, I focused on system optimization (Module 3) by exploring three crucial pillars: Operations, Security, and Reliability. I implemented practical solutions for cost reduction, centralized monitoring, strict access controls, and robust network architectures for the Fitness Assistant project.
+During this week, I focused on system optimization (Module 3) by exploring three crucial pillars: Operations, Security, and Reliability. Besides the labs, I used each pillar as a checklist for the Fitness Assistant: what its AWS design must guarantee for access control, private networking, secrets, backups and monitoring, and what it would still cost while nobody is using it.
 
 **Learned theory:**
 
@@ -38,27 +38,27 @@ During this week, I focused on system optimization (Module 3) by exploring three
 
 - **Operate:**
   - Configured Lambda function to automatically start/stop EC2 instances on schedule (reduce costs when dev environment not in use)
-  - Set up CloudWatch dashboards to monitor Fitness Assistant services metrics
-  - Applied resource tags for services (Environment: dev/prod, Service: auth/user/fitness/ai)
+  - Set up CloudWatch dashboards for the lab resources
+  - Practised resource tagging and Resource Groups to find resources by environment and service
   - Tested Systems Manager Session Manager for EC2 access without SSH keys
 
 - **Security:**
   - Implemented IAM Permission Boundaries to limit developer user permissions
   - Configured Security Groups with least privilege principle (only open necessary ports)
   - Researched AWS WAF rules to protect API endpoints from common attacks (SQL injection, XSS)
-  - Studied KMS encryption for RDS database and S3 buckets (storing user workout data)
+  - Studied KMS encryption at rest for databases and S3 buckets
 
 - **Reliability:**
-  - Designed backup policy for RDS database using AWS Backup (daily snapshots, 7-day retention)
+  - Designed a backup plan with AWS Backup (daily snapshots, 7-day retention)
   - Researched multi-AZ deployment for production environment (ensuring high availability)
   - Evaluated VPC Peering vs Transit Gateway for future microservices expansion
 
 **Applied to Fitness Assistant:**
 
-- Designed cost optimization strategy: schedule to stop dev environment EC2 outside working hours
-- Planned monitoring stack: CloudWatch Logs for centralized logging, custom metrics for API latency/error rate
-- Security hardening checklist: IAM roles with least privilege, strict Security Groups rules, encryption at rest for sensitive data
-- Backup and disaster recovery plan: automated daily backups, cross-region backup for production (future)
+- **Cost:** The lab saves money by stopping idle EC2 instances on a schedule. For this project I took the idea one step further: use compute that costs nothing while idle (Lambda for the HTTP services and jobs, Aurora Serverless v2 with a low capacity floor), so there is nothing to stop. What still costs money when idle (NAT Gateway, load balancer, VPC endpoints) became the "sleep mode" in the [budget](../../2-Proposal/#budget).
+- **Security requirements:** one IAM role per function, scoped to its own secret, queue and model; database credentials in Secrets Manager, one secret per service database; compute and database only in private subnets; security groups that reference each other instead of IP ranges.
+- **Reliability requirements:** private subnets in two Availability Zones, Aurora automated backups, load-balancer health checks that replace an unhealthy container, and a dead-letter queue so a failing background job is not retried forever.
+- **Monitoring plan:** CloudWatch Logs for every function and task from day one, then alarms on the few signals that matter: function errors and throttles, dead-letter queue depth, database capacity and the chat target's health.
 
 ### Difficulties Encountered:
 
@@ -72,9 +72,9 @@ During this week, I focused on system optimization (Module 3) by exploring three
 
 - **Permission Boundaries:** Drew diagrams to visualize relationships between identity-based policies, permission boundaries, and resource-based policies. Practiced with concrete examples in labs.
 
-- **Cost optimization:** Decided to implement "on-demand start" mechanism: developers can trigger Lambda function to start instances when needed, instances automatically stop after 2 hours idle.
+- **Cost optimization:** Avoided the trade-off instead of tuning a schedule: services that scale to zero need no stop/start at all, and the few fixed-cost resources are paused on purpose between test sessions (see [5.7 Clean-up](../../5-Workshop/5.7-Cleanup/#pause)).
 
-- **Monitoring strategy:** Adopted "start simple, iterate" approach. Week 4 focused on critical metrics (CPU, memory, disk, API error rate), will expand monitoring gradually based on experience.
+- **Monitoring strategy:** Adopted "start simple, iterate" approach: logs first (Lambda functions and ECS tasks send them to CloudWatch with almost no setup), then a short list of alarms on the signals above. The EC2 host metrics used in the lab (CPU, memory, disk) do not apply, because a serverless design has no host to watch.
 
 ### AWS Skills / Services Learned:
 
@@ -99,11 +99,11 @@ During this week, I focused on system optimization (Module 3) by exploring three
 ### Connection to Fitness Assistant Architecture:
 
 Module 3 insights directly applicable:
-- **Operate:** CloudWatch monitoring for microservices health checks, Lambda automation for routine tasks
-- **Security:** IAM roles for service-to-service communication, WAF protection for API Gateway, KMS encryption for user data
-- **Reliability:** Multi-AZ RDS deployment, automated backups, health checks with auto-recovery
+- **Operate:** CloudWatch Logs for every Lambda function and the chat task; alarms on errors, throttles, dead-letter queue depth and database capacity (planned)
+- **Security:** least-privilege role per function, credentials in Secrets Manager, KMS encryption for user data; AWS WAF cannot be attached to an API Gateway HTTP API directly, so it is planned together with CloudFront
+- **Reliability:** private subnets in two AZs, Aurora automated backups, health checks with automatic task replacement, dead-letter queue for failed jobs
 
 ### Related Workshop Sections:
 
-- [5.2 Architecture Description](../../5-Workshop/5.2-Architecture-Description/) - Security and network design
+- [5.2.5 Security and IAM](../../5-Workshop/5.2-Architecture-Description/5.2.5-Security-IAM/) - Network isolation, least-privilege roles and secrets
 - [5.2.6 Scalability and Operations](../../5-Workshop/5.2-Architecture-Description/5.2.6-Scalability-Operations/) - Operations, logging and monitoring

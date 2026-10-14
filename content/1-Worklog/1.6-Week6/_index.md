@@ -46,56 +46,54 @@ During this week, I focused exclusively on AWS Container services (Module 5), ex
 
 **Container Strategy Evaluation:**
 
-After learning 3 container platforms, evaluated the best fit for Fitness Assistant:
+After [Week 5](../1.5-Week5/), six of the seven services were planned for Lambda. The question for this week was narrower: where should the one service that needs a long-running process run? That service is Chat, which keeps a Socket.IO connection open for every user. I compared the three platforms from the module:
 
 1. **Amazon Lightsail Containers:**
    - **Pros:** Simple setup, predictable pricing ($10-40/month), good for MVP
-   - **Cons:** Limited scaling, not suitable for production growth
-   - **Decision:** Possible for initial prototype testing
+   - **Cons:** Limited scaling, and harder to integrate with the private VPC, per-service IAM roles and Secrets Manager used by the rest of the design
+   - **Decision:** Not used
 
 2. **Amazon ECS with Fargate:**
    - **Pros:** Serverless (no server management), good AWS integration, cost-effective for small-medium scale
    - **Cons:** Vendor lock-in (AWS-specific), learning curve
-   - **Decision:** **Recommended choice for MVP** - balance between simplicity and production-readiness
+   - **Decision:** **Chosen for the Chat service.** The same cluster can also run one-off tasks, later used for the database migration job
 
 3. **Amazon EKS (Kubernetes):**
    - **Pros:** Industry standard, portable, powerful orchestration
-   - **Cons:** Complex setup, higher cost, overkill for current scale
-   - **Decision:** Future consideration when scaling or need multi-cloud portability
+   - **Cons:** Complex setup, a control-plane fee for every cluster, overkill for a single container service
+   - **Decision:** Not needed at this scale
 
-**Implementation Plan for Fitness Assistant:**
+**Implementation Plan for the Chat Service:**
 
-**Phase 1 - ECS Migration (Immediate):**
-- Containerize all services (auth, user, fitness, ai, gateway)
-- Create ECS Task Definitions for each service
-- Setup ECS Service with Fargate launch type
-- Configure Application Load Balancer for routing
-- Migrate from single EC2 → ECS cluster
+**Phase 1 - Image and registry:**
+- Build the production image of chat-service for `linux/amd64`
+- Push it to a private Amazon ECR repository in the same region
 
-**Phase 2 - CI/CD Pipeline:**
-- GitHub repository → AWS CodePipeline trigger on push
-- CodeBuild stage: build Docker images, run tests
-- Push images → Amazon ECR
-- CodeDeploy stage: deploy to ECS with blue/green deployment
-- Automated rollback on failure
+**Phase 2 - Task and service:**
+- One task definition: 0.5 vCPU / 1 GB, container port 3005, database URL and internal secret injected from Secrets Manager
+- One ECS service with the Fargate launch type in the private application subnets
 
-**Phase 3 - Advanced Features:**
-- Service Auto Scaling based on CPU/memory
-- Service Mesh with AWS App Mesh for advanced traffic management
-- CloudWatch Container Insights for detailed monitoring
+**Phase 3 - Load balancer and routing:**
+- Internet-facing Application Load Balancer in the public subnets, with an IP target group checked on `/health`
+- Target-group stickiness and a longer idle timeout, so Socket.IO connections are not cut
+- Listener rules that answer `/internal/*` and `/metrics` with 404; REST calls under `/chat/*` reach the ALB through API Gateway
+
+**Later:**
+- Run more than one Chat task only after adding a shared Socket.IO adapter (session state is kept in memory today)
+- CI/CD for the image; CloudWatch Container Insights and an alarm on target health
 
 **Architecture Comparison:**
 
-*Current (MVP on EC2):*
+*First plan (lift-and-shift onto one host):*
 ```
-User → EC2 (Docker Compose with all services) → RDS
+User → EC2 (Docker Compose with all services, Ollama, Qdrant, Redis) → RDS
 ```
 
-*After ECS Migration:*
+*Chosen design:*
 ```
-User → ALB → ECS Services (independent auth/user/fitness/ai) → RDS
-                ↓
-            Fargate Tasks (auto-scale)
+Browser → S3 static website (frontend)
+Browser → API Gateway (HTTP API) → Lambda (auth, user, fitness, gym, payment, ai) → Aurora PostgreSQL
+Browser → Chat ALB (Socket.IO; REST through API Gateway /chat/*) → ECS Fargate (chat) → Aurora PostgreSQL
 ```
 
 ### Difficulties Encountered:
@@ -104,19 +102,19 @@ User → ALB → ECS Services (independent auth/user/fitness/ai) → RDS
 
 - **Task Definition Complexity:** ECS Task Definitions have many configuration options (CPU, memory, networking mode, volume mounts, environment variables, secrets). Hard to optimize correctly.
 
-- **Fargate Pricing Model:** Fargate pricing based on vCPU and memory allocated per second. Difficult to estimate costs accurately vs flat EC2 pricing.
+- **Fargate Pricing Model:** Fargate pricing based on vCPU and memory allocated per second, and the load balancer in front of it is a fixed monthly cost. At DEV traffic, the always-on chat path costs more than all six Lambda services together.
 
-- **Service Discovery:** When migrating to microservices on ECS, services need to communicate with each other. AWS Cloud Map for service discovery has learning curve.
+- **Service-to-service calls:** In Docker Compose the services call each other by hostname on a shared network. Neither Lambda functions nor a Fargate task behind a load balancer have that, and AWS Cloud Map for service discovery has its own learning curve.
 
 ### How It Was Resolved:
 
-- **Platform Decision:** Decided to use ECS for MVP based on criteria: production-ready, AWS-integrated, manageable complexity, lower cost than EKS. Reserve EKS for future if need Kubernetes expertise or multi-cloud.
+- **Platform Decision:** ECS on Fargate for Chat only: production-ready, AWS-integrated, manageable complexity, lower cost than EKS. EKS stays an option if the project ever needs Kubernetes or multi-cloud portability.
 
-- **Task Definitions:** Started with simple task definitions, iterate gradually. Used AWS Copilot CLI (tool simplifying ECS deployments) for initial setup, then refine manually.
+- **Task Definitions:** Started from the smallest task definition that works (one container, one port, secrets from Secrets Manager) and kept every change as a new revision.
 
-- **Cost Management:** Used AWS Pricing Calculator to estimate Fargate costs. Set up CloudWatch alarms for cost thresholds. Consider Savings Plans for Fargate if predictable baseline.
+- **Cost Management:** Used AWS Pricing Calculator to estimate Fargate and ALB costs. Kept Chat at one small task that can be scaled to zero between test sessions; Savings Plans only if a steady baseline appears.
 
-- **Service Discovery:** Implemented AWS Cloud Map for service-to-service communication. Combined with Environment Variables for flexibility.
+- **Service-to-service calls:** No Cloud Map: internal calls are direct Lambda invocations on exact function ARNs that carry a shared internal secret, and the chat task calls Auth and User the same way. API Gateway has no `/internal/*` route, so these endpoints are never public.
 
 ### AWS Skills / Services Learned:
 
@@ -144,15 +142,14 @@ User → ALB → ECS Services (independent auth/user/fitness/ai) → RDS
 ### Connection to Fitness Assistant Architecture:
 
 **Immediate Actions:**
-- Design ECS cluster architecture
-- Create production Dockerfiles (if not yet available)
-- Plan Task Definitions for each service
-- Design ALB routing rules
+- Production Dockerfile for chat-service (the other services are packaged as Lambda ZIP files instead of images)
+- One task definition and one ECS service for Chat
+- ALB rules for Socket.IO and for hiding internal paths
 
 **Medium-term Goals:**
 - Implement full CI/CD pipeline
-- Setup auto-scaling policies
-- Migrate production traffic from EC2 → ECS
+- Shared Socket.IO adapter before scaling Chat beyond one task
+- Alarm on the chat target's health
 
 ### Related Workshop Sections:
 

@@ -39,20 +39,21 @@ Trong final week này, primary operational focus của mình là review, refine,
 
 **Fitness Assistant Project Summary:**
 
-**Architecture Achievements:**
-- Designed và documented cloud-native architecture
-- Containerized microservices deployment
-- Database migration strategy (RDS PostgreSQL)
-- Security best practices implementation
-- Cost optimization strategies
+**Kiến trúc đã triển khai (môi trường DEV, `ap-southeast-1`):**
+- Sáu service trên AWS Lambda (12 function chạy lâu dài cho HTTP, job theo lịch và AI worker) phía sau một API Gateway HTTP API
+- Aurora PostgreSQL Serverless v2: một cluster với bảy logical database, credential trong Secrets Manager
+- Chat (REST + Socket.IO) trên ECS Fargate phía sau Application Load Balancer
+- AI trên Amazon Bedrock (Nova Pro, Cohere Embed Multilingual v3) với vector search trên OpenSearch Serverless, tác vụ dài qua SQS và 13 schedule của EventBridge Scheduler
+- Mạng private: Lambda, Fargate và Aurora nằm trong private subnet, một NAT Gateway, VPC endpoint cho Secrets Manager và OpenSearch
+- Dữ liệu chuyển từ các database local bằng một Fargate task chạy một lần: 7/7 database đã restore, 23/23 foreign key đã xác nhận
 
 **Technical Skills Gained:**
-- AWS core services (EC2, RDS, S3, ECR, VPC, IAM)
-- Container orchestration (Docker, ECS concepts)
-- Serverless architecture patterns
-- Data analytics (Glue, Athena, QuickSight)
-- AI/ML services (SageMaker, Bedrock)
-- Security và compliance best practices
+- Serverless: AWS Lambda, API Gateway (HTTP API), Amazon SQS, EventBridge Scheduler
+- Database: Aurora PostgreSQL Serverless v2, schema migration chạy bằng các Lambda function riêng, restore dump bằng ECS task
+- Container: Docker, Amazon ECR, ECS Fargate, Application Load Balancer
+- AI/ML: Amazon Bedrock và vector search trên OpenSearch Serverless trong dự án; SageMaker ở Module 7
+- Mạng và bảo mật: thiết kế VPC, security group tham chiếu lẫn nhau, IAM quyền tối thiểu cho từng function, Secrets Manager
+- Data analytics (Glue, Athena, QuickSight) từ Module 6
 
 **Community Contributions:**
 - Published technical blogs về cost optimization và security
@@ -60,8 +61,8 @@ Trong final week này, primary operational focus của mình là review, refine,
 - Shared knowledge với AWS Study Group VN community
 
 **Project Outcomes:**
-- Production-ready deployment documentation
-- Comprehensive architecture diagrams
-- Cost analysis và optimization recommendations
-- Security hardening checklist
-- Scalability và reliability planning
+- Mô tả kiến trúc và sơ đồ ([Workshop 5.2](../../5-Workshop/5.2-Architecture-Description/))
+- Hướng dẫn triển khai từng bước kèm screenshot console ([Workshop 5.4](../../5-Workshop/5.4-Deployment-Guide/))
+- Kế hoạch và kết quả kiểm thử ([5.5](../../5-Workshop/5.5-Test-Validation/)): Auth và User đã kiểm thử end-to-end; Fitness, Gym, Payment, AI, Chat và frontend đã deploy, đang chờ lượt kiểm thử end-to-end cuối
+- Ước tính chi phí kèm "chế độ ngủ" khi idle ([Proposal mục 8](../../2-Proposal/#budget)) và thứ tự dọn dẹp đầy đủ ([5.7](../../5-Workshop/5.7-Cleanup/))
+- Còn mở: CI/CD pipeline, CloudWatch alarm, HTTPS với CloudFront
