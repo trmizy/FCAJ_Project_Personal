@@ -105,5 +105,5 @@ Module 3 insights directly applicable:
 
 ### Liên kết Workshop tương ứng:
 
-- [5.2 Architecture](../../5-Workshop/5.2-Architecture/) - Security và network design
+- [5.2 Architecture Description](../../5-Workshop/5.2-Architecture-Description/) - Security và network design
 - [5.9 EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/) - Systems Manager usage
