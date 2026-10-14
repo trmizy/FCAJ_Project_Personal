@@ -70,4 +70,4 @@ Identified ML use cases: workout recommendations enhancement, exercise form anal
 
 ### Related Workshop Sections:
 
-- [5.9 EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/) - AI service deployment strategies
+- [5.4.8 AI Service — database, queue and Bedrock](../../5-Workshop/5.4-Deployment-Guide/5.4.8-AI-Service-Core/) - AI service deployment on Amazon Bedrock

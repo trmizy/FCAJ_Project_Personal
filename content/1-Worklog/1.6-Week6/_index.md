@@ -156,5 +156,5 @@ User → ALB → ECS Services (independent auth/user/fitness/ai) → RDS
 
 ### Related Workshop Sections:
 
-- [5.6 Network Infrastructure](../../5-Workshop/5.6-Network-Infrastructure/) - VPC and ALB setup
-- [5.9 EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/) - Container migration strategy
+- [5.4.1 Shared network infrastructure](../../5-Workshop/5.4-Deployment-Guide/5.4.1-Shared-Network/) - VPC, subnets and NAT setup
+- [5.4.10 Chat Service on ECS Fargate](../../5-Workshop/5.4-Deployment-Guide/5.4.10-Chat-Service-ECS/) - Container deployment on ECS Fargate behind an ALB

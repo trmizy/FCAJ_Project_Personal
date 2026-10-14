@@ -6,79 +6,90 @@ chapter: false
 pre: " <b> 5.2.2. </b> "
 ---
 
-Các sơ đồ dưới đây được render trực tiếp từ source của báo cáo (Mermaid), nên luôn đồng bộ với nội dung text thay vì bị lệch so với một ảnh export riêng.
+Các sơ đồ dưới đây được render trực tiếp từ source của báo cáo (Mermaid), nên luôn đồng bộ với nội dung thay vì bị lệch so với một ảnh export riêng.
 
 ### Sơ đồ thành phần
 
-{{% mermaid %}}
-flowchart LR
-    subgraph Internet
-        User[Browser]
+{{< mermaid >}}
+graph LR
+    User[Browser]
+
+    subgraph Edge ["Public AWS endpoints"]
+        FE["Amazon S3<br/>static website"]
+        GW["API Gateway<br/>HTTP API"]
     end
 
-    subgraph S3["Amazon S3 — frontend tĩnh"]
-        FE[Frontend build]
-    end
-
-    subgraph APIGW["Amazon API Gateway"]
-        GW[HTTP API]
-    end
-
-    subgraph VPC["VPC — fitness-assistant-dev-vpc"]
-        subgraph Private["Private app subnets"]
-            Auth[Auth Lambda]
-            Usr[User Lambda]
-            Fit[Fitness Lambda]
-            Gym[Gym Lambda]
-            Pay[Payment Lambda]
-            AI[AI HTTP Lambda]
-            AIW[AI Worker Lambda]
+    subgraph VPC ["VPC fitness-assistant-dev-vpc, ap-southeast-1"]
+        subgraph Public ["Public subnets"]
+            ALB["Chat ALB<br/>HTTP 80"]
+            NAT["NAT Gateway"]
         end
-        subgraph DBSub["Private DB subnets"]
-            Aurora[("Aurora PostgreSQL Serverless\n7 logical databases")]
+        subgraph Private ["Private app subnets"]
+            L["Lambda HTTP functions<br/>Auth, User, Fitness, Gym, Payment, AI"]
+            J["Lambda jobs functions"]
+            W["Lambda AI Worker"]
+            C["ECS Fargate<br/>Chat Service, port 3005"]
+            VPCE["Interface VPC endpoints<br/>Secrets Manager, OpenSearch"]
         end
-        NAT[NAT Gateway]
+        subgraph DB ["Private DB subnets"]
+            A[("Aurora PostgreSQL Serverless v2<br/>7 logical databases")]
+        end
     end
 
-    subgraph ECS["ECS Fargate"]
-        ALB[Application Load Balancer]
-        Chat[Chat Service\nREST + Socket.IO]
-    end
-
-    Bedrock[[Amazon Bedrock\nNova Pro + Cohere embeddings]]
-    EventBridge[[EventBridge / SQS]]
+    SQS[["Amazon SQS<br/>ai-tasks + DLQ"]]
+    EB[["EventBridge Scheduler<br/>13 schedules"]]
+    BR[["Amazon Bedrock<br/>Nova Pro, Cohere Embed"]]
+    OS[("OpenSearch Serverless<br/>vector collection")]
 
     User --> FE
-    User --> GW
-    User <-->|Socket.IO| ALB
-    GW --> Auth & Usr & Fit & Gym & Pay & AI
-    ALB --> Chat
-    Auth & Usr & Fit & Gym & Pay & AI & AIW --> Aurora
-    Chat --> Aurora
-    Private --> NAT --> Internet
-    AI --> Bedrock
-    EventBridge --> AIW
-{{% /mermaid %}}
+    User -->|REST with JWT| GW
+    User -->|Socket.IO| ALB
+    GW --> L
+    GW -->|chat REST routes| ALB
+    ALB --> C
+    L --> A
+    J --> A
+    W --> A
+    C --> A
+    L -->|SendMessage| SQS
+    SQS --> W
+    EB --> J
+    L --> NAT
+    W --> NAT
+    J --> NAT
+    NAT --> BR
+    L --> VPCE
+    W --> VPCE
+    J --> VPCE
+    VPCE --> OS
+{{< /mermaid >}}
 
-### Tổng quan luồng request
+### Ba luồng request
 
-{{% mermaid %}}
-flowchart LR
-    A[Internet] --> B["S3 Frontend\nfitness-assistant-frontend-dev"]
-    B --> C["API Gateway\nfitness-assistant-dev-api"]
-    C --> D["Auth / User / Fitness /\nGym / Payment / AI Lambda"]
-    D --> E["Aurora PostgreSQL\nfitness-assistant-dev-aurora"]
-
-    A --> F["Chat ALB"]
-    F --> G["ECS Fargate\nfitness-assistant-dev-chat-service"]
-    G --> H["Aurora — Chat DB"]
-
-    I["EventBridge / SQS"] --> J["AI Worker / Jobs Lambda"]
-    J --> E
-{{% /mermaid %}}
+{{< mermaid >}}
+graph LR
+    subgraph P1 ["Core API path"]
+        A1[Browser] --> B1[API Gateway]
+        B1 --> C1["Service Lambda<br/>verifies the JWT"]
+        C1 --> D1[(Aurora)]
+        C1 -. direct invoke .-> E1[Other service Lambdas]
+    end
+    subgraph P2 ["Chat path"]
+        A2[Browser] -->|Socket.IO| B2[Chat ALB]
+        A2 -->|chat REST routes| G2[API Gateway]
+        G2 --> B2
+        B2 --> C2[ECS Fargate task]
+        C2 --> D2[(Aurora chat DB)]
+    end
+    subgraph P3 ["Background path"]
+        A3[EventBridge Scheduler] --> B3[Jobs Lambdas]
+        B3 --> D3[(Aurora)]
+        A4[AI HTTP Lambda] --> Q4[[SQS]]
+        Q4 --> B4[AI Worker]
+        B4 --> M4[[Bedrock]]
+    end
+{{< /mermaid >}}
 
 {{% notice note %}}
-Mọi thành phần trong cả hai sơ đồ đều chạy trong `fitness-assistant-dev-vpc` tại `ap-southeast-1` — luồng Chat và luồng Core API dùng chung VPC và cluster Aurora, nhưng đi qua compute khác nhau (ECS Fargate vs. Lambda) và một load balancer khác ở phía trước. Xem [5.2.3 Main Request Flows](../5.2.3-Main-Request-Flows/) để biết chi tiết từng bước phía sau mỗi mũi tên ở trên.
+Mọi thành phần ngoại trừ S3 website, API Gateway, SQS, EventBridge, Bedrock và OpenSearch collection đều chạy trong `fitness-assistant-dev-vpc`. Lambda function và Chat task nằm trong private app subnet; chỉ NAT Gateway và Chat ALB nằm ở public subnet; Aurora nằm trong DB subnet không có route ra internet. Xem [5.2.3 Các luồng request chính](../5.2.3-Main-Request-Flows/) để biết chi tiết từng bước phía sau mỗi mũi tên.
 {{% /notice %}}
-
-Phiên bản vẽ tay của sơ đồ này (source draw.io, cho ai muốn chỉnh sửa trực quan thay vì generate lại từ Mermaid) vẫn còn TODO — theo dõi như việc cần làm tiếp theo, không chặn báo cáo này.

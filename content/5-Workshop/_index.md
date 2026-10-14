@@ -7,23 +7,16 @@ pre: " <b> 5. </b> "
 draft: false
 ---
 
-# Workshop — Deploying Fitness Assistant on AWS
+# Workshop — Deploying Gymini (Fitness Assistant) on AWS Serverless
 
-{{% notice info %}}
-Workshop page is under development. Content will be updated as system deployment is finalized.
-{{% /notice %}}
-3. [5.3 Prerequisites](5.3-Prerequisites/)
-4. [5.4 Run Local](5.4-Run-Local/)
-5. [5.5 Production Containers](5.5-Production-Containers/)
-6. [5.6 Network Infrastructure](5.6-Network-Infrastructure/)
-7. [5.7 RDS PostgreSQL](5.7-RDS-PostgreSQL/)
-8. [5.8 ECR](5.8-ECR/)
-9. [5.9 EC2 Deployment](5.9-EC2-Deployment/)
-10. [5.10 S3 Storage](5.10-S3-Storage/)
-11. [5.11 IAM and Secrets](5.11-IAM-Secrets/)
-12. [5.12 Monitoring and Alerting](5.12-Monitoring-Alerting/)
-13. [5.13 Testing and Validation](5.13-Testing-Validation/)
-14. [5.14 Security and Cost Optimization](5.14-Security-Cost/)
-15. [5.15 Troubleshooting](5.15-Troubleshooting/)
-16. [5.16 Cleanup](5.16-Cleanup/)
-17. [5.17 Conclusion](5.17-Conclusion/)
+This workshop documents how the Fitness Assistant application (branded **Gymini**) was deployed to AWS as a serverless-first DEV environment in `ap-southeast-1`: six Lambda-based microservices behind Amazon API Gateway, one ECS Fargate service for real-time chat, Amazon Aurora PostgreSQL Serverless v2, Amazon Bedrock for AI, and OpenSearch Serverless for vector search. Every step is reconstructed from the deployment runbook kept while the system was built, with the original console screenshots.
+
+#### Contents
+
+1. [5.1 Overview](5.1-Overview/)
+2. [5.2 Architecture Description](5.2-Architecture-Description/)
+3. [5.3 Prerequisite](5.3-Prerequisites/)
+4. [5.4 Deployment Guide](5.4-Deployment-Guide/)
+5. [5.5 Test & Validation](5.5-Test-Validation/)
+6. [5.6 Demo](5.6-Demo/)
+7. [5.7 Clean-up](5.7-Cleanup/)

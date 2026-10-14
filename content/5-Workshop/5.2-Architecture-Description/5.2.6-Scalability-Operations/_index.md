@@ -6,28 +6,32 @@ chapter: false
 pre: " <b> 5.2.6. </b> "
 ---
 
-### How Each Component Scales
+### How each component scales
 
-| Component | Scaling Model | Notes |
+| Component | Scaling model | Notes |
 |---|---|---|
-| Auth / User / Fitness / Gym / Payment / AI Lambdas | Per-invocation, automatic, scales to zero when idle | No capacity planning needed for the current DEV traffic level; the trade-off is cold starts on an idle function, not yet measured/tuned. |
-| Chat Service (ECS Fargate) | Manual task count today (dev sizing: 0.5 vCPU / 1 GB, effectively fixed at 1 task) | No Auto Scaling policy attached yet — a deliberate DEV-stage simplification, not an oversight; tracked as a gap, not a finished design. |
-| Aurora PostgreSQL Serverless v2 | Auto-scales capacity (ACU) between a configured floor and ceiling | Currently held at a 0.5 ACU floor rather than letting it scale to 0, specifically to avoid auto-pause/resume latency interfering with ongoing smoke tests during active development (see [5.2.7](../5.2.7-Cost-Optimization-Cleanup/)). |
-| API Gateway, S3, EventBridge, SQS | Fully managed, scales automatically with no configuration from this project | No capacity ceiling has been hit or is expected to be hit at DEV traffic levels. |
+| Service Lambdas (HTTP and jobs) | Per invocation, automatic, scale to zero | 1024 MB each; cold starts on idle functions are the trade-off, not yet measured. No reserved concurrency, so one hot route cannot starve the others by configuration. |
+| AI Worker | One Lambda per SQS message (batch size 1) | Throughput grows with queue depth; failed messages go to the DLQ after 2 receives. |
+| Chat Service (ECS Fargate) | Fixed at 1 task (0.5 vCPU / 1 GB) | Deliberate: Socket.IO session state is in memory, so a second task would split sessions until a shared adapter (e.g. Redis) exists. No service auto scaling yet. |
+| Aurora PostgreSQL Serverless v2 | Capacity in ACUs between a floor and a ceiling | Floor kept at 0.5 ACU during deployment so auto-pause/resume does not disturb smoke tests; can go to 0 when idle. |
+| OpenSearch Serverless (NextGen) | 0–2 OCU for indexing and for search | Scales to zero after ~10 idle minutes; the first request afterwards can take 10–30 s. |
+| API Gateway, SQS, EventBridge, S3 | Fully managed | No capacity planning needed at DEV traffic. AI routes are intentionally throttled. |
 
-### Decoupling Background Work From the Request Path
+### Keeping slow work out of the request path
 
-Scheduled work (Payment reconciliation, Gym/Fitness reminders) runs on Amazon EventBridge Scheduler rules, one per service, rather than inside a request handler — so a user's HTTP request is never the thing that triggers a reconciliation run. Asynchronous AI work goes through Amazon SQS to a dedicated AI Worker Lambda, so a slow model completion cannot hold open — or time out — a synchronous API Gateway request. This separation is why the AI feature has three Lambdas (HTTP, Worker, Jobs) instead of one: each handles a different timing requirement rather than one function trying to do all three.
+Scheduled work runs from EventBridge Scheduler into dedicated jobs functions, so no user request ever triggers a settlement or reconciliation run. Long AI work goes through SQS to the AI Worker (300 s timeout) and knowledge ingestion runs in the AI Jobs function (600 s timeout), while the HTTP function stays under API Gateway's ~30 s integration limit. That is why the AI Service has three functions instead of one.
 
-### Operational Gaps, Tracked Honestly
+### Operating the system today
 
-This system is deployed and partially verified, not yet "finished and hardened." The gaps below are the ones explicitly carried in the internal deployment runbook's own status tracking, not discovered after the fact:
+- **Deployments** are manual and documented step by step in [5.4](../../5.4-Deployment-Guide/): ZIPs uploaded from the deployments bucket, task definition revisions rolled out with *Force new deployment*, and schema changes applied with each service's migration function.
+- **Logs** for every function and task are in CloudWatch Logs (`/aws/lambda/…`, `/ecs/…`); [5.5.4](../../5.5-Test-Validation/5.5.4-Background-Jobs-Logs/) lists what to look for.
+- **Changing a secret** (for example a rotated Aurora password) requires recycling the Lambda execution environments, because functions cache the secret while warm — the Auth deployment did this by editing a harmless `DEPLOY_REVISION` variable.
 
-- **CI/CD does not exist yet.** Every deployment so far — a new Lambda version, a Fargate task definition revision, a database migration — has been a manual console or CLI step. This is the single largest remaining piece of operational work (see [5.1 Overview](../../5.1-Overview/)).
-- **No CloudWatch Alarms configured yet.** Logs exist for every Lambda and the Fargate task, but nothing currently pages or emails on an error spike, a Lambda throttle, or an Aurora capacity ceiling being hit. Monitoring today is "go read the logs," not "get alerted."
-- **End-to-end validation is incomplete.** Per the status table in [5.2.1](../5.2.1-Architecture-Overview/), only Auth and User have a full passing E2E pass recorded; Fitness, Gym, Payment, AI/Worker/Jobs, Chat, and the frontend integration are deployed but still need one.
-- **No Auto Scaling configured for the Chat Fargate service.** A single fixed task is enough for DEV-level concurrent chat sessions today; this would need revisiting before any real multi-user load.
+### Operational gaps, tracked openly
 
-### Why These Gaps Are Listed Here Instead of Omitted
+- **No CI/CD yet** — the largest remaining operational piece.
+- **No CloudWatch alarms yet** — logs exist, but nothing pages on errors, throttles, DLQ messages, Aurora capacity or an unhealthy Chat target.
+- **End-to-end validation incomplete** — Auth and User are verified; the remaining services are deployed but pending ([5.5.5](../../5.5-Test-Validation/5.5.5-Status-Open-Items/)).
+- **Chat is a single task** — acceptable for DEV, revisited before any real multi-user load.
 
-This report's [Definition of Done](../../5.1-Overview/) commits to not claiming a step succeeded without evidence. The same principle applies to operational maturity: a serverless architecture that auto-scales its compute is not automatically "production-ready" just because Lambda and Fargate handle the scaling mechanics — the missing CI/CD, alarms, and E2E coverage above are exactly the kind of gap that a purely architectural description could paper over, so they are named here instead.
+A serverless architecture that scales its compute automatically is not "production-ready" by itself; the missing pipeline, alarms and test coverage above are exactly what a purely architectural description could hide, so they are named here.

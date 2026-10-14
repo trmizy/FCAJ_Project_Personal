@@ -6,263 +6,223 @@ chapter: false
 pre: " <b> 2. </b> "
 ---
 
-{{% notice warning %}}
-Proposal này mô tả một kiến trúc **dự kiến (planned)**. Không nội dung nào bên dưới được xem là "đã triển khai" trừ khi mục [Workshop](../5-Workshop/) tương ứng có bằng chứng đã xác minh. Region, số liệu chi phí và ngày tháng đều là placeholder cho đến khi được xác nhận.
-{{% /notice %}}
+# Gymini — Trợ lý thể hình AI trên AWS
+## Triển khai kiến trúc microservices serverless với AI managed trên Amazon Bedrock
 
-# Xây dựng và triển khai Trợ lý Thể hình AI trên AWS
-## Triển khai ứng dụng mã nguồn mở Fitness Assistant trên hạ tầng AWS
+### 1. Tóm tắt dự án {#summary}
 
-### 1. Tên project
+Gymini (dự án open-source Fitness Assistant) là một pnpm monorepo gồm frontend React/Vite và bảy service Node.js/TypeScript — Auth, User, Fitness, Gym, Payment, AI và Chat — trước đây chỉ chạy trên máy của developer bằng Docker Compose. Dự án thực tập này thiết kế và triển khai ứng dụng lên AWS dưới dạng môi trường DEV theo hướng serverless tại region Asia Pacific (Singapore), được ghi lại từng bước để có thể review, làm lại và sau này tự động hoá.
 
-**Cloud-Native AI Fitness Assistant on AWS** — project thực tập nhằm thiết kế, đóng gói container và triển khai ứng dụng mã nguồn mở [Fitness Assistant](https://github.com/trmizy/fitness-assistant) trên AWS.
+Mỗi service chạy trên dịch vụ AWS phù hợp với đặc điểm của nó: sáu service request/response chạy trên AWS Lambda phía sau Amazon API Gateway, service Chat real-time chạy trên Amazon ECS Fargate phía sau Application Load Balancer, một cluster Amazon Aurora PostgreSQL Serverless v2 với một logical database cho mỗi service, Amazon Bedrock (Nova Pro, Cohere Embed) và Amazon OpenSearch Serverless cho AI coach, cùng Amazon SQS và EventBridge Scheduler cho các tác vụ nền. Frontend tĩnh được phục vụ từ Amazon S3; credential nằm trong AWS Secrets Manager; mỗi function có IAM role least-privilege riêng và chạy trong private subnet.
 
-### 2. Executive Summary (Tóm tắt điều hành)
+Ở checkpoint gần nhất, mọi service đã được deploy, 7 database local đã được restore vào Aurora với toàn bộ 23 foreign key đã audit được xác nhận, và Auth cùng User đã pass kiểm thử end-to-end. Phần việc còn lại — E2E cho các service khác, CI/CD, alarm, HTTPS và chế độ "sleep" tự động để tiết kiệm chi phí — đã được lên kế hoạch và theo dõi trong [Workshop](../5-Workshop/5.5-Test-Validation/5.5.5-Status-Open-Items/).
 
-Fitness Assistant là một ứng dụng mã nguồn mở đã tồn tại và đang được phát triển tích cực: một pnpm monorepo gồm frontend React/Vite, một application gateway ở tầng ứng dụng, và nhiều microservice Node.js/TypeScript backend (xác thực, hồ sơ người dùng, dữ liệu thể hình/bài tập, và một service AI huấn luyện viên dựa trên LLM tự host). Hiện ứng dụng chạy hoàn toàn qua Docker Compose trên máy của developer. Mục tiêu của project này **không phải** là xây dựng ứng dụng mới, mà là lấy codebase hiện có, đã được xác minh, để thiết kế và triển khai một phiên bản cloud tối thiểu (MVP) trên AWS — bao gồm đóng gói container cho production, thiết kế mạng, database managed, lưu trữ image, compute, và giám sát — đồng thời nêu rõ những gì thuộc phạm vi MVP và những gì để lại cho tương lai.
+### 2. Phát biểu vấn đề {#problem}
 
-### 3. Bối cảnh
+#### Vấn đề hiện tại
 
-Fitness Assistant đã có sẵn các chức năng đăng ký/đăng nhập, quản lý hồ sơ, danh mục bài tập, lịch tập, ghi log tập luyện, và tính năng hỗ trợ AI kết hợp một LLM tự host (Ollama, model mặc định `llama3.2:3b`) với pipeline Retrieval-Augmented Generation (RAG) dựa trên vector database Qdrant. Một tính năng riêng biệt — trích xuất chỉ số cơ thể từ ảnh InBody — gọi trực tiếp Anthropic Claude API để hiểu ảnh. Ở trạng thái hiện tại, ứng dụng được thiết kế cho phát triển local, chưa cho vận hành trên cloud: chưa có cấu hình AWS, Terraform, hay Kubernetes, chưa có bước deploy trong CI/CD. Trong 7 backend service, `chat-service` bổ sung hạ tầng realtime (Socket.IO) nên vẫn để ngoài phạm vi MVP này (xem [Mục 9](#9-thành-phần-không-nằm-trong-mvp)); `gym-service` và `payment-service` ban đầu chỉ có Dockerfile dạng development nhưng sau đó đã có bản build production và được đưa vào phạm vi MVP (xem [Mục 8](#8-phạm-vi-mvp)).
+- **Chỉ chạy được ở local.** Toàn bộ stack (PostgreSQL, Redis, Qdrant, model Ollama self-host và bảy service) chạy bằng Docker Compose trên một laptop: không có endpoint công khai, không backup, không cô lập giữa các thành phần.
+- **Secret nằm trong file `.env`.** Mật khẩu database, JWT secret, secret service-to-service và key của payment provider đều là plaintext trên ổ đĩa.
+- **AI self-host nặng.** AI coach cần LLM và vector database chạy local trên một máy bật liên tục; lần thử sizing EC2 trước đó cho thấy instance free tier không chạy nổi.
+- **Tác vụ nền gắn với process.** Reminder, settlement và reconciliation chạy bằng timer trong process, thứ không tồn tại trên compute serverless.
+- **Chat real-time.** Socket.IO cần kết nối sống lâu dài mà nền tảng request/response không giữ được.
 
-### 4. Bài toán
+#### Giải pháp đề xuất
 
-Việc vận hành Fitness Assistant vượt ra ngoài laptop của một developer đòi hỏi giải quyết những vấn đề mà source code không tự giải quyết: database đặt ở đâu và được backup như thế nào, image container được build và phân phối ra sao, ứng dụng được truy cập qua internet như thế nào, secret được quản lý ra sao thay vì nằm trong file `.env` cục bộ, và làm sao biết khi có sự cố ở production. Nếu không thực hiện các bước này, ứng dụng chỉ có thể trình bày dưới dạng source code, không thể demo, chia sẻ hay đánh giá như một hệ thống đã triển khai thực tế.
+Chuyển từng phần lên dịch vụ managed phù hợp, điều chỉnh code khi cần:
 
-### 5. Đối tượng sử dụng
+- Service request/response → AWS Lambda với handler HTTP API (payload 2.0), handler jobs riêng và handler migration đọc `DATABASE_SECRET_ID`; lời gọi nội bộ chuyển thành direct Lambda invoke thay vì HTTP qua application gateway.
+- Chat real-time → ECS Fargate phía sau ALB, REST đi qua API Gateway.
+- PostgreSQL → Aurora Serverless v2, mỗi service một logical database, dữ liệu restore từ dump local.
+- AI → Amazon Bedrock cho chat, vision và embedding; OpenSearch Serverless cho vector; các generation dài được đưa vào hàng đợi SQS và xử lý bởi worker.
+- Timer → các schedule EventBridge Scheduler gọi function jobs.
+- Frontend → S3 static website (CloudFront và HTTPS là bước tiếp theo).
 
-- Người dùng cuối của ứng dụng Fitness Assistant (người theo dõi luyện tập, mục tiêu và nhận gợi ý huấn luyện từ AI).
-- Mentor/người đánh giá FCAJ xem xét kết quả kỹ thuật của đợt thực tập này.
-- Người đóng góp trong tương lai muốn mở rộng phần triển khai AWS (ví dụ: thêm Auto Scaling, CI/CD, hoặc Amazon Bedrock).
+#### Lợi ích
 
-### 6. Mục tiêu tổng quát
+Môi trường DEV chủ yếu trả tiền theo mức sử dụng, không có server nào phải vá cho sáu trong bảy service, AI coach không còn cần host model, network mặc định là private và quyền là least-privilege, và toàn bộ quá trình triển khai được ghi thành runbook có thể làm lại bằng tay hoặc chuyển thành pipeline.
 
-Triển khai một phiên bản MVP hoạt động được của Fitness Assistant trên AWS, tái hiện các chức năng cốt lõi đã xác minh (xác thực, hồ sơ người dùng, bài tập/lịch tập, huấn luyện AI) trên hạ tầng AWS managed và self-managed, có giám sát, cảnh báo cơ bản và thực hành bảo mật được ghi lại đầy đủ — đồng thời ghi chép từng bước để có thể tái hiện và xem xét lại.
+### 3. Kiến trúc giải pháp {#architecture}
 
-### 7. Mục tiêu cụ thể
+Sơ đồ thể hiện các thành phần đã deploy và luồng request giữa chúng. Mô tả đầy đủ — luồng request, lựa chọn dịch vụ, bảo mật, khả năng mở rộng và chi phí — nằm ở [Workshop 5.2](../5-Workshop/5.2-Architecture-Description/).
 
-1. Đóng gói container cho các service thuộc MVP bằng Dockerfile hướng production (multi-stage build, không chạy dev watcher, không nhúng secret vào image).
-2. Thiết kế và khởi tạo VPC với public/private subnet và Security Group theo nguyên tắc least privilege.
-3. Di chuyển database PostgreSQL từ container Docker sang Amazon RDS for PostgreSQL, áp dụng đúng migration Prisma của ứng dụng cho từng service.
-4. Lưu trữ và quản lý phiên bản image container trên Amazon ECR.
-5. Triển khai stack MVP trên Amazon EC2 với Docker Compose, phía sau một reverse proxy.
-6. Thiết lập logging tập trung và cảnh báo với Amazon CloudWatch và Amazon SNS.
-7. Áp dụng IAM least privilege và AWS Secrets Manager cho credential thay vì file `.env` dạng plaintext trên host.
-8. Ghi chép, kiểm thử và dọn dẹp phần triển khai theo cách có thể tái hiện, dựa trên bằng chứng.
+{{< mermaid >}}
+graph LR
+    User[Browser]
 
-### 8. Phạm vi MVP
+    subgraph Edge ["Public AWS endpoints"]
+        FE["Amazon S3<br/>static website"]
+        GW["API Gateway<br/>HTTP API"]
+    end
 
-{{% notice warning %}}
-Mục này đã được cập nhật sau khi source repository có tiến triển trong thời gian thực tập: `gym-service` và `payment-service` **chưa** có Dockerfile production khi Proposal này được viết lần đầu — đó là lý do ban đầu để loại chúng khỏi MVP (xem [Mục 9](#9-thành-phần-không-nằm-trong-mvp)). Bây giờ cả hai đều đã có. Proposal đã được cập nhật để đưa chúng vào phạm vi MVP thay vì giữ nguyên một lý do loại trừ đã không còn đúng.
-{{% /notice %}}
+    subgraph VPC ["VPC fitness-assistant-dev-vpc, ap-southeast-1"]
+        subgraph Public ["Public subnets"]
+            ALB["Chat ALB<br/>HTTP 80"]
+            NAT["NAT Gateway"]
+        end
+        subgraph Private ["Private app subnets"]
+            L["Lambda HTTP functions<br/>Auth, User, Fitness, Gym, Payment, AI"]
+            J["Lambda jobs functions"]
+            W["Lambda AI Worker"]
+            C["ECS Fargate<br/>Chat Service, port 3005"]
+            VPCE["Interface VPC endpoints<br/>Secrets Manager, OpenSearch"]
+        end
+        subgraph DB ["Private DB subnets"]
+            A[("Aurora PostgreSQL Serverless v2<br/>7 logical databases")]
+        end
+    end
 
-MVP bao gồm các service vừa cốt lõi với các luồng sử dụng chính của ứng dụng, vừa đã có Dockerfile hướng production trong repository nguồn:
+    SQS[["Amazon SQS<br/>ai-tasks + DLQ"]]
+    EB[["EventBridge Scheduler<br/>13 schedules"]]
+    BR[["Amazon Bedrock<br/>Nova Pro, Cohere Embed"]]
+    OS[("OpenSearch Serverless<br/>vector collection")]
 
-- **Frontend** (`frontend/web`, React + Vite, build và phục vụ qua Nginx).
-- **Application Gateway** (`backend/gateway`) — một service Express/Node.js đóng vai trò reverse-proxy nội bộ của ứng dụng. Đây **không phải** dịch vụ Amazon API Gateway do AWS quản lý; xem ghi chú ở [Mục 12](#12-kiến-trúc-giải-pháp).
-- **Auth Service** (`backend/services/auth-service`) — đăng ký, đăng nhập, cấp/xác thực JWT.
-- **User Service** (`backend/services/user-service`) — hồ sơ và bản ghi InBody (bao gồm tính năng trích xuất bằng Anthropic Claude Vision).
-- **Fitness Service** (`backend/services/fitness-service`) — bài tập, lịch tập, log tập luyện.
-- **AI Service** (`backend/services/ai-service`) — chat/huấn luyện dựa trên Ollama và truy vấn RAG dựa trên Qdrant.
-- **Payment Service** (`backend/services/payment-service`) — nạp ví và thanh toán hợp đồng PT, dùng `PAYMENT_PROVIDER=MOCK` cho MVP này (chưa cấp thông tin cổng thanh toán thật).
-- **Gym Service** (`backend/services/gym-service`) — danh sách phòng gym/PT, phụ thuộc vào Payment Service.
-- **PostgreSQL** — di chuyển sang Amazon RDS (database-per-service: `gymcoach_auth`, `gymcoach_user`, `gymcoach_fitness`, `gymcoach_ai`, `gymcoach_payment`, `gymcoach_gym`, khớp với thiết kế schema Prisma hiện có của ứng dụng).
-- **Redis** — giữ dưới dạng container trên EC2 cho MVP (BullMQ queue, rate limiting); Amazon ElastiCache được liệt kê ở phần tương lai, không thuộc MVP.
-- **Qdrant** và **Ollama** — giữ dưới dạng container trên EC2 cho MVP; cả hai đều có yêu cầu CPU/RAM thực tế cần được ước lượng trung thực (xem [Mục 11](#11-non-functional-requirements)).
+    User --> FE
+    User -->|REST with JWT| GW
+    User -->|Socket.IO| ALB
+    GW --> L
+    GW -->|chat REST routes| ALB
+    ALB --> C
+    L --> A
+    J --> A
+    W --> A
+    C --> A
+    L -->|SendMessage| SQS
+    SQS --> W
+    EB --> J
+    L --> NAT
+    W --> NAT
+    J --> NAT
+    NAT --> BR
+    L --> VPCE
+    W --> VPCE
+    J --> VPCE
+    VPCE --> OS
+{{< /mermaid >}}
 
-### 9. Thành phần không nằm trong MVP
+- **Edge và frontend** — bản build React được phục vụ từ S3 website endpoint. API Gateway (HTTP API) là điểm vào REST duy nhất với các route prefix tường minh và throttling cho route AI; Socket.IO đi thẳng tới Chat ALB.
+- **Xác thực** — Auth service phát hành JWT; mỗi service tự verify token (AI service bằng cách invoke Auth). Lời gọi service-to-service dùng direct Lambda invoke kèm internal secret dùng chung, và route `/internal/*` không bao giờ được public.
+- **Ứng dụng** — 12 Lambda function (Node.js 22.x, 1024 MB) cho HTTP API, scheduled jobs của sáu service và AI worker, tất cả nằm trong hai private application subnet.
+- **Real-time** — Chat service chạy một Fargate task (0.5 vCPU / 1 GB) trong private subnet phía sau ALB internet-facing, có stickiness và idle timeout 120 giây.
+- **Xử lý bất đồng bộ** — SQS (kèm dead-letter queue) cấp việc cho AI worker; 13 schedule EventBridge Scheduler điều khiển settlement, reminder, payout, reconciliation và knowledge ingestion.
+- **AI** — Bedrock Nova Pro qua APAC inference profile cho chat và vision, Cohere Embed Multilingual v3 cho embedding 1024 chiều, OpenSearch Serverless (0–2 OCU) làm vector store.
+- **Dữ liệu** — Aurora PostgreSQL Serverless v2 với bảy logical database; S3 cho upload private, artifact deploy và dump migration; Secrets Manager cho credential.
+- **Network và bảo mật** — VPC `10.0.0.0/16` với private app subnet và DB subnet, một NAT Gateway, interface endpoint cho Secrets Manager và OpenSearch, security group tham chiếu lẫn nhau, mỗi function hoặc task một IAM role.
+- **Quan sát** — CloudWatch Logs cho mọi function và task; alarm đang được lên kế hoạch.
 
-- **Chat Service** — có trong repository nguồn, nhưng bổ sung độ phức tạp hạ tầng realtime (Socket.IO) vượt ngoài phạm vi networking/monitoring của MVP này. Để lại cho phần Hướng phát triển.
-- ~~Gym Service, Payment Service~~ — **đã chuyển vào phạm vi MVP** (xem [Mục 8](#8-phạm-vi-mvp)); cả hai đã có Dockerfile production kể từ khi Proposal này được viết lần đầu.
-- **Amazon S3 cho file upload** — ứng dụng hiện lưu file người dùng tải lên (ảnh InBody, ảnh hồ sơ, tài liệu đăng ký PT) trên local disk qua `multer`. Hiện chưa có S3 client trong source code. Việc tích hợp S3 đòi hỏi thay đổi code thực sự trong `user-service`, nằm ngoài phạm vi trừ khi được lập trình và xác minh. Đánh dấu **Planned**, không phải **Implemented**.
-- **Amazon ElastiCache for Redis** — Optional; Redis chạy dưới dạng container cho MVP.
-- **Amazon Bedrock** — lựa chọn thay thế/bổ sung tương lai cho Ollama tự host.
-- **Amazon CloudFront, Route 53, Application Load Balancer, Auto Scaling** — Optional/Future, sau khi MVP một EC2 được xác nhận hoạt động ổn định.
-- **CI/CD pipeline, Infrastructure as Code (Terraform/CDK)** — công việc tương lai; MVP được xây dựng thủ công và ghi chép từng bước cho mục đích học tập.
+### 4. Dịch vụ AWS sử dụng {#services}
 
-### 10. Functional Requirements (Yêu cầu chức năng)
+| Dịch vụ | Vai trò trong hệ thống |
+|---|---|
+| Amazon S3 | Host frontend tĩnh; upload private (presigned URL); artifact deploy Lambda; dump migration database |
+| Amazon API Gateway (HTTP API) | Điểm vào REST công khai với route tường minh, CORS, throttling route AI và HTTP proxy tới Chat ALB |
+| AWS Lambda | Các service Auth, User, Fitness, Gym, Payment và AI (function HTTP, jobs, worker) và migration schema của từng service |
+| Amazon ECS trên AWS Fargate | Chat service (REST + Socket.IO) và task migrator database chạy một lần |
+| Amazon ECR | Image container private cho Chat và migrator |
+| Elastic Load Balancing (ALB) | Điểm vào Socket.IO/WebSocket cho Chat, health check `/health`, stickiness, rule ẩn các path nội bộ |
+| Amazon Aurora PostgreSQL Serverless v2 | Dữ liệu quan hệ cho mọi service, mỗi service một logical database |
+| Amazon Bedrock | Nova Pro cho chat và vision; Cohere Embed Multilingual v3 cho embedding |
+| Amazon OpenSearch Serverless | Vector search cho RAG và truy xuất tri thức |
+| Amazon SQS | Hàng đợi AI task và dead-letter queue |
+| Amazon EventBridge Scheduler | Schedule cho settlement, reminder, payout, reconciliation và AI job |
+| AWS Secrets Manager | Credential database, database URL của Chat và internal secret dùng chung |
+| AWS IAM | Execution role cho từng function, task/execution role cho ECS, scheduler role |
+| Amazon VPC | Cô lập network: subnet, route table, security group |
+| NAT Gateway và Internet Gateway | Truy cập internet outbound cho private subnet |
+| VPC interface endpoint | Truy cập private tới Secrets Manager và OpenSearch Serverless |
+| Amazon CloudWatch Logs | Log cho mọi function, Chat task và migrator |
+| AWS Marketplace | Subscription một lần cho model Cohere trên Bedrock |
 
-| ID | Yêu cầu | Nguồn |
-| --- | --- | --- |
-| FR-1 | Người dùng đăng ký và đăng nhập | `auth-service` |
-| FR-2 | Người dùng xem/cập nhật hồ sơ | `user-service` |
-| FR-3 | Người dùng tải ảnh InBody và nhận chỉ số cơ thể đã trích xuất | `user-service` (qua Anthropic Claude Vision) |
-| FR-4 | Người dùng xem danh mục bài tập và lịch tập | `fitness-service` |
-| FR-5 | Người dùng ghi log buổi tập đã hoàn thành | `fitness-service` |
-| FR-6 | Người dùng nhận gợi ý huấn luyện AI dựa trên kiến thức truy xuất (RAG) | `ai-service` (Ollama + Qdrant) |
-| FR-7 | Toàn bộ traffic API được xác thực qua JWT, xác minh tập trung tại gateway | `backend/gateway` + `auth-service` |
-| FR-8 | Người dùng xem danh sách phòng gym/PT | `gym-service` |
-| FR-9 | Người dùng nạp ví và thanh toán hợp đồng PT (dùng provider mock cho MVP này) | `payment-service` |
+### 5. Thiết kế thành phần {#components}
 
-### 11. Non-functional Requirements (Yêu cầu phi chức năng)
+- **Frontend (React/Vite)** — S3 website; gọi REST tới API Gateway kèm Bearer token; Socket.IO tới Chat ALB; xử lý thông báo cho người dùng khi route AI trả 429/408/504.
+- **Auth service** — đăng ký, xác minh, đăng nhập, refresh, logout, quản trị người dùng; database `fitness_assistant`.
+- **User service** — hồ sơ, onboarding, InBody, hồ sơ ứng tuyển PT, hợp đồng, buổi tập, lịch rảnh, thông báo; upload vào các prefix S3 private; jobs: session settlement, auto-confirm, reschedule expiry; database `fitness_assistant_user`.
+- **Fitness service** — bài tập, workout, dinh dưỡng, thực phẩm, chu kỳ tập, dữ liệu coach, thiết bị, import/export, template, thống kê; jobs: nhắc workout sắp tới và workout chưa hoàn thành; database `fitness_assistant_fitness`.
+- **Gym service** — phòng gym, danh sách PT, công cụ cho chủ phòng và admin, hợp tác, QR check-in có chữ ký; jobs: membership payout, referral settlement; database `fitness_assistant_gym`.
+- **Payment service** — thanh toán, ví, ví PT, rút tiền, quản trị thanh toán, callback của provider (mặc định VNPAY; code hỗ trợ MoMo, PayOS, ZaloPay); job: reconciliation mỗi 5 phút; database `fitness_assistant_payment`.
+- **AI service** — function HTTP (`/ai`, `/plans`, `/marketplace`, `/admin/ai`), SQS worker cho các generation dài, function jobs cho auto-accept và knowledge ingestion hằng đêm; Bedrock và OpenSearch; database `fitness_assistant_ai`.
+- **Chat service** — hội thoại và nhắn tin real-time trên Fargate; database `fitness_assistant_chat`.
+- **Migration** — mỗi service một migration function (Prisma `migrate deploy`) và một Fargate task đã restore dữ liệu local.
+- **Aurora cluster** — `fitness-assistant-dev-aurora`, bảy logical database.
+- **Vector collection** — `fitness-assistant-dev-ai-vectors` với các index `exercises`, `fitness_knowledge`, `fitness_faq` và `fitness_evidence` (1024 chiều, FAISS/HNSW, cosine similarity).
 
-- **Availability (tính sẵn sàng):** MVP một EC2 không có redundancy tích hợp; ghi nhận đây là giới hạn đã biết của MVP, không khẳng định là highly available.
-- **Bảo mật:** IAM least privilege, RDS private, không commit secret vào source hay nhúng vào image, hạn chế truy cập SSH.
-- **Hiệu năng/Kích thước tài nguyên:** AI service phụ thuộc Ollama (LLM tự host) và Qdrant, thực tế cần nhiều CPU/RAM hơn instance `t3.micro` thuộc Free Tier. Cần đo đạc và kiểm chứng, không giả định.
-- **Khả năng quan sát:** log và metric quan trọng phải được gửi tới CloudWatch, alarm được định tuyến qua SNS tới email.
-- **Khả năng dự đoán chi phí:** tài nguyên phải được right-size và có thể dừng; không tài nguyên nào chạy mà không được giám sát về chi phí.
-- **An toàn dữ liệu:** bật automated backup cho database; migration chạy qua công cụ Prisma của ứng dụng, không viết SQL thủ công.
+### 6. Triển khai kỹ thuật {#implementation}
 
-### 12. Kiến trúc giải pháp
+#### Các giai đoạn triển khai
 
-{{% notice warning %}}
-`backend/gateway` là một service Node.js/Express **ở tầng ứng dụng** (router HTTP nội bộ và reverse proxy riêng) đi kèm trong source code Fitness Assistant. Đây **không phải** dịch vụ **Amazon API Gateway** do AWS quản lý. MVP này không sử dụng Amazon API Gateway; `backend/gateway` chạy như một container trên EC2, còn việc sử dụng Amazon API Gateway (nếu có) chỉ được liệt kê trong phần Hướng phát triển.
-{{% /notice %}}
+1. **Phân tích và điều chỉnh code** — audit từng service; thêm handler Lambda cho HTTP, jobs và migration; đọc credential qua `DATABASE_SECRET_ID`; thay lời gọi HTTP nội bộ bằng direct Lambda invoke; thêm provider SQS, Bedrock và OpenSearch; build artifact có kèm Prisma Linux engine.
+2. **Nền tảng dùng chung** — VPC, subnet, security group, NAT và Internet Gateway, Aurora Serverless v2, Secrets Manager endpoint.
+3. **Service đầu tiên và các điểm vào** — Auth Lambda, API Gateway với route tường minh, S3 website, CORS.
+4. **Các service lõi** — User, Fitness, Gym và Payment cùng function jobs và schedule, sau đó nối Gym ↔ Payment.
+5. **AI** — model Bedrock, SQS worker, function jobs, OpenSearch Serverless, schedule tri thức, route AI có throttling, kích hoạt Payment → AI.
+6. **Real-time và dữ liệu** — Chat trên ECS Fargate phía sau ALB; restore 7 database local bằng Fargate migrator.
+7. **Kiểm thử và hardening** — kiểm thử end-to-end, alarm, CI/CD, HTTPS với CloudFront, tự động hoá chế độ "sleep" tiết kiệm chi phí.
 
-![Sơ đồ kiến trúc AWS của Fitness Assistant — TODO: ảnh PNG này vẫn là placeholder; export từ file .drawio bên dưới trước khi nộp báo cáo](/images/workshop/architecture/fitness-assistant-aws-architecture.png)
+Các bước console chính xác của giai đoạn 2–6, kèm screenshot và IAM policy, nằm trong [Hướng dẫn triển khai](../5-Workshop/5.4-Deployment-Guide/).
 
-File tải xuống: [fitness-assistant-aws-architecture.drawio](/files/architecture/fitness-assistant-aws-architecture.drawio) — giờ đã là sơ đồ thật (bộ icon AWS4: EC2, RDS, Internet Gateway, ECR, IAM Role, Secrets Manager, CloudWatch, SNS), khớp với kiến trúc MVP ở mục này. **TODO còn lại:** mở file trong draw.io, xác nhận mọi icon hiển thị đúng, điền AWS Region thật, và export ảnh PNG ở trên (xem `static/files/architecture/README.md`).
+#### Yêu cầu kỹ thuật
 
-**Kiến trúc MVP hiện tại (dự kiến):**
+- **Compute** — Lambda Node.js 22.x trên x86_64 với 1024 MB; timeout 30 giây cho HTTP, 1 phút cho jobs, 300 giây cho AI worker, 600 giây cho AI jobs và tới 15 phút cho migration; Fargate task 0.5 vCPU / 1 GB.
+- **API** — HTTP API với payload format 2.0; không có route `/internal/*`, `/metrics` hay catch-all; throttling 1 request/giây (burst 3) cho route AI.
+- **Dữ liệu** — Prisma migration áp dụng theo từng service; mỗi service một logical database; SQS visibility timeout 600 giây, chuyển DLQ sau 2 lần nhận.
+- **AI** — Bedrock tại `ap-southeast-1` qua APAC inference profile; embedding 1024 chiều; OpenSearch FAISS/HNSW với cosine similarity.
+- **Bảo mật** — IAM least-privilege cho từng function; credential trong Secrets Manager; private subnet và rule security-group-tới-security-group; không có secret trong artifact, image hay tài liệu.
+- **Vận hành** — CloudWatch Logs; mọi bước thủ công đều được ghi lại, sẽ được thay bằng CI/CD pipeline.
 
-```
-Internet
-   │
-   ▼
-EC2 (public subnet) — Nginx reverse proxy
-   ├── Container Frontend (React build, phục vụ qua Nginx)
-   └── Container Application Gateway (backend/gateway, Node.js/Express)
-             │  (xác thực JWT qua HTTP call tới auth-service)
-             ▼
-   ┌─────────┴──────┬───────────┬───────────┬─────────────┬─────────────┐
-   ▼                 ▼           ▼           ▼             ▼             ▼
-Auth Service    User Service  Fitness    AI Service   Payment       Gym Service
-(container)     (container)  Service    (Ollama +     Service       (container)
-                              (container) Qdrant,      (container)
-                                          container)
-   │                 │           │           │             │             │
-   └─────────────────┴───────────┴───────────┴─────────────┴─────────────┘
-                                  │
-                                  ▼
-                   Amazon RDS for PostgreSQL (private subnet)
-                                  │
-                 Amazon CloudWatch  ──►  Amazon SNS ──► Email
-```
+### 7. Lộ trình & cột mốc {#timeline}
 
-Redis, Qdrant và Ollama chạy dưới dạng container cùng các container ứng dụng khác trên cùng một EC2 host cho MVP. Amazon ECR lưu toàn bộ image container; AWS Secrets Manager lưu credential database, JWT secret và `ANTHROPIC_API_KEY`; một IAM Role gắn với EC2 instance cấp quyền least-privilege tới ECR, CloudWatch và Secrets Manager.
+Thời gian thực tập từ 3/8 đến 19/10/2026. Các mốc ngày bên dưới lấy theo ngày tạo resource trong runbook triển khai.
 
-### 13. Mô tả luồng dữ liệu
+| Giai đoạn | Thời gian | Hoạt động chính |
+|---|---|---|
+| 1. Học và phân tích | Tháng 8/2026 (tuần 1–3) | Kiến thức nền AWS (các module FCJ), audit ứng dụng, chạy local, thiết kế triển khai |
+| 2. Nền tảng và service đầu tiên | 26–27/8/2026 | VPC và NAT, Aurora, Auth Lambda, API Gateway, frontend S3; database và role của User |
+| 3. Các service lõi | 2–8/9/2026 | Fitness (2/9), Gym và Payment (8/9) cùng jobs và schedule |
+| 4. AI | 15/9/2026 | Bedrock, SQS worker, jobs, OpenSearch Serverless, schedule tri thức, route AI |
+| 5. Chat và dữ liệu | 22–23/9/2026 | Chat trên ECS Fargate phía sau ALB; image migrator và restore 7 database |
+| 6. Kiểm thử và báo cáo | Tháng 10/2026 (tuần 10–12) | Kiểm thử end-to-end và sửa lỗi, CI/CD, alarm, kiểm soát chi phí, báo cáo và dọn dẹp |
 
-1. Request từ trình duyệt đến reverse proxy Nginx trên EC2.
-2. Tài nguyên tĩnh của frontend được phục vụ trực tiếp; các API call được chuyển tiếp tới container `backend/gateway`.
-3. Gateway trích xuất header `Authorization: Bearer <token>` và gọi endpoint `/auth/verify` của `auth-service` để xác thực, sau đó chuyển tiếp request xuống downstream kèm header `x-user-id`/`x-user-email`/`x-user-role`.
-4. Service downstream (user/fitness/ai) xử lý request, đọc/ghi database logic riêng trên cùng instance Amazon RDS PostgreSQL thông qua Prisma.
-5. `ai-service` truy vấn thêm Qdrant để lấy ngữ cảnh liên quan và gọi endpoint `/api/chat` của container Ollama để sinh phản hồi; `user-service` gọi Anthropic API bên ngoài để trích xuất ảnh InBody khi tính năng này được sử dụng.
-6. Log ứng dụng và container được gửi tới Amazon CloudWatch Logs qua CloudWatch Agent; các metric quan trọng kích hoạt CloudWatch Alarm, publish tới Amazon SNS topic, gửi email cho người trực/người đánh giá.
+### 8. Ước tính ngân sách {#budget}
 
-### 14. Danh sách AWS services
+Ước tính theo tháng cho môi trường DEV tại `ap-southeast-1` chạy 24×7 với lưu lượng kiểm thử nhẹ. Các con số là giá on-demand niêm yết gần đúng và thay đổi theo thời gian — cần xác nhận lại bằng [AWS Pricing Calculator](https://calculator.aws/); hoá đơn thật trong Cost Explorer của account là số liệu tham chiếu.
 
-| Service | Vai trò | Lý do lựa chọn | Trạng thái |
-|---------|---------|----------------|------------|
-| Amazon EC2 | Host stack Docker Compose cho MVP | Mô hình compute đơn giản nhất để học nền tảng triển khai container trước khi dùng ECS/EKS | Planned |
-| Amazon ECR | Lưu trữ image container có phiên bản theo từng service | Tích hợp sẵn với IAM role của EC2; tránh giới hạn rate limit của Docker Hub | Planned |
-| Amazon RDS for PostgreSQL | Database managed, thay thế container `postgres` của Docker | Automated backup, network private, khớp với thiết kế PostgreSQL/Prisma hiện có của ứng dụng | Planned |
-| Amazon VPC | Cách ly mạng, public/private subnet | Nền tảng bắt buộc cho thiết kế mạng least-privilege | Planned |
-| AWS IAM | Role/policy để EC2 truy cập ECR, CloudWatch, Secrets Manager | Tránh nhúng credential AWS tồn tại lâu dài trên host | Planned |
-| AWS Secrets Manager | Lưu credential DB, JWT secret, `ANTHROPIC_API_KEY` | Tránh file `.env` dạng plaintext trên EC2 | Planned |
-| Amazon CloudWatch | Log, metric, dashboard, alarm | Giám sát tập trung mà không cần thêm công cụ bên thứ ba | Planned |
-| Amazon SNS | Cảnh báo qua email từ CloudWatch Alarm | Đường dẫn thông báo đơn giản, native cho MVP | Planned |
-| Amazon S3 | Lưu trữ tương lai cho ảnh/tài liệu người dùng tải lên | Chưa được tích hợp trong source ứng dụng; cần thay đổi code | Planned |
-| Amazon ElastiCache for Redis | Thay thế managed tương lai cho container Redis | Không bắt buộc cho MVP; container Redis đã đủ ở quy mô này | Optional |
-| Amazon Bedrock | Lựa chọn managed thay thế/bổ sung tương lai cho Ollama tự host | Giúp loại bỏ nhu cầu chọn kích thước EC2 cho LLM nhúng kèm | Optional |
-| Amazon CloudFront | CDN/edge caching tương lai cho frontend | Chưa cần thiết cho tới khi có traffic thực từ bên ngoài | Optional |
-| Amazon Route 53 | Quản lý domain/DNS tùy chỉnh tương lai | Chưa đăng ký domain cho project này | Optional |
-| Elastic Load Balancing | Load balancing tương lai khi có nhiều hơn một EC2 host | MVP một host chưa cần đến | Optional |
-| AWS CDK / Terraform | Infrastructure as Code tương lai | MVP được xây thủ công trước cho mục đích học tập | Optional |
+| Nhóm chi phí | Cấu hình ước tính | Chi phí tháng (USD) |
+|---|---|---|
+| NAT Gateway | 1 gateway × 730 giờ, cộng dữ liệu xử lý | ~43 + dữ liệu |
+| Aurora PostgreSQL Serverless v2 | Floor 0.5 ACU × 730 giờ (≈365 ACU-giờ), storage nhỏ | ~45–60 |
+| ECS Fargate (Chat) | 0.5 vCPU + 1 GB × 730 giờ | ~22 |
+| Application Load Balancer | 1 ALB × 730 giờ, LCU thấp | ~20 |
+| Địa chỉ IPv4 public | Elastic IP của NAT + 2 địa chỉ của ALB × 730 giờ | ~11 |
+| Interface VPC endpoint | Secrets Manager và OpenSearch, mỗi cái 2 AZ | ~30–40 |
+| OpenSearch Serverless (NextGen) | 0–2 OCU, scale về 0 khi idle | tuỳ số giờ hoạt động |
+| Amazon Bedrock | Nova Pro và Cohere Embed, tính theo token, lưu lượng kiểm thử | ~1–10 |
+| AWS Lambda | ~40.000 lần gọi theo lịch + lưu lượng kiểm thử, 1 GB | ~0 (free tier) |
+| API Gateway (HTTP API) | < 1 triệu request | ~0–1 |
+| Secrets Manager | 9 secret | ~4 |
+| S3, ECR, CloudWatch Logs, SQS, EventBridge | lưu lượng nhỏ | ~2–5 |
 
-### 15. Lý do lựa chọn từng service (tóm tắt)
+**Tổng ước tính:** khoảng **190–230 USD/tháng** nếu mọi thứ chạy 24×7. Với chế độ sleep đã lên kế hoạch — Aurora về 0 ACU, Chat service về 0 task và gỡ NAT Gateway ngoài các phiên kiểm thử — khoảng **60–90 USD/tháng**. Các khoản tính theo giờ cố định (NAT, ALB, Fargate, floor của Aurora, endpoint, IPv4) chiếm phần lớn; các dịch vụ tính theo mức dùng gần như không tốn gì ở lưu lượng DEV.
 
-Mỗi service ở trạng thái "Planned" phía trên được chọn vì nó thay thế trực tiếp một khoảng trống cụ thể trong setup Docker Compose hiện tại (Postgres chỉ chạy container, secret nằm trong file `.env`, chưa có pipeline logging) chứ không phải vì đó là "stack AWS mặc định". Mỗi service "Optional" bị loại khỏi phạm vi MVP một cách có chủ đích vì ứng dụng hiện tại chưa thực sự cần — ví dụ S3 chỉ optional vì source code chưa có S3 client, không phải vì lưu trữ file không quan trọng.
+### 9. Đánh giá rủi ro {#risks}
 
-### 16. Bảo mật
+| Rủi ro | Mức ảnh hưởng | Xác suất | Chiến lược giảm thiểu |
+|---|---|---|---|
+| Resource DEV idle vẫn tính tiền (NAT, floor Aurora, Fargate, ALB, endpoint) | Trung bình | Cao | Chế độ sleep, cảnh báo AWS Budgets, [quy trình dọn dẹp](../5-Workshop/5.7-Cleanup/) theo đúng thứ tự phụ thuộc |
+| Chi phí Bedrock tăng vọt do client hoặc bug frontend | Trung bình | Trung bình | Throttling cho route AI, frontend xử lý 429, SQS dead-letter queue |
+| Lộ secret qua screenshot, tài liệu hoặc cấu hình function | Cao | Thấp–Trung bình | Secrets Manager cho credential, che bằng chứng ở mức pixel, chuyển internal secret từ cấu hình Lambda sang Secrets Manager |
+| Deploy thủ công bị lệch hoặc không lặp lại được | Trung bình | Cao | Runbook từng bước kèm screenshot; đã lên kế hoạch CI/CD |
+| Migration dữ liệu ghi đè hoặc làm hỏng dữ liệu | Cao | Thấp | Preflight chỉ đọc, dump lưu trong bucket private có versioning, giữ nguyên lịch sử migration, xác nhận foreign key và row count |
+| Chỉ một Chat task và endpoint chỉ có HTTP | Trung bình | Trung bình | Chấp nhận được cho DEV; adapter Socket.IO dùng chung trước khi scale; domain, chứng chỉ ACM và CloudFront cho HTTPS |
 
-- IAM least privilege: instance role của EC2 chỉ giới hạn ở các action ECR/CloudWatch/Secrets Manager thực sự cần dùng.
-- RDS không public; chỉ Security Group của ứng dụng mới được phép truy cập port 5432.
-- Truy cập SSH (port 22) giới hạn ở một IP/CIDR cụ thể, không bao giờ dùng `0.0.0.0/0` trong thiết kế khuyến nghị.
-- Secret (`JWT_SECRET`, credential trong `DATABASE_URL`, `ANTHROPIC_API_KEY`) lưu trong AWS Secrets Manager, không commit vào source hay nhúng vào Docker image.
-- Các cơ chế bảo vệ sẵn có ở tầng ứng dụng được giữ nguyên, không bị làm yếu đi: xác thực dựa trên JWT, rate limiting phía gateway (`express-rate-limit`), băm mật khẩu bằng bcrypt.
+Chi phí và lỗi được xem lại trong Cost Explorer và CloudWatch Logs sau mỗi phiên kiểm thử cho tới khi có alarm.
 
-### 17. Khả năng mở rộng
+Nếu có sự cố, frontend có thể rollback từ bản backup trên S3, Lambda có thể upload lại artifact trước đó, Fargate service có thể quay về task definition revision cũ, và database có thể dựng lại từ các dump migration.
 
-MVP cố tình chạy trên một EC2 duy nhất để giữ phạm vi học tập ở mức quản lý được. Kiến trúc được thiết kế sao cho nếu traffic tăng, ứng dụng (gateway) và các service stateless có thể chuyển sang Amazon ECS/Fargate phía sau Application Load Balancer với Auto Scaling, mà không cần thay đổi nền tảng RDS/Secrets Manager/ECR đã xây dựng.
+### 10. Kết quả kỳ vọng {#outcomes}
 
-### 18. Monitoring (Giám sát)
+**Kết quả trước mắt:** một môi trường DEV hoạt động trên AWS cho toàn bộ ứng dụng — frontend, sáu service Lambda, chat real-time, AI managed và dữ liệu đã restore — cùng hướng dẫn triển khai có thể làm lại và kết quả kiểm thử đã ghi nhận ([Workshop 5.5](../5-Workshop/5.5-Test-Validation/)).
 
-CloudWatch Logs (qua CloudWatch Agent) cho log container/ứng dụng, CloudWatch Metrics/Alarms cho CPU EC2, status check EC2, và CPU/connections/storage của RDS, kèm thông báo email qua SNS. Chi tiết đầy đủ ở [Workshop 5.12](../5-Workshop/5.12-Monitoring-Alerting/).
+**Kiến thức kỹ thuật:** kinh nghiệm thực tế với thiết kế serverless trên Lambda, API Gateway và EventBridge; container trên ECS Fargate và ECR; Aurora Serverless và migration dữ liệu; AI managed với Bedrock và OpenSearch Serverless; và các ranh giới network, IAM giữ cho toàn bộ hệ thống private và least-privilege.
 
-### 19. Backup và khôi phục
-
-Amazon RDS automated backup với retention window xác định; snapshot thủ công trước bất kỳ thay đổi schema rủi ro nào. EBS volume trên EC2 không được xem là nơi lưu dữ liệu bền vững (trạng thái ứng dụng nằm ở RDS, không nằm trên host).
-
-### 20. Timeline 12 tuần
-
-| Tuần | Trọng tâm |
-|------|-----------|
-| 1 | Nghiên cứu, phân tích yêu cầu, chạy thử ứng dụng local |
-| 2 | Phân tích source code và kiến trúc microservices |
-| 3 | Dockerfile production và tối ưu image |
-| 4 | Thiết kế kiến trúc AWS |
-| 5 | Hạ tầng mạng (VPC, subnet, route, security group) |
-| 6 | Amazon RDS for PostgreSQL |
-| 7 | Amazon ECR và IAM Role |
-| 8 | Triển khai Amazon EC2 |
-| 9 | Reverse proxy, kết nối service, quyết định lưu trữ file |
-| 10 | Giám sát với CloudWatch và SNS |
-| 11 | Kiểm thử, bảo mật và rà soát chi phí |
-| 12 | Clean-up và hoàn thiện báo cáo |
-
-Xem chi tiết từng tuần tại [Worklog](../1-Worklog/).
-
-### 21. Ước tính chi phí
-
-{{% notice warning %}}
-Giá AWS thay đổi theo Region và thời điểm. Cần kiểm tra [AWS Pricing Calculator](https://calculator.aws/) trước khi triển khai thực tế. Các số liệu dưới đây chỉ là placeholder phục vụ lập kế hoạch, không phải báo giá.
-{{% /notice %}}
-
-- **AWS Region (dự kiến):** `[TODO_AWS_REGION]`
-- **Thành phần ước tính:** một EC2 instance được chọn kích thước phù hợp cho AI stack (xem ghi chú kích thước ở [Workshop 5.9](../5-Workshop/5.9-EC2-Deployment/)), một RDS PostgreSQL instance nhỏ, dung lượng ECR cho vài image, CloudWatch Logs/Alarms, thông báo email qua SNS.
-- **TODO:** Bổ sung link ước tính thật từ AWS Pricing Calculator và số liệu hàng tháng sau khi chọn xong loại instance cuối cùng.
-- Free Tier **không** chắc chắn bao phủ toàn bộ workload này — AI stack (Ollama + Qdrant) khó có thể chạy chấp nhận được trên loại instance thuộc Free Tier; cần kiểm chứng, không giả định.
-
-### 22. Rủi ro
-
-| Rủi ro | Khả năng | Ảnh hưởng | Biện pháp |
-|--------|----------|-----------|-----------|
-| EC2 instance không đủ tài nguyên cho Ollama/Qdrant | Cao | Cao | Chọn lại kích thước instance dựa trên tải đo được thực tế; ghi lại mức sử dụng CPU/RAM thực (Tuần 8/11) |
-| Vô tình commit secret lên git | Trung bình | Cao | `.gitignore` cho `.env`/key, review trước khi commit, dùng Secrets Manager cho secret runtime |
-| ~~`gym-service`/`payment-service` thiếu Dockerfile production~~ | ~~Cao~~ Đã xử lý | ~~Thấp~~ | **Đã xử lý trong quá trình thực tập**: cả hai service đã có Dockerfile production và được chuyển từ "ngoài phạm vi MVP" vào "phạm vi MVP" (xem [Mục 8](#8-phạm-vi-mvp)); giữ lại dòng này để ghi nhận thay đổi phạm vi thực tế, không xóa đi |
-| Vượt chi phí do quên tài nguyên đang chạy | Trung bình | Trung bình | Dừng/xóa tài nguyên khi không dùng; cảnh báo AWS Budgets (khuyến nghị, tùy chọn) |
-| Không nhất quán khi migrate RDS (`user-service` không tự chạy `prisma migrate deploy`) | Trung bình (đã phát hiện) | Trung bình | **Đã phát hiện và sửa trong quá trình thực tập**: `user-service` là service duy nhất trong 6 backend service thuộc MVP không tự chạy `prisma migrate deploy` khi container khởi động — phát hiện khi đối chiếu với 5 service còn lại, đã sửa cho khớp. Xem [Worklog Tuần 3](../1-Worklog/1.3-Week3/) để lấy bằng chứng phát hiện/sửa lỗi. |
-| Một EC2 duy nhất = điểm lỗi đơn (single point of failure) | Cao (theo thiết kế MVP) | Trung bình | Ghi nhận là giới hạn đã biết của MVP; Auto Scaling/ALB được liệt kê ở phần tương lai |
-
-### 23. Tiêu chí đánh giá thành công
-
-- Các service thuộc MVP ở [Mục 8](#8-phạm-vi-mvp) truy cập được đầu-cuối từ trình duyệt, dữ liệu lưu trên Amazon RDS.
-- CloudWatch Alarm kích hoạt và thông báo qua SNS email ít nhất một lần trong quá trình kiểm thử (đã xác minh, không giả định).
-- Không có secret nào xuất hiện trong Git repository hoặc trong image container.
-- Mọi dịch vụ AWS được ghi là "Implemented" trong báo cáo này đều có bằng chứng tương ứng ở mục [Workshop](../5-Workshop/).
-
-### 24. Deliverables (Sản phẩm bàn giao)
-
-- Báo cáo song ngữ này (Worklog, Proposal, Blogs, Events, Workshop, Self-evaluation, Feedback).
-- File Dockerfile production mẫu cho các service thuộc MVP.
-- File `docker-compose.aws.example.yml` mô tả cấu trúc triển khai trên EC2.
-- Sơ đồ kiến trúc (file draw.io nguồn + ảnh export) — TODO, chờ triển khai thực tế hoàn tất.
-- Ví dụ IAM policy và Security Group với ARN/account ID dạng placeholder.
-
-### 25. Hướng phát triển
-
-- Amazon ECS/Fargate kèm Application Load Balancer và Auto Scaling.
-- Amazon CloudFront + Route 53 cho domain tùy chỉnh và edge caching.
-- Amazon Bedrock như lựa chọn managed thay thế/bổ sung cho Ollama tự host.
-- Amazon S3 (kèm thay đổi code thực sự trong `user-service`) thay thế lưu trữ local disk.
-- Amazon ElastiCache for Redis, thay thế container Redis.
-- Pipeline CI/CD (GitHub Actions) build và deploy tự động mỗi lần merge.
-- Infrastructure as Code (Terraform hoặc AWS CDK) thay vì thao tác thủ công trên console.
-- Triển khai `chat-service` (hạ tầng realtime Socket.IO), cổng thanh toán thật cho `payment-service` thay vì `PAYMENT_PROVIDER=MOCK`.
-
-### 26. Tài liệu tham khảo
-
-- Quy định project FCAJ: https://hcm-rules.awsfcaj.com/3-project/
-- Template báo cáo: https://github.com/thienluhoan/fcj-workshop-template
-- Source code ứng dụng: https://github.com/trmizy/fitness-assistant
+**Dài hạn:** cùng thiết kế này có thể phát triển thành môi trường production bằng cách thêm CI/CD pipeline và infrastructure as code, HTTPS với CloudFront và WAF, CloudWatch alarm, auto scaling cho Chat với adapter Socket.IO dùng chung, và tách account DEV/production.

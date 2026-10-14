@@ -97,4 +97,4 @@ Designed Data Lake strategy for Fitness Assistant analytics:
 
 ### Related Workshop Sections:
 
-- [5.8 ECR](../../5-Workshop/5.8-ECR/) - Containerization for data processing jobs
+- [5.4.11 Data migration to Aurora](../../5-Workshop/5.4-Deployment-Guide/5.4.11-Data-Migration/) - Containerized data migration job (ECR + Fargate)

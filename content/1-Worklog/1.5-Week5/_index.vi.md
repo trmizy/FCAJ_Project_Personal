@@ -139,5 +139,5 @@ Trong tuần intensive này, mình hoàn thành hai major tracks: system perform
 
 ### Liên kết Workshop tương ứng:
 
-- [5.6 Network Infrastructure](../../5-Workshop/5.6-Network-Infrastructure/) - VPC design cho ECS
-- [5.9 EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/) - Container deployment strategies
+- [5.4.1 Hạ tầng mạng dùng chung](../../5-Workshop/5.4-Deployment-Guide/5.4.1-Shared-Network/) - VPC design cho Lambda và ECS
+- [5.2.4 Dịch vụ AWS và lý do lựa chọn](../../5-Workshop/5.2-Architecture-Description/5.2.4-AWS-Services-Selection/) - Lựa chọn serverless và container

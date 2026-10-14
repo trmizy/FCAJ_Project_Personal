@@ -6,39 +6,61 @@ chapter: false
 pre: " <b> 5.2.5. </b> "
 ---
 
-### Network Isolation
+### Network isolation
 
-- All Lambda-based services and Aurora sit inside one VPC (`fitness-assistant-dev-vpc`), with no resource placed in a public subnet except the NAT Gateway itself.
-- Lambda functions run in two private application subnets, routed to the internet only indirectly, through the NAT Gateway and Internet Gateway — there is no direct inbound path to a Lambda's ENI from the internet.
-- Aurora sits in its own private DB subnets, associated with a route table that has **no** NAT or internet route at all — the database tier cannot reach, or be reached from, the internet under any configuration mistake in the other route tables.
-- One shared security group (`fitness-assistant-dev-lambda-sg`) covers every Lambda-based service's outbound rules; Aurora's security group only accepts inbound connections on port 5432 from that Lambda security group (and, separately, from the Chat Fargate task's own security group).
-- The Chat Fargate task has its own security group, reachable only from the Chat ALB's security group on its container port — not from the internet directly, and not from the Lambda security group.
+- Lambda functions and the Chat Fargate task run only in the two private application subnets; the only resources in public subnets are the NAT Gateway and the internet-facing Chat ALB.
+- Aurora sits in private DB subnets whose route table has **no** NAT or internet route, so the database tier can neither reach nor be reached from the internet.
+- Security groups reference each other instead of IP ranges:
 
-### IAM — Least Privilege Per Service
+| Security group | Inbound |
+|---|---|
+| `fitness-assistant-dev-aurora-sg` | 5432 from `lambda-sg` and from `chat-sg` only |
+| `fitness-assistant-dev-chat-sg` | 3005 from `chat-alb-sg` only |
+| `fitness-assistant-dev-chat-alb-sg` | 80 from the internet (DEV, HTTP) |
+| `fitness-assistant-dev-vpce-sg` | 443 from `lambda-sg` (Secrets Manager and OpenSearch endpoints) |
+| `fitness-assistant-dev-lambda-sg` | none |
 
-Every Lambda has its own execution role, rather than one role shared across services. Each role is built from the same small set of AWS managed policies (`AWSLambdaBasicExecutionRole` for CloudWatch Logs, `AWSLambdaVPCAccessExecutionRole` for running inside the VPC) plus an inline policy scoped to exactly what that one service needs, for example:
+- OpenSearch Serverless is reachable only through its VPC endpoint (public access disabled).
+- The Chat ALB answers `/internal/*` and `/metrics` with a fixed 404, and API Gateway has no `/internal/*`, `/metrics` or catch-all route, so service-to-service endpoints are not reachable from the internet at all.
 
-- A migration Lambda's inline policy grants `secretsmanager:GetSecretValue` on only its own service's database secret ARN — not every secret in the account.
-- A service that needs to call another service directly (e.g. Payment invoking Auth or User) gets an inline policy scoped to `lambda:InvokeFunction` on only the specific target function ARNs it calls, not a wildcard `lambda:*`.
-- The AI Worker and Jobs Lambdas' roles are scoped to the AI database secret and the specific SQS queue / EventBridge schedule they consume from — not account-wide SQS or EventBridge access.
-- Bedrock access was added to the AI HTTP Lambda's role as a targeted addition of Bedrock-specific statements onto its existing policy, not a replacement with a broad managed policy like `AmazonBedrockFullAccess`.
+### IAM — least privilege per function
 
-### Secrets Management
+Every function and task has its own role. Lambda roles start from `AWSLambdaBasicExecutionRole` (logs) and `AWSLambdaVPCAccessExecutionRole` (VPC networking) and add inline policies that name exact resources:
 
-- Every database credential lives in AWS Secrets Manager, one secret per service database (`fitness-assistant/dev/<service>-database`). No Lambda environment variable holds a raw password — each Lambda holds a `DATABASE_SECRET_ID` and resolves the value from Secrets Manager at runtime.
-- Service-to-service calls (e.g. Payment invoking Auth) are authenticated with a shared `INTERNAL_SERVICE_SECRET`, separate from any end-user JWT, so an internal call cannot be replayed as if it came from a logged-in user.
-- A separate secret, `CHECKIN_TOKEN_SECRET`, signs the Gym Service's QR check-in tokens — deliberately a different value from `INTERNAL_SERVICE_SECRET`, so that compromising one does not compromise the other.
-- Payment provider credentials (VNPAY, and MoMo/PayOS/ZaloPay as they are added) follow the same pattern: stored as secrets, referenced by ID, never pasted into chat, documentation, or source control.
+| Need | How it is scoped |
+|---|---|
+| Database credentials | `secretsmanager:GetSecretValue` on that service's own secret ARN only |
+| Calling another service | `lambda:InvokeFunction` on the exact target function ARNs (e.g. Payment → Auth, User, Gym, AI), never `lambda:*` |
+| Private uploads | `s3:PutObject/GetObject/DeleteObject` on three prefixes of the uploads bucket only (`profile-photos/`, `pt-applications/`, `contracts/`), no `s3:ListBucket` |
+| AI queue | HTTP Lambda: `sqs:SendMessage`; Worker: `ReceiveMessage`, `DeleteMessage`, `GetQueueAttributes` — on the one queue |
+| Bedrock | `bedrock:InvokeModel` on the APAC Nova Pro inference profile, on the Nova Pro foundation model **only when called through that profile** (IAM condition), and on Cohere Embed Multilingual v3 — no `AmazonBedrockFullAccess`, no streaming permission |
+| OpenSearch | `aoss:APIAccessAll` on the one collection ARN, plus a data access policy that grants index read/write/create to the three AI roles but not `DeleteIndex` |
+| Schedules | One scheduler role per service, trusted by `scheduler.amazonaws.com`, allowed to invoke only that service's jobs function |
+| ECS | Execution role (pull image, write logs, inject the two Chat secrets) separated from the task role (invoke Auth/User only) |
+| Migration task | Read only the dumps prefix of the migration bucket and the database credential |
 
-### Known Security Gaps (Open, Not Hidden)
+The Cohere Marketplace subscription was accepted once by an administrator; runtime roles have no `aws-marketplace:*` permission.
 
-Consistent with this report's [Definition of Done](../../5.1-Overview/), these are tracked openly rather than left implicit:
+### Secrets
 
-- **ADMIN credential rotation** — postponed. Not a blocker for the current DEV environment, but required before any wider release.
-- **Remaining seed-account remediation** — 12 seed accounts from initial data load still need remediation.
-- **HTTPS** — both the frontend (S3 website endpoint) and the Chat ALB currently serve over plain HTTP in DEV. Moving to HTTPS depends on a domain name and an ACM certificate, which are not yet in place.
-- **No WAF yet** — see [5.2.4](../5.2.4-AWS-Services-Selection/) for why; there is no CloudFront distribution or HTTPS ALB listener to attach a web ACL to at this stage.
+- All database credentials are in AWS Secrets Manager, one secret per service database (`fitness-assistant/dev/<service>-database`); functions hold only `DATABASE_SECRET_ID`. The Chat task receives its database URL and the internal secret as ECS secrets (`valueFrom`), never as plain values.
+- Service-to-service calls carry the shared `INTERNAL_SERVICE_SECRET`, separate from any user JWT. The Gym Service signs QR check-in codes with its own `CHECKIN_TOKEN_SECRET`, deliberately different from the internal secret.
+- Payment provider keys are entered only once real sandbox credentials exist and are never copied into chat, documentation or source control.
+- Bedrock needs no API key — every model call is authorized by the function's IAM role.
 
-### Handling of Screenshot Evidence Containing Secrets
+### Abuse and cost protection
 
-While assembling the deployment evidence for this report, a small number of console screenshots (Secrets Manager "Store a new secret" screens and Lambda "Environment variables" screens) were found to contain real secret values in plaintext. Each was pixel-level redacted (the secret value itself blacked out in the image data, not cropped or blurred, since cropping/blurring can leave the original pixels recoverable) before being considered for inclusion in this report. This is noted here for transparency about how the evidence in later Workshop sections was sanitized, not as a claim that every one of the hundreds of captured screenshots has been individually re-verified since.
+- API Gateway route throttling on the AI routes (1 request/s with a burst of 3; 3/6 for the marketplace) caps how fast any client can trigger billable Bedrock calls; the frontend shows a "too many requests" message on HTTP 429.
+- SQS dead-letter queue (2 attempts) prevents a failing AI job from being retried forever.
+
+### Known gaps (open, not hidden)
+
+- **Internal secrets in Lambda configuration** — `INTERNAL_SERVICE_SECRET` and `CHECKIN_TOKEN_SECRET` are Lambda environment variables (encrypted at rest, but readable by anyone allowed to view the function configuration). Chat already reads the internal secret from Secrets Manager; moving the Lambda copies there is a hardening follow-up.
+- **HTTPS** — the S3 website endpoint and the Chat ALB are HTTP-only in DEV; HTTPS needs a domain and an ACM certificate, ideally with CloudFront in front of a private bucket (Origin Access Control).
+- **Public-read frontend bucket** — temporary, objects only (`s3:GetObject`), until CloudFront is available.
+- **No WAF yet** — nothing to attach a web ACL to until CloudFront or an HTTPS listener exists.
+- **ADMIN credential rotation** and **12 remaining seed accounts** — postponed, required before any wider release.
+
+### Screenshot evidence that contained secrets
+
+A few console screenshots in the deployment runbook (Secrets Manager "Store a new secret" screens and Lambda "Environment variables" screens) originally showed real secret values. Each was redacted at pixel level — the value itself blacked out in the image data, not cropped or blurred — before being included in this report; the black boxes in [5.4](../../5.4-Deployment-Guide/) are intentional. All screenshots were reviewed again before publication.

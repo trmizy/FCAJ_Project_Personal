@@ -6,263 +6,223 @@ chapter: false
 pre: " <b> 2. </b> "
 ---
 
-{{% notice warning %}}
-This proposal describes a **planned** architecture. Nothing below should be read as "already deployed" unless the corresponding [Workshop](../5-Workshop/) section shows verified evidence. Region, cost figures and dates are placeholders until confirmed.
-{{% /notice %}}
+# Gymini — AI Fitness Assistant on AWS
+## A serverless microservices deployment with managed AI on Amazon Bedrock
 
-# Cloud-Native AI Fitness Assistant on AWS
-## Deploying the open-source Fitness Assistant application on AWS infrastructure
+### 1. Executive Summary {#summary}
 
-### 1. Project Title
+Gymini (the open-source Fitness Assistant project) is a pnpm monorepo with a React/Vite frontend and seven Node.js/TypeScript services — Auth, User, Fitness, Gym, Payment, AI and Chat — that until now only ran on a developer machine with Docker Compose. This internship project designs and deploys it on AWS as a serverless-first DEV environment in the Asia Pacific (Singapore) region, documented step by step so it can be reviewed, repeated and later automated.
 
-**Cloud-Native AI Fitness Assistant on AWS** — an internship project to design, containerize and deploy the open-source [Fitness Assistant](https://github.com/trmizy/fitness-assistant) application on AWS.
+Each service runs on the AWS service that fits its runtime shape: six request/response services on AWS Lambda behind Amazon API Gateway, the real-time Chat service on Amazon ECS Fargate behind an Application Load Balancer, one Amazon Aurora PostgreSQL Serverless v2 cluster with a logical database per service, Amazon Bedrock (Nova Pro, Cohere Embed) and Amazon OpenSearch Serverless for the AI coach, and Amazon SQS plus EventBridge Scheduler for background work. The static frontend is served from Amazon S3; credentials live in AWS Secrets Manager; every function has its own least-privilege IAM role inside private subnets.
 
-### 2. Executive Summary
+At the latest checkpoint every service is deployed, the 7 local databases have been restored into Aurora with all 23 audited foreign keys validated, and Auth and User pass end-to-end tests. Remaining work — end-to-end tests of the other services, CI/CD, alarms, HTTPS and an automated "sleep" mode for cost — is planned and tracked in the [Workshop](../5-Workshop/5.5-Test-Validation/5.5.5-Status-Open-Items/).
 
-Fitness Assistant is an existing, actively developed open-source application: a pnpm monorepo composed of a React/Vite frontend, an application-level API gateway, and several Node.js/TypeScript backend microservices (authentication, user profiles, fitness/workout data, and an AI coaching service backed by a self-hosted LLM). It currently runs entirely through Docker Compose on a developer's machine. This project's goal is **not** to build a new application, but to take this existing, verified codebase and design + deploy a minimum viable cloud deployment on AWS — covering containerization for production, networking, a managed database, image storage, compute, and observability — while being explicit about what is included in the MVP versus deferred to future work.
+### 2. Problem Statement {#problem}
 
-### 3. Background
+#### Current problems
 
-Fitness Assistant already implements user registration/login, profile management, an exercise catalog, workout plans, workout logging, and an AI-assisted coaching feature that combines a self-hosted LLM (Ollama, default model `llama3.2:3b`) with a Retrieval-Augmented Generation (RAG) pipeline backed by a Qdrant vector database. A separate, distinct feature — InBody body-composition photo extraction — calls the Anthropic Claude API directly for image understanding. As delivered, the application is designed for local development, not for cloud operation: it has no existing AWS, Terraform, or Kubernetes configuration, no CI/CD deployment stage. Of its seven backend services, `chat-service` adds real-time (Socket.IO) infrastructure kept out of this MVP's scope (see [Section 9](#9-out-of-mvp-scope)); `gym-service` and `payment-service` initially shipped with a development-only Dockerfile but have since gained a production build and were moved into MVP scope (see [Section 8](#8-mvp-scope)).
+- **Local-only operation.** The whole stack (PostgreSQL, Redis, Qdrant, a self-hosted Ollama model and seven services) runs in Docker Compose on one laptop: no public endpoint, no backups, no isolation between components.
+- **Secrets in `.env` files.** Database passwords, JWT and service-to-service secrets and provider keys are plain text on disk.
+- **Heavy self-hosted AI.** The AI coach needs a local LLM and vector database on an always-on machine; an earlier EC2 sizing exercise showed that a free-tier instance cannot run it.
+- **Background work tied to processes.** Reminders, settlements and reconciliation ran as in-process timers, which do not exist on serverless compute.
+- **Real-time chat.** Socket.IO needs long-lived connections that a request/response platform cannot hold.
 
-### 4. Problem Statement
+#### Proposed solution
 
-Running Fitness Assistant beyond a single developer's laptop requires solving problems the source code does not solve on its own: where the database lives and how it is backed up, how container images are built and distributed, how the application is reachable over the internet, how secrets are managed instead of living in a local `.env` file, and how the team would know if something breaks in production. Without this work, the application cannot be demonstrated, shared, or evaluated as a deployed system — only as source code.
+Re-platform each part onto the managed service that matches it, adapting the code where needed:
 
-### 5. Target Users
+- Request/response services → AWS Lambda with HTTP API (payload 2.0) handlers, a separate jobs handler and a migration handler that reads `DATABASE_SECRET_ID`; internal calls become direct Lambda invokes instead of HTTP through an application gateway.
+- Real-time chat → ECS Fargate behind an ALB, REST routed through API Gateway.
+- PostgreSQL → Aurora Serverless v2, one logical database per service, data restored from the local dumps.
+- AI → Amazon Bedrock for chat, vision and embeddings; OpenSearch Serverless for vectors; long generations queued on SQS and processed by a worker.
+- Timers → EventBridge Scheduler schedules invoking jobs functions.
+- Frontend → S3 static website (CloudFront and HTTPS as the next step).
 
-- End users of the Fitness Assistant application (people tracking workouts, goals and receiving AI-assisted coaching suggestions).
-- The FCAJ mentor/evaluator reviewing this internship's technical execution.
-- Future contributors who may extend the AWS deployment (e.g., adding Auto Scaling, CI/CD, or Amazon Bedrock).
+#### Benefits
 
-### 6. Overall Objective
+The DEV environment pays mostly for what it uses, there are no servers to patch for six of the seven services, the AI coach no longer needs a model host, networking is private and permissions are least-privilege by default, and the deployment is captured in a runbook that can be repeated by hand or turned into a pipeline.
 
-Deploy a working, minimum viable version of Fitness Assistant on AWS that reproduces its core, verified functionality (auth, user profiles, exercises/workouts, AI coaching) on managed and self-managed AWS infrastructure, with basic monitoring, alerting, and documented security practices — and document every step so it can be reproduced and reviewed.
+### 3. Solution Architecture {#architecture}
 
-### 7. Specific Objectives
+The diagram shows the deployed components and how requests flow between them. The full description — request flows, service selection, security, scalability and cost — is in [Workshop 5.2](../5-Workshop/5.2-Architecture-Description/).
 
-1. Containerize the MVP services with production-oriented Dockerfiles (multi-stage builds, no dev watchers, no secrets baked into images).
-2. Design and provision a VPC with public/private subnets and least-privilege Security Groups.
-3. Migrate the PostgreSQL database from a Docker container to Amazon RDS for PostgreSQL, applying the application's own Prisma migrations per service.
-4. Store and version container images in Amazon ECR.
-5. Deploy the MVP stack on Amazon EC2 with Docker Compose, behind a reverse proxy.
-6. Set up centralized logging and alerting with Amazon CloudWatch and Amazon SNS.
-7. Apply IAM least privilege and AWS Secrets Manager for credentials instead of plaintext `.env` files on the host.
-8. Document, test, and clean up the deployment in a reproducible, evidence-based way.
+{{< mermaid >}}
+graph LR
+    User[Browser]
 
-### 8. MVP Scope
+    subgraph Edge ["Public AWS endpoints"]
+        FE["Amazon S3<br/>static website"]
+        GW["API Gateway<br/>HTTP API"]
+    end
 
-{{% notice warning %}}
-This section was revised after the source repository progressed during the internship: `gym-service` and `payment-service` did **not** have a production Dockerfile when this Proposal was first drafted, which was the original stated reason for excluding them (see [Section 9](#9-out-of-mvp-scope)). Both now do. This Proposal was updated to include them in MVP scope rather than leave a now-inaccurate exclusion reason in place.
-{{% /notice %}}
+    subgraph VPC ["VPC fitness-assistant-dev-vpc, ap-southeast-1"]
+        subgraph Public ["Public subnets"]
+            ALB["Chat ALB<br/>HTTP 80"]
+            NAT["NAT Gateway"]
+        end
+        subgraph Private ["Private app subnets"]
+            L["Lambda HTTP functions<br/>Auth, User, Fitness, Gym, Payment, AI"]
+            J["Lambda jobs functions"]
+            W["Lambda AI Worker"]
+            C["ECS Fargate<br/>Chat Service, port 3005"]
+            VPCE["Interface VPC endpoints<br/>Secrets Manager, OpenSearch"]
+        end
+        subgraph DB ["Private DB subnets"]
+            A[("Aurora PostgreSQL Serverless v2<br/>7 logical databases")]
+        end
+    end
 
-The MVP includes the services that are both core to the application's primary user journeys and have a production-oriented Dockerfile in the source repository:
+    SQS[["Amazon SQS<br/>ai-tasks + DLQ"]]
+    EB[["EventBridge Scheduler<br/>13 schedules"]]
+    BR[["Amazon Bedrock<br/>Nova Pro, Cohere Embed"]]
+    OS[("OpenSearch Serverless<br/>vector collection")]
 
-- **Frontend** (`frontend/web`, React + Vite, built and served via Nginx).
-- **Application Gateway** (`backend/gateway`) — an Express/Node.js reverse-proxy-style service internal to the application. This is **not** the AWS-managed Amazon API Gateway service; see the note in [Section 12](#12-solution-architecture).
-- **Auth Service** (`backend/services/auth-service`) — registration, login, JWT issuance/verification.
-- **User Service** (`backend/services/user-service`) — profiles and InBody records (including the Anthropic Claude Vision extraction feature).
-- **Fitness Service** (`backend/services/fitness-service`) — exercises, workout plans, workout logs.
-- **AI Service** (`backend/services/ai-service`) — Ollama-backed chat/coaching and Qdrant-backed RAG retrieval.
-- **Payment Service** (`backend/services/payment-service`) — wallet top-ups and PT-contract payments, `PAYMENT_PROVIDER=MOCK` for this MVP (no real payment gateway credentials are provisioned).
-- **Gym Service** (`backend/services/gym-service`) — gym/PT listings, depends on Payment Service.
-- **PostgreSQL** — migrated to Amazon RDS (database-per-service: `gymcoach_auth`, `gymcoach_user`, `gymcoach_fitness`, `gymcoach_ai`, `gymcoach_payment`, `gymcoach_gym`, matching the application's existing Prisma schema design).
-- **Redis** — kept as a container on the EC2 host for the MVP (BullMQ queues, rate limiting); Amazon ElastiCache is listed as future work, not MVP.
-- **Qdrant** and **Ollama** — kept as containers on the EC2 host for the MVP; both have real CPU/RAM requirements that must be sized honestly (see [Section 11](#11-non-functional-requirements)).
+    User --> FE
+    User -->|REST with JWT| GW
+    User -->|Socket.IO| ALB
+    GW --> L
+    GW -->|chat REST routes| ALB
+    ALB --> C
+    L --> A
+    J --> A
+    W --> A
+    C --> A
+    L -->|SendMessage| SQS
+    SQS --> W
+    EB --> J
+    L --> NAT
+    W --> NAT
+    J --> NAT
+    NAT --> BR
+    L --> VPCE
+    W --> VPCE
+    J --> VPCE
+    VPCE --> OS
+{{< /mermaid >}}
 
-### 9. Out of MVP Scope
+- **Edge and frontend** — the React build is served from an S3 website endpoint. API Gateway (HTTP API) is the single REST entry point with explicit route prefixes and throttling on the AI routes; Socket.IO goes to the Chat ALB.
+- **Authentication** — the Auth service issues JWTs; each service verifies tokens itself (the AI service by invoking Auth). Service-to-service calls use direct Lambda invokes with a shared internal secret, and `/internal/*` routes are never published.
+- **Application** — 12 Lambda functions (Node.js 22.x, 1024 MB) for the six services' HTTP APIs, their scheduled jobs and the AI worker, all in two private application subnets.
+- **Real time** — the Chat service runs as one Fargate task (0.5 vCPU / 1 GB) in the private subnets behind an internet-facing ALB with stickiness and a 120-second idle timeout.
+- **Asynchronous processing** — SQS (with a dead-letter queue) feeds the AI worker; 13 EventBridge Scheduler schedules drive settlements, reminders, payouts, reconciliation and knowledge ingestion.
+- **AI** — Bedrock Nova Pro through the APAC inference profile for chat and vision, Cohere Embed Multilingual v3 for 1024-dimension embeddings, OpenSearch Serverless (0–2 OCU) as the vector store.
+- **Data** — Aurora PostgreSQL Serverless v2 with seven logical databases; S3 for private uploads, deployment artifacts and migration dumps; Secrets Manager for credentials.
+- **Network and security** — VPC `10.0.0.0/16` with private app and DB subnets, one NAT Gateway, interface endpoints for Secrets Manager and OpenSearch, security groups that reference each other, one IAM role per function or task.
+- **Observability** — CloudWatch Logs for every function and task; alarms are planned.
 
-- **Chat Service** — present in the source repository, but adds real-time (Socket.IO) infrastructure complexity beyond this MVP's networking/monitoring scope. Deferred to Future Development.
-- ~~Gym Service, Payment Service~~ — **moved into MVP scope** (see [Section 8](#8-mvp-scope)); both gained a production Dockerfile since this Proposal was first drafted.
-- **Amazon S3 for uploads** — the application currently stores uploaded files (InBody photos, profile photos, PT application documents) on local disk via `multer`. No S3 client exists in the source code today. Wiring S3 in would require an actual code change to `user-service`, which is out of scope unless implemented and verified. Marked **Planned**, not **Implemented**.
-- **Amazon ElastiCache for Redis** — Optional; Redis runs as a container for the MVP.
-- **Amazon Bedrock** — Optional future replacement or complement to the self-hosted Ollama LLM.
-- **Amazon CloudFront, Route 53, Application Load Balancer, Auto Scaling** — Optional/Future, once the single-EC2 MVP is validated.
-- **CI/CD pipeline, Infrastructure as Code (Terraform/CDK)** — Future work; the MVP is built manually and documented step by step for learning purposes.
+### 4. AWS Services Used {#services}
 
-### 10. Functional Requirements
+| Service | Role in the system |
+|---|---|
+| Amazon S3 | Static frontend hosting; private uploads (presigned URLs); Lambda deployment artifacts; database migration dumps |
+| Amazon API Gateway (HTTP API) | Public REST entry point with explicit routes, CORS, AI route throttling and an HTTP proxy to the Chat ALB |
+| AWS Lambda | Auth, User, Fitness, Gym, Payment and AI services (HTTP, jobs and worker functions) and per-service schema migrations |
+| Amazon ECS on AWS Fargate | Chat service (REST + Socket.IO) and the one-shot database migrator task |
+| Amazon ECR | Private container images for Chat and the migrator |
+| Elastic Load Balancing (ALB) | Socket.IO/WebSocket entry for Chat, `/health` checks, stickiness, rules hiding internal paths |
+| Amazon Aurora PostgreSQL Serverless v2 | Relational data for all services, one logical database each |
+| Amazon Bedrock | Nova Pro for chat and vision; Cohere Embed Multilingual v3 for embeddings |
+| Amazon OpenSearch Serverless | Vector search for RAG and knowledge retrieval |
+| Amazon SQS | AI task queue and dead-letter queue |
+| Amazon EventBridge Scheduler | Schedules for settlements, reminders, payouts, reconciliation and AI jobs |
+| AWS Secrets Manager | Database credentials, the Chat database URL and the shared internal secret |
+| AWS IAM | Per-function execution roles, ECS task/execution roles, scheduler roles |
+| Amazon VPC | Network isolation: subnets, route tables, security groups |
+| NAT Gateway and Internet Gateway | Outbound internet access for the private subnets |
+| VPC interface endpoints | Private access to Secrets Manager and OpenSearch Serverless |
+| Amazon CloudWatch Logs | Logs for every function, the Chat task and the migrator |
+| AWS Marketplace | One-time subscription to the Cohere model on Bedrock |
 
-| ID | Requirement | Source |
-| --- | --- | --- |
-| FR-1 | Users can register and log in | `auth-service` |
-| FR-2 | Users can view/update their profile | `user-service` |
-| FR-3 | Users can upload an InBody photo and receive extracted body-composition metrics | `user-service` (via Anthropic Claude Vision) |
-| FR-4 | Users can browse an exercise catalog and workout plans | `fitness-service` |
-| FR-5 | Users can log completed workouts | `fitness-service` |
-| FR-6 | Users can receive AI-assisted coaching suggestions grounded in retrieved knowledge (RAG) | `ai-service` (Ollama + Qdrant) |
-| FR-7 | All API traffic is authenticated via JWT, verified centrally by the gateway | `backend/gateway` + `auth-service` |
-| FR-8 | Users can browse gyms/PTs and view listings | `gym-service` |
-| FR-9 | Users can top up their wallet and pay for a PT contract (mock provider for this MVP) | `payment-service` |
+### 5. Component Design {#components}
 
-### 11. Non-Functional Requirements
+- **Frontend (React/Vite)** — S3 website; REST calls to API Gateway with a Bearer token; Socket.IO to the Chat ALB; user-facing handling of 429/408/504 from the AI routes.
+- **Auth service** — registration, verification, login, refresh, logout, user administration; database `fitness_assistant`.
+- **User service** — profile, onboarding, InBody records, PT applications, contracts, sessions, availability, notifications; uploads to private S3 prefixes; jobs: session settlement, auto-confirm, reschedule expiry; database `fitness_assistant_user`.
+- **Fitness service** — exercises, workouts, nutrition, food, training cycles, coach data, equipment, imports/exports, templates, statistics; jobs: upcoming and unfinished workout reminders; database `fitness_assistant_fitness`.
+- **Gym service** — gyms, PT listings, owner and admin tools, collaborations, signed QR check-in; jobs: membership payouts, referral settlement; database `fitness_assistant_gym`.
+- **Payment service** — payments, wallet, PT wallet, withdrawals, admin payments, provider callbacks (VNPAY by default; MoMo, PayOS, ZaloPay supported); job: reconciliation every 5 minutes; database `fitness_assistant_payment`.
+- **AI service** — HTTP function (`/ai`, `/plans`, `/marketplace`, `/admin/ai`), SQS worker for long generations, jobs function for auto-accept and nightly knowledge ingestion; Bedrock and OpenSearch; database `fitness_assistant_ai`.
+- **Chat service** — conversations and real-time messaging on Fargate; database `fitness_assistant_chat`.
+- **Migration** — one migration function per service (Prisma `migrate deploy`) and a Fargate task that restored the local data.
+- **Aurora cluster** — `fitness-assistant-dev-aurora`, seven logical databases.
+- **Vector collection** — `fitness-assistant-dev-ai-vectors` with the `exercises`, `fitness_knowledge`, `fitness_faq` and `fitness_evidence` indexes (1024 dimensions, FAISS/HNSW, cosine similarity).
 
-- **Availability:** single-EC2 MVP has no built-in redundancy; documented as a known MVP limitation, not claimed as highly available.
-- **Security:** least-privilege IAM, private RDS, no secrets committed to source or baked into images, restricted SSH access.
-- **Performance/Sizing:** the AI service depends on Ollama (self-hosted LLM) and Qdrant, which realistically require more CPU/RAM than a Free Tier `t3.micro` instance. This must be sized and tested, not assumed.
-- **Observability:** logs and key metrics must reach CloudWatch, with alarms routed through SNS to email.
-- **Cost predictability:** resources must be right-sized and stoppable; no resource should run unmonitored for cost.
-- **Data safety:** database backups enabled; migrations run through the application's own Prisma tooling, not hand-written SQL.
+### 6. Technical Implementation {#implementation}
 
-### 12. Solution Architecture
+#### Implementation phases
 
-{{% notice warning %}}
-`backend/gateway` is an **application-level** Node.js/Express service (its own internal HTTP router and reverse proxy) that ships as part of the Fitness Assistant source code. It is **not** the AWS-managed **Amazon API Gateway** service. This MVP does not use Amazon API Gateway; `backend/gateway` runs as a container on EC2, and any use of Amazon API Gateway is listed only under Future Development.
-{{% /notice %}}
+1. **Analysis and code adaptation** — audit every service; add Lambda HTTP, jobs and migration handlers; read credentials through `DATABASE_SECRET_ID`; replace internal HTTP calls with direct Lambda invokes; add SQS, Bedrock and OpenSearch providers; build artifacts that bundle the Prisma Linux engine.
+2. **Shared foundation** — VPC, subnets, security groups, NAT and Internet Gateway, Aurora Serverless v2, Secrets Manager endpoint.
+3. **First service and entry points** — Auth Lambda, API Gateway with explicit routes, S3 website, CORS.
+4. **Core services** — User, Fitness, Gym and Payment with their jobs functions and schedules, then the Gym ↔ Payment wiring.
+5. **AI** — Bedrock models, SQS worker, jobs function, OpenSearch Serverless, knowledge schedules, AI routes with throttling, Payment → AI activation.
+6. **Real time and data** — Chat on ECS Fargate behind an ALB; restore of the 7 local databases with a Fargate migrator.
+7. **Validation and hardening** — end-to-end tests, alarms, CI/CD, HTTPS with CloudFront, cost "sleep" automation.
 
-![Fitness Assistant AWS architecture diagram — TODO: this PNG is still a placeholder; export it from the .drawio source below before submission](/images/workshop/architecture/fitness-assistant-aws-architecture.png)
+The exact console steps for phases 2–6, with screenshots and IAM policies, are in the [Deployment Guide](../5-Workshop/5.4-Deployment-Guide/).
 
-Downloadable source: [fitness-assistant-aws-architecture.drawio](/files/architecture/fitness-assistant-aws-architecture.drawio) — this is now a real diagram (AWS4 icon set: EC2, RDS, Internet Gateway, ECR, IAM Role, Secrets Manager, CloudWatch, SNS), matching the MVP topology in this section. **TODO remaining:** open it in draw.io, verify every icon rendered, fill in the real AWS Region, and export the PNG above (see `static/files/architecture/README.md`).
+#### Technical requirements
 
-**Current MVP architecture (planned):**
+- **Compute** — Lambda Node.js 22.x on x86_64 with 1024 MB; timeouts of 30 s for HTTP, 1 minute for jobs, 300 s for the AI worker, 600 s for AI jobs and up to 15 minutes for migrations; Fargate task of 0.5 vCPU / 1 GB.
+- **API** — HTTP API with payload format 2.0; no `/internal/*`, `/metrics` or catch-all routes; throttling of 1 request/s (burst 3) on the AI routes.
+- **Data** — Prisma migrations applied per service; one logical database per service; SQS visibility timeout 600 s with a DLQ after 2 receives.
+- **AI** — Bedrock in `ap-southeast-1` through the APAC inference profile; 1024-dimension embeddings; OpenSearch FAISS/HNSW with cosine similarity.
+- **Security** — least-privilege IAM per function; credentials in Secrets Manager; private subnets and security-group-to-security-group rules; no secrets in artifacts, images or documentation.
+- **Operations** — CloudWatch Logs; every manual step documented, to be replaced by a CI/CD pipeline.
 
-```
-Internet
-   │
-   ▼
-EC2 (public subnet) — Nginx reverse proxy
-   ├── Frontend container (React build, served by Nginx)
-   └── Application Gateway container (backend/gateway, Node.js/Express)
-             │  (JWT verification via HTTP call to auth-service)
-             ▼
-   ┌─────────┴──────┬───────────┬───────────┬─────────────┬─────────────┐
-   ▼                 ▼           ▼           ▼             ▼             ▼
-Auth Service    User Service  Fitness    AI Service   Payment       Gym Service
-(container)     (container)  Service    (Ollama +     Service       (container)
-                              (container) Qdrant,      (container)
-                                          containers)
-   │                 │           │           │             │             │
-   └─────────────────┴───────────┴───────────┴─────────────┴─────────────┘
-                                  │
-                                  ▼
-                   Amazon RDS for PostgreSQL (private subnet)
-                                  │
-                          Amazon CloudWatch  ──►  Amazon SNS ──► Email
-```
+### 7. Timeline & Milestones {#timeline}
 
-Redis, Qdrant and Ollama run as containers alongside the application containers on the same EC2 host for the MVP. Amazon ECR stores all container images; AWS Secrets Manager stores database credentials, JWT secrets and the `ANTHROPIC_API_KEY`; an IAM Role attached to the EC2 instance grants least-privilege access to ECR, CloudWatch and Secrets Manager.
+The internship runs from 3 August to 19 October 2026. Dates below are taken from the resources' creation dates in the deployment runbook.
 
-### 13. Data Flow Description
+| Phase | Period | Main activities |
+|---|---|---|
+| 1. Learning and analysis | August 2026 (weeks 1–3) | AWS fundamentals (FCJ modules), application audit, local run, deployment design |
+| 2. Foundation and first service | 26–27 August 2026 | VPC and NAT, Aurora, Auth Lambda, API Gateway, S3 frontend; User database and role |
+| 3. Core services | 2–8 September 2026 | Fitness (2 Sep), Gym and Payment (8 Sep) with their jobs and schedules |
+| 4. AI | 15 September 2026 | Bedrock, SQS worker, jobs, OpenSearch Serverless, knowledge schedules, AI routes |
+| 5. Chat and data | 22–23 September 2026 | Chat on ECS Fargate behind an ALB; migrator image and restore of the 7 databases |
+| 6. Validation and report | October 2026 (weeks 10–12) | End-to-end tests and fixes, CI/CD, alarms, cost controls, report and clean-up |
 
-1. A browser request reaches the EC2 host's Nginx reverse proxy.
-2. Static frontend assets are served directly; API calls are forwarded to the `backend/gateway` container.
-3. The gateway extracts the `Authorization: Bearer <token>` header and calls `auth-service`'s `/auth/verify` endpoint to validate it, then forwards the request downstream with `x-user-id`/`x-user-email`/`x-user-role` headers.
-4. The downstream service (user/fitness/ai) processes the request, reading/writing its own logical database on the shared Amazon RDS PostgreSQL instance via Prisma.
-5. `ai-service` additionally queries Qdrant for relevant context and calls the Ollama container's `/api/chat` endpoint to generate a response; `user-service` calls the external Anthropic API for InBody photo extraction when that feature is used.
-6. Application and container logs are shipped to Amazon CloudWatch Logs via the CloudWatch Agent; key metrics trigger CloudWatch Alarms that publish to an Amazon SNS topic, which emails the on-call/reviewer.
+### 8. Budget Estimation {#budget}
 
-### 14. AWS Services
+Monthly estimate for the DEV environment in `ap-southeast-1` running 24×7 with light test traffic. Figures are approximate on-demand list prices and change over time — confirm them with the [AWS Pricing Calculator](https://calculator.aws/); the account's real bill in Cost Explorer is the reference.
 
-| Service | Role | Reason for Choosing | Status |
-|---------|------|----------------------|--------|
-| Amazon EC2 | Hosts the Docker Compose stack for the MVP | Simplest compute model to learn container deployment fundamentals before adopting ECS/EKS | Planned |
-| Amazon ECR | Stores versioned container images per service | Native integration with EC2 IAM roles; avoids Docker Hub rate limits | Planned |
-| Amazon RDS for PostgreSQL | Managed database, replacing the Docker `postgres` container | Automated backups, private networking, matches the app's existing PostgreSQL/Prisma design | Planned |
-| Amazon VPC | Network isolation, public/private subnets | Required foundation for least-privilege network design | Planned |
-| AWS IAM | Roles/policies for EC2 access to ECR, CloudWatch, Secrets Manager | Avoids embedding long-lived AWS credentials on the host | Planned |
-| AWS Secrets Manager | Stores DB credentials, JWT secrets, `ANTHROPIC_API_KEY` | Avoids plaintext `.env` files on the EC2 host | Planned |
-| Amazon CloudWatch | Logs, metrics, dashboards, alarms | Centralized observability without adding a third-party tool | Planned |
-| Amazon SNS | Email alerting from CloudWatch Alarms | Simple, native notification path for an MVP | Planned |
-| Amazon S3 | Future storage for user-uploaded photos/documents | Not yet integrated in the application source; requires a code change | Planned |
-| Amazon ElastiCache for Redis | Future managed replacement for the Redis container | Not required for MVP; Redis container is sufficient at this scale | Optional |
-| Amazon Bedrock | Future managed alternative/complement to self-hosted Ollama | Would remove the need to size EC2 for an embedded LLM | Optional |
-| Amazon CloudFront | Future CDN/edge caching for the frontend | Not required until there is real external traffic | Optional |
-| Amazon Route 53 | Future custom domain / DNS management | No domain registered yet for this project | Optional |
-| Elastic Load Balancing | Future load balancing once more than one EC2 host exists | Single-host MVP does not need it yet | Optional |
-| AWS CDK / Terraform | Future Infrastructure as Code | MVP is built manually for learning purposes first | Optional |
+| Cost group | Estimated configuration | Monthly cost (USD) |
+|---|---|---|
+| NAT Gateway | 1 gateway × 730 h, plus data processed | ~43 + data |
+| Aurora PostgreSQL Serverless v2 | 0.5 ACU floor × 730 h (≈365 ACU-hours), small storage | ~45–60 |
+| ECS Fargate (Chat) | 0.5 vCPU + 1 GB × 730 h | ~22 |
+| Application Load Balancer | 1 ALB × 730 h, low LCU usage | ~20 |
+| Public IPv4 addresses | NAT Elastic IP + 2 ALB addresses × 730 h | ~11 |
+| Interface VPC endpoints | Secrets Manager and OpenSearch, 2 AZs each | ~30–40 |
+| OpenSearch Serverless (NextGen) | 0–2 OCU, scales to 0 when idle | depends on active hours |
+| Amazon Bedrock | Nova Pro and Cohere Embed, per token, test volume | ~1–10 |
+| AWS Lambda | ~40,000 scheduled invocations + test traffic, 1 GB | ~0 (free tier) |
+| API Gateway (HTTP API) | < 1 million requests | ~0–1 |
+| Secrets Manager | 9 secrets | ~4 |
+| S3, ECR, CloudWatch Logs, SQS, EventBridge | small volumes | ~2–5 |
 
-### 15. Reasoning Per Service (Summary)
+**Estimated total:** about **USD 190–230 per month** if everything runs 24×7. With the planned sleep mode — Aurora at 0 ACU, the Chat service at 0 tasks and the NAT Gateway removed outside test sessions — about **USD 60–90 per month**. The fixed hourly items (NAT, ALB, Fargate, Aurora floor, endpoints, IPv4) dominate; the usage-based services cost almost nothing at DEV volume.
 
-Each "Planned" service above was chosen because it directly replaces a concrete gap in the current Docker Compose setup (a container-only Postgres, a `.env` file for secrets, no logging pipeline) rather than because it is a "default AWS stack." Each "Optional" service was deliberately excluded from MVP scope because the current application does not yet require it — for example, S3 is optional only because no S3 client exists in the source code, not because file storage is unimportant.
+### 9. Risk Assessment {#risks}
 
-### 16. Security
+| Risk | Impact | Probability | Mitigation strategy |
+|---|---|---|---|
+| Idle DEV resources keep billing (NAT, Aurora floor, Fargate, ALB, endpoints) | Medium | High | Sleep mode, AWS Budgets alert, dependency-ordered [clean-up](../5-Workshop/5.7-Cleanup/) |
+| Runaway Bedrock usage from a client or frontend bug | Medium | Medium | Route throttling on the AI routes, 429 handling in the frontend, SQS dead-letter queue |
+| A secret leaks through screenshots, documents or function configuration | High | Low–Medium | Secrets Manager for credentials, pixel-level redaction of evidence, moving internal secrets from Lambda configuration to Secrets Manager |
+| Manual deployments drift or cannot be repeated | Medium | High | Step-by-step runbook with screenshots; CI/CD planned |
+| Data migration overwrites or corrupts data | High | Low | Read-only preflight, dumps kept in a private versioned bucket, migration history preserved, foreign-key and row-count verification |
+| Single Chat task and HTTP-only endpoints | Medium | Medium | Acceptable for DEV; shared Socket.IO adapter before scaling; domain, ACM certificate and CloudFront for HTTPS |
 
-- IAM least privilege: EC2's instance role is scoped to only the ECR/CloudWatch/Secrets Manager actions it actually needs.
-- RDS is not publicly accessible; only the application Security Group may reach port 5432.
-- SSH access (port 22) is restricted to a specific IP/CIDR, never `0.0.0.0/0`, in the recommended design.
-- Secrets (`JWT_SECRET`, `DATABASE_URL` credentials, `ANTHROPIC_API_KEY`) are stored in AWS Secrets Manager, not committed to source or baked into Docker images.
-- Existing application-level protections are preserved and not weakened: JWT-based auth, gateway-side rate limiting (`express-rate-limit`), bcrypt password hashing.
+Costs and errors are reviewed in Cost Explorer and CloudWatch Logs after each test session until alarms are in place.
 
-### 17. Scalability
+If something goes wrong, the frontend can be rolled back from its S3 backup, a Lambda can be re-uploaded with its previous artifact, a Fargate service can be pointed back to an earlier task definition revision, and the databases can be rebuilt from the migration dumps.
 
-The MVP intentionally runs on a single EC2 host to keep the learning scope manageable. The architecture is designed so that, if traffic grows, the application (gateway) and stateless services could move to Amazon ECS/Fargate behind an Application Load Balancer with Auto Scaling, without changing the RDS/Secrets Manager/ECR foundations already built.
+### 10. Expected Outcomes {#outcomes}
 
-### 18. Monitoring
+**Immediate results:** a working DEV environment on AWS for the whole application — frontend, six Lambda services, real-time chat, managed AI and the restored data — with a reproducible deployment guide and recorded verification results ([Workshop 5.5](../5-Workshop/5.5-Test-Validation/)).
 
-CloudWatch Logs (via CloudWatch Agent) for container/application logs, CloudWatch Metrics/Alarms for EC2 CPU, EC2 status checks, and RDS CPU/connections/storage, with SNS email notification. Full detail in [Workshop 5.12](../5-Workshop/5.12-Monitoring-Alerting/).
+**Technical learning:** practical experience with serverless design on Lambda, API Gateway and EventBridge; containers on ECS Fargate and ECR; Aurora Serverless and data migration; managed AI with Bedrock and OpenSearch Serverless; and the network and IAM boundaries that keep all of it private and least-privilege.
 
-### 19. Backup and Recovery
-
-Amazon RDS automated backups with a defined retention window; manual snapshot before any risky schema change. EBS volume on EC2 is not treated as a durable data store (application state lives in RDS, not on the host).
-
-### 20. 12-Week Timeline
-
-| Week | Focus |
-|------|-------|
-| 1 | Research, requirements analysis, run the app locally |
-| 2 | Codebase and microservices analysis |
-| 3 | Production Dockerfiles and image optimization |
-| 4 | AWS architecture design |
-| 5 | Networking (VPC, subnets, routing, Security Groups) |
-| 6 | Amazon RDS for PostgreSQL |
-| 7 | Amazon ECR and IAM roles |
-| 8 | Amazon EC2 deployment |
-| 9 | Reverse proxy, service wiring, file storage decision |
-| 10 | CloudWatch and SNS monitoring |
-| 11 | Testing, security and cost review |
-| 12 | Clean-up and final report |
-
-See the full [Worklog](../1-Worklog/) for weekly detail.
-
-### 21. Cost Estimate
-
-{{% notice warning %}}
-AWS pricing changes by Region and over time. Verify all figures with the [AWS Pricing Calculator](https://calculator.aws/) before any real deployment. The figures below are placeholders for planning only, not a quote.
-{{% /notice %}}
-
-- **AWS Region (planned):** `[TODO_AWS_REGION]`
-- **Estimated components:** one EC2 instance sized for the AI stack (see [Workshop 5.9](../5-Workshop/5.9-EC2-Deployment/) for sizing notes), one small Amazon RDS PostgreSQL instance, ECR storage for a handful of images, CloudWatch Logs/Alarms, SNS email notifications.
-- **TODO:** Insert the actual AWS Pricing Calculator estimate link and monthly figure once the final instance types are chosen.
-- Free Tier does **not** necessarily cover this workload in full — the AI stack (Ollama + Qdrant) is unlikely to run acceptably on a Free Tier-eligible instance type; this must be verified, not assumed.
-
-### 22. Risks
-
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| EC2 instance under-sized for Ollama/Qdrant | High | High | Right-size the instance based on measured load; document actual CPU/RAM usage (Week 8/11) |
-| Secrets accidentally committed to git | Medium | High | `.gitignore` for `.env`/keys, pre-commit review, Secrets Manager for runtime secrets |
-| ~~`gym-service`/`payment-service` lacked production Dockerfiles~~ | ~~High~~ Resolved | ~~Low~~ | **Resolved during the internship**: both services gained a production Dockerfile in the source repo and were moved from Out of MVP Scope into MVP Scope (see [Section 8](#8-mvp-scope)); this row is kept, not deleted, as a record of the actual scope change |
-| Cost overrun from forgotten running resources | Medium | Medium | Stop/terminate resources when not in use; AWS Budgets alert (recommended, optional) |
-| RDS migration inconsistency (`user-service` does not auto-run `prisma migrate deploy`) | Medium (found) | Medium | **Found and fixed during the internship**: `user-service`'s production Dockerfile was the only one of the six MVP backend services that did not run `prisma migrate deploy` on container start — verified against the other five, then corrected to match. See [Week 3 Worklog](../1-Worklog/1.3-Week3/) for the discovery/fix evidence. |
-| Single EC2 host = single point of failure | High (by MVP design) | Medium | Documented as a known MVP limitation; Auto Scaling/ALB listed as future work |
-
-### 23. Success Criteria
-
-- The MVP services listed in [Section 8](#8-mvp-scope) are reachable end to end from a browser, backed by Amazon RDS.
-- CloudWatch Alarms trigger and notify via SNS email at least once during testing (verified, not assumed).
-- No secrets are present in the Git repository or in container images.
-- All AWS services claimed as "Implemented" in this report are backed by evidence in the [Workshop](../5-Workshop/) section.
-
-### 24. Deliverables
-
-- This bilingual report (Worklog, Proposal, Blogs, Events, Workshop, Self-evaluation, Feedback).
-- Production Dockerfile examples for the MVP services.
-- A `docker-compose.aws.example.yml` describing the EC2 deployment topology.
-- Architecture diagram (draw.io source + exported image) — TODO, pending final implementation.
-- IAM policy and Security Group examples with placeholder ARNs/account IDs.
-
-### 25. Future Development
-
-- Amazon ECS/Fargate with an Application Load Balancer and Auto Scaling.
-- Amazon CloudFront + Route 53 for a custom domain and edge caching.
-- Amazon Bedrock as a managed alternative/complement to self-hosted Ollama.
-- Amazon S3 (with a real code change in `user-service`) replacing local-disk uploads.
-- Amazon ElastiCache for Redis, replacing the Redis container.
-- CI/CD pipeline (GitHub Actions) building and deploying on every merge.
-- Infrastructure as Code (Terraform or AWS CDK) instead of manual console steps.
-- Deployment of `chat-service` (real-time Socket.IO infrastructure, real payment gateway credentials for `payment-service` in place of `PAYMENT_PROVIDER=MOCK`).
-
-### 26. References
-
-- FCAJ project rules: https://hcm-rules.awsfcaj.com/3-project/
-- Report template: https://github.com/thienluhoan/fcj-workshop-template
-- Application source code: https://github.com/trmizy/fitness-assistant
+**Longer term:** the same design can grow into a production environment by adding a CI/CD pipeline and infrastructure as code, HTTPS with CloudFront and WAF, CloudWatch alarms, auto scaling for Chat with a shared Socket.IO adapter, and separate DEV/production accounts.

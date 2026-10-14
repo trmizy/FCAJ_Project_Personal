@@ -139,5 +139,5 @@ During this intensive week, I accomplished two major tracks: system performance/
 
 ### Related Workshop Sections:
 
-- [5.6 Network Infrastructure](../../5-Workshop/5.6-Network-Infrastructure/) - VPC design for ECS
-- [5.9 EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/) - Container deployment strategies
+- [5.4.1 Shared network infrastructure](../../5-Workshop/5.4-Deployment-Guide/5.4.1-Shared-Network/) - VPC design for Lambda and ECS
+- [5.2.4 AWS Services and Selection Rationale](../../5-Workshop/5.2-Architecture-Description/5.2.4-AWS-Services-Selection/) - Serverless and container choices

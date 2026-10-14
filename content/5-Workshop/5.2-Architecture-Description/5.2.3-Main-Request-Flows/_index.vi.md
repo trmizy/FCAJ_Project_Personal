@@ -8,34 +8,35 @@ pre: " <b> 5.2.3. </b> "
 
 ### Luồng Core API
 
-Bao gồm Auth, User, Fitness, Gym, Payment, và AI HTTP Lambda.
+Bao gồm Auth, User, Fitness, Gym, Payment và AI HTTP Lambda.
 
-1. Browser load frontend tĩnh từ Amazon S3 website endpoint (`fitness-assistant-frontend-dev-191798898985`).
-2. Frontend gọi Amazon API Gateway (`fitness-assistant-dev-api`, `https://id1iz7upbl.execute-api.ap-southeast-1.amazonaws.com`).
-3. API Gateway route request tới Lambda của service tương ứng (Auth, User, Fitness, Gym, Payment, hoặc AI) dựa trên path.
-4. Với các route cần user đã đăng nhập, Lambda đích tự verify JWT của caller (không qua một bước "auth check" riêng ở API Gateway), và khi cần dữ liệu từ service khác, invoke trực tiếp Lambda của service đó (ví dụ Payment invoke Auth/User để xác định đang billing cho ai), xác thực bằng một internal service secret dùng chung thay vì round-trip JWT lần hai.
-5. Lambda đọc/ghi database logic của chính nó trên cluster Aurora PostgreSQL Serverless dùng chung, truy cập qua private app subnet.
-6. Response trả về qua API Gateway tới frontend.
+1. Browser tải frontend tĩnh từ Amazon S3 website endpoint.
+2. Frontend gọi Amazon API Gateway (`fitness-assistant-dev-api`) kèm `Authorization: Bearer <JWT>`.
+3. API Gateway khớp route (route tường minh cho Auth, một cặp route gốc + greedy route cho mỗi prefix của các service khác) và invoke Lambda của service đó với payload format 2.0. `/internal/*`, `/metrics` và route catch-all `/{proxy+}` không bao giờ được public.
+4. Lambda tự verify JWT — ví dụ AI Lambda invoke Auth Lambda để kiểm tra token và từ chối header `x-user-id` / `x-user-role` giả mạo — nên không cần authorizer riêng ở API Gateway.
+5. Khi request cần service khác, Lambda invoke trực tiếp Lambda của service đó (`lambda:InvokeFunction`), xác thực bằng `INTERNAL_SERVICE_SECRET` dùng chung. Ví dụ: User → Auth, Payment → Auth/User/Gym, Gym → Payment, Payment → AI để kích hoạt dịch vụ cá nhân hoá đã thanh toán.
+6. Lambda đọc/ghi logical database của chính nó trên Aurora qua private app subnet, dùng credential resolve từ Secrets Manager lúc runtime.
+7. Response trả về qua API Gateway tới browser.
 
 ### Luồng Chat
 
-1. Browser kết nối tới DNS name công khai của Chat ALB, qua REST endpoint thông thường hoặc nâng cấp WebSocket Socket.IO.
-2. ALB forward kết nối tới task Chat Service chạy trên ECS Fargate (`fitness-assistant-dev-cluster` / `fitness-assistant-dev-chat-service`), ở container port 3005.
-3. Chuỗi security group chỉ cho phép ALB truy cập task Fargate ở port đó — task không bao giờ truy cập trực tiếp được từ internet.
-4. Chat Service đọc/ghi database Chat trên cùng cluster Aurora.
-5. Khi Chat cần gọi service khác (ví dụ xác nhận identity user), nó invoke Lambda của service đó theo cách giống luồng Core API gọi lẫn nhau.
+1. **REST** (danh sách hội thoại, lịch sử): frontend gọi API Gateway `ANY /chat/{proxy+}` — một HTTP proxy integration chuyển tiếp tới `http://<chat-alb>/chat/{proxy}`.
+2. **Real-time**: frontend mở Socket.IO thẳng tới Chat ALB (`/socket.io/`), HTTP port 80 ở DEV.
+3. ALB chuyển tiếp tới Fargate task ở container port 3005; listener trả 404 cố định cho `/internal/*` và `/metrics` nên các path này không bao giờ tới container. Stickiness của target group giữ client ở cùng một task.
+4. Task chạy trong private app subnet, không có public IP; security group của nó chỉ nhận port 3005 từ security group của ALB.
+5. Chat Service đọc/ghi `fitness_assistant_chat` trên Aurora và invoke Auth/User Lambda qua ECS task role.
 
 {{% notice note %}}
-DEV hiện tại chạy ALB qua HTTP (port 80) thôi — frontend cũng chỉ HTTP ở giai đoạn này (xem [5.2.7](../5.2.7-Cost-Optimization-Cleanup/)), nên chưa có vấn đề mixed-content. Chuyển ALB sang HTTPS được theo dõi như việc cần làm khi có domain và chứng chỉ ACM.
+Ở DEV, ALB chỉ chạy HTTP, giống S3 website endpoint, nên chưa có vấn đề mixed-content. Chuyển cả hai sang HTTPS cần domain và chứng chỉ ACM (xem [5.2.5](../5.2.5-Security-IAM/)).
 {{% /notice %}}
 
-### Luồng xử lý nền (Background Processing)
+### Luồng xử lý nền
 
-1. Các hành động theo lịch (reconciliation schedule của Payment, reminder schedule của Gym và Fitness) được trigger bởi rule Amazon EventBridge Scheduler, mỗi service một rule riêng, thay vì một Lambda cron dùng chung.
-2. Công việc AI bất đồng bộ (chat completion lâu hơn timeout của HTTP Lambda, hoặc job được service khác queue tường minh) đi qua Amazon SQS tới AI Worker Lambda.
-3. AI Worker và các Jobs Lambda của từng service đọc/ghi cùng cluster Aurora như các Lambda ở luồng request — không có database "jobs" riêng.
-4. Luồng AI còn gọi thêm ra Amazon Bedrock (model `apac.amazon.nova-pro-v1:0` cho chat/vision, `cohere.embed-multilingual-v3` cho embeddings) qua NAT Gateway, vì Bedrock được gọi như một AWS API thông thường từ trong VPC.
+1. **Job theo lịch** — 13 schedule EventBridge Scheduler (session settlement, auto-confirm, reschedule expiry, nhắc workout, membership payout, referral settlement, payment reconciliation, AI auto-accept và bốn lượt refresh tri thức hằng đêm) invoke function jobs của từng service với payload `{"job": "<name>"}`. Mỗi service có scheduler role riêng chỉ được invoke đúng function jobs của nó.
+2. **Việc AI dài** — AI HTTP Lambda đưa yêu cầu tạo kế hoạch vào Amazon SQS (`fitness-assistant-dev-ai-tasks`); AI Worker Lambda xử lý từng message một (batch size 1, tối đa 300 giây mỗi message, 2 lần thử trước khi vào dead-letter queue) và frontend poll trạng thái job.
+3. **Nạp tri thức** — AI Jobs Lambda lấy dữ liệu PubMed, RSS, web và local evidence hằng đêm, tạo embedding bằng Cohere Embed Multilingual v3 (1024 chiều) và ghi vào OpenSearch Serverless.
+4. Mọi function AI gọi Amazon Bedrock qua NAT Gateway và truy cập OpenSearch Serverless private qua VPC endpoint, ký request bằng IAM role của chính nó (SigV4).
 
 ### Vì sao có ba luồng riêng thay vì một
 
-Luồng Core API là ví dụ kinh điển phù hợp với Lambda: ngắn, stateless, scale về 0. Luồng Chat không dùng được model đó vì Socket.IO cần một kết nối sống qua nhiều vòng request/response — nên dùng ECS Fargate và ALB thay vì API Gateway và Lambda cho riêng service này. Luồng xử lý nền tồn tại để công việc theo lịch và AI chậm không chặn cửa sổ timeout của một request HTTP user-facing, và để một đợt tăng đột biến request AI được xếp hàng trong SQS thay vì làm throttle luồng API đồng bộ.
+Luồng Core API là ví dụ điển hình phù hợp với Lambda: ngắn, stateless, scale về 0. Luồng Chat không dùng được model đó vì Socket.IO cần kết nối sống qua nhiều vòng request/response — nên dùng ECS Fargate và ALB cho riêng service này. Luồng xử lý nền giữ việc chậm hoặc định kỳ ra khỏi request HTTP của người dùng: API Gateway chỉ cho integration khoảng 30 giây, trong khi tạo kế hoạch có thể mất vài phút và crawl tri thức tới mười phút.

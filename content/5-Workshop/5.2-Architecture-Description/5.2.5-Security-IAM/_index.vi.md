@@ -6,39 +6,61 @@ chapter: false
 pre: " <b> 5.2.5. </b> "
 ---
 
-### Cô lập Network
+### Cô lập network
 
-- Mọi service chạy trên Lambda và Aurora đều nằm trong một VPC (`fitness-assistant-dev-vpc`), không resource nào đặt ở public subnet ngoại trừ chính NAT Gateway.
-- Lambda chạy trong hai private application subnet, chỉ ra internet gián tiếp qua NAT Gateway và Internet Gateway — không có đường inbound trực tiếp nào tới ENI của Lambda từ internet.
-- Aurora nằm trong private DB subnet riêng, gắn với route table **không có** route NAT hay internet nào cả — tầng database không thể truy cập internet, hay bị truy cập từ internet, dù route table khác có bị cấu hình sai.
-- Một security group dùng chung (`fitness-assistant-dev-lambda-sg`) phủ outbound rule cho mọi service chạy trên Lambda; security group của Aurora chỉ chấp nhận kết nối inbound ở port 5432 từ security group Lambda đó (và riêng, từ security group của Chat Fargate task).
-- Chat Fargate task có security group riêng, chỉ truy cập được từ security group của Chat ALB ở container port — không phải từ internet trực tiếp, và không phải từ security group Lambda.
+- Lambda function và Chat Fargate task chỉ chạy trong hai private application subnet; resource duy nhất ở public subnet là NAT Gateway và Chat ALB internet-facing.
+- Aurora nằm trong private DB subnet với route table **không có** route NAT hay internet, nên tầng database không thể ra internet cũng như không thể bị truy cập từ internet.
+- Security group tham chiếu lẫn nhau thay vì dải IP:
 
-### IAM — Least Privilege theo từng Service
+| Security group | Inbound |
+|---|---|
+| `fitness-assistant-dev-aurora-sg` | 5432 chỉ từ `lambda-sg` và `chat-sg` |
+| `fitness-assistant-dev-chat-sg` | 3005 chỉ từ `chat-alb-sg` |
+| `fitness-assistant-dev-chat-alb-sg` | 80 từ internet (DEV, HTTP) |
+| `fitness-assistant-dev-vpce-sg` | 443 từ `lambda-sg` (endpoint Secrets Manager và OpenSearch) |
+| `fitness-assistant-dev-lambda-sg` | không có |
 
-Mỗi Lambda có execution role riêng, thay vì một role dùng chung cho mọi service. Mỗi role được xây từ cùng một bộ AWS managed policy nhỏ (`AWSLambdaBasicExecutionRole` cho CloudWatch Logs, `AWSLambdaVPCAccessExecutionRole` để chạy trong VPC) cộng một inline policy scope đúng những gì service đó cần, ví dụ:
+- OpenSearch Serverless chỉ truy cập được qua VPC endpoint (đã tắt public access).
+- Chat ALB trả 404 cố định cho `/internal/*` và `/metrics`, và API Gateway không có route `/internal/*`, `/metrics` hay catch-all, nên các endpoint service-to-service hoàn toàn không truy cập được từ internet.
 
-- Inline policy của một migration Lambda chỉ cấp `secretsmanager:GetSecretValue` trên đúng ARN secret database của service đó — không phải mọi secret trong account.
-- Một service cần gọi trực tiếp service khác (ví dụ Payment invoke Auth hoặc User) có inline policy scope `lambda:InvokeFunction` chỉ trên đúng ARN function đích mà nó gọi, không phải `lambda:*` wildcard.
-- Role của AI Worker và Jobs Lambda scope đúng secret database AI và đúng SQS queue / EventBridge schedule mà chúng tiêu thụ — không phải quyền SQS hay EventBridge toàn account.
-- Quyền Bedrock được thêm vào role của AI HTTP Lambda bằng cách thêm có chọn lọc các statement Bedrock vào policy sẵn có, không phải thay bằng một managed policy rộng như `AmazonBedrockFullAccess`.
+### IAM — least privilege theo từng function
 
-### Quản lý Secret
+Mỗi function và task có role riêng. Role của Lambda bắt đầu từ `AWSLambdaBasicExecutionRole` (log) và `AWSLambdaVPCAccessExecutionRole` (network VPC), rồi thêm inline policy chỉ đích danh từng resource:
 
-- Mọi credential database nằm trong AWS Secrets Manager, một secret cho mỗi database của service (`fitness-assistant/dev/<service>-database`). Không environment variable nào của Lambda chứa password thô — mỗi Lambda chỉ giữ `DATABASE_SECRET_ID` và resolve giá trị từ Secrets Manager lúc runtime.
-- Các lời gọi service-to-service (ví dụ Payment invoke Auth) xác thực bằng `INTERNAL_SERVICE_SECRET` dùng chung, tách biệt khỏi bất kỳ JWT end-user nào, để một lời gọi nội bộ không thể bị replay như thể đến từ một user đã đăng nhập.
-- Một secret riêng, `CHECKIN_TOKEN_SECRET`, ký token QR check-in của Gym Service — cố ý khác giá trị với `INTERNAL_SERVICE_SECRET`, để lộ một cái không kéo theo lộ cái kia.
-- Credential của payment provider (VNPAY, và MoMo/PayOS/ZaloPay khi thêm dần) theo cùng pattern: lưu dưới dạng secret, tham chiếu bằng ID, không bao giờ dán vào chat, tài liệu, hay source control.
+| Nhu cầu | Cách giới hạn |
+|---|---|
+| Credential database | `secretsmanager:GetSecretValue` chỉ trên ARN secret của chính service đó |
+| Gọi service khác | `lambda:InvokeFunction` trên đúng ARN function đích (ví dụ Payment → Auth, User, Gym, AI), không bao giờ `lambda:*` |
+| Upload private | `s3:PutObject/GetObject/DeleteObject` chỉ trên ba prefix của bucket upload (`profile-photos/`, `pt-applications/`, `contracts/`), không có `s3:ListBucket` |
+| Hàng đợi AI | HTTP Lambda: `sqs:SendMessage`; Worker: `ReceiveMessage`, `DeleteMessage`, `GetQueueAttributes` — trên đúng một queue |
+| Bedrock | `bedrock:InvokeModel` trên APAC Nova Pro inference profile, trên foundation model Nova Pro **chỉ khi gọi qua profile đó** (IAM condition), và trên Cohere Embed Multilingual v3 — không có `AmazonBedrockFullAccess`, không có quyền streaming |
+| OpenSearch | `aoss:APIAccessAll` trên đúng ARN collection, cộng data access policy cấp quyền đọc/ghi/tạo index cho ba AI role nhưng không có `DeleteIndex` |
+| Schedule | Mỗi service một scheduler role, trust `scheduler.amazonaws.com`, chỉ được invoke function jobs của service đó |
+| ECS | Execution role (pull image, ghi log, inject hai secret của Chat) tách khỏi task role (chỉ invoke Auth/User) |
+| Task migration | Chỉ đọc prefix dumps của bucket migration và credential database |
 
-### Khoảng trống bảo mật đã biết (mở, không giấu)
+Subscription Marketplace cho Cohere được admin chấp nhận một lần; role runtime không có quyền `aws-marketplace:*`.
 
-Nhất quán với [Definition of Done](../../5.1-Overview/) của báo cáo này, các mục dưới đây được theo dõi công khai thay vì ngầm bỏ qua:
+### Secret
 
-- **Xoay vòng credential ADMIN** — hoãn lại. Không phải blocker cho môi trường DEV hiện tại, nhưng bắt buộc trước khi release rộng hơn.
-- **Xử lý nốt seed account còn lại** — 12 seed account từ lần load dữ liệu ban đầu vẫn cần xử lý.
-- **HTTPS** — cả frontend (S3 website endpoint) và Chat ALB hiện đang chạy HTTP thuần ở DEV. Chuyển sang HTTPS phụ thuộc vào domain name và chứng chỉ ACM, hiện chưa có.
-- **Chưa có WAF** — xem [5.2.4](../5.2.4-AWS-Services-Selection/) để biết lý do; chưa có CloudFront distribution hay ALB listener HTTPS nào để gắn web ACL vào ở giai đoạn này.
+- Mọi credential database nằm trong AWS Secrets Manager, mỗi database của service một secret (`fitness-assistant/dev/<service>-database`); function chỉ giữ `DATABASE_SECRET_ID`. Chat task nhận database URL và internal secret dưới dạng ECS secret (`valueFrom`), không bao giờ là giá trị thường.
+- Lời gọi service-to-service mang `INTERNAL_SERVICE_SECRET` dùng chung, tách biệt với JWT của người dùng. Gym Service ký mã QR check-in bằng `CHECKIN_TOKEN_SECRET` riêng, cố ý khác với internal secret.
+- Key của payment provider chỉ được nhập khi có credential sandbox thật và không bao giờ được sao chép vào chat, tài liệu hay source control.
+- Bedrock không cần API key — mọi lời gọi model đều được ủy quyền bằng IAM role của function.
 
-### Xử lý bằng chứng screenshot chứa secret
+### Bảo vệ khỏi lạm dụng và chi phí
 
-Trong lúc tổng hợp bằng chứng deployment cho báo cáo này, một số ít screenshot console (màn hình "Store a new secret" của Secrets Manager và màn hình "Environment variables" của Lambda) được phát hiện chứa giá trị secret thật dạng plaintext. Mỗi cái đã được redact ở mức pixel (giá trị secret bị bôi đen ngay trong dữ liệu ảnh, không phải crop hay blur, vì crop/blur có thể để lại pixel gốc khôi phục được) trước khi được cân nhắc đưa vào báo cáo này. Ghi chú ở đây để minh bạch về cách bằng chứng ở các phần Workshop sau được làm sạch, không phải khẳng định rằng mọi screenshot trong số hàng trăm cái đã chụp đều đã được rà soát lại riêng lẻ.
+- Throttling theo route trên API Gateway cho các route AI (1 request/giây, burst 3; 3/6 cho marketplace) giới hạn tốc độ một client có thể tạo lời gọi Bedrock tính phí; frontend hiển thị thông báo "quá nhiều yêu cầu" khi gặp HTTP 429.
+- SQS dead-letter queue (2 lần thử) ngăn một AI job lỗi bị retry mãi mãi.
+
+### Khoảng trống đã biết (mở, không giấu)
+
+- **Internal secret nằm trong cấu hình Lambda** — `INTERNAL_SERVICE_SECRET` và `CHECKIN_TOKEN_SECRET` là environment variable của Lambda (được mã hoá khi lưu, nhưng ai có quyền xem cấu hình function đều đọc được). Chat đã đọc internal secret từ Secrets Manager; chuyển bản trên Lambda sang đó là việc hardening tiếp theo.
+- **HTTPS** — S3 website endpoint và Chat ALB chỉ có HTTP ở DEV; HTTPS cần domain và chứng chỉ ACM, tốt nhất có CloudFront đứng trước một bucket private (Origin Access Control).
+- **Bucket frontend public-read** — tạm thời, chỉ object (`s3:GetObject`), cho tới khi có CloudFront.
+- **Chưa có WAF** — chưa có gì để gắn web ACL cho tới khi có CloudFront hoặc HTTPS listener.
+- **Xoay vòng credential ADMIN** và **12 seed account còn lại** — hoãn lại, bắt buộc phải xử lý trước khi release rộng hơn.
+
+### Screenshot bằng chứng từng chứa secret
+
+Một số screenshot console trong runbook triển khai (màn hình "Store a new secret" của Secrets Manager và "Environment variables" của Lambda) ban đầu có hiện giá trị secret thật. Mỗi ảnh đã được che ở mức pixel — chính giá trị bị bôi đen trong dữ liệu ảnh, không phải crop hay blur — trước khi đưa vào báo cáo; các ô đen trong [5.4](../../5.4-Deployment-Guide/) là có chủ đích. Toàn bộ screenshot đã được rà soát lại trước khi đăng.

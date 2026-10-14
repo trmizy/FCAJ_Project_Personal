@@ -156,5 +156,5 @@ User → ALB → ECS Services (auth/user/fitness/ai services độc lập) → R
 
 ### Liên kết Workshop tương ứng:
 
-- [5.6 Network Infrastructure](../../5-Workshop/5.6-Network-Infrastructure/) - VPC và ALB setup
-- [5.9 EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/) - Container migration strategy
+- [5.4.1 Hạ tầng mạng dùng chung](../../5-Workshop/5.4-Deployment-Guide/5.4.1-Shared-Network/) - VPC, subnet và NAT setup
+- [5.4.10 Chat Service trên ECS Fargate](../../5-Workshop/5.4-Deployment-Guide/5.4.10-Chat-Service-ECS/) - Triển khai container trên ECS Fargate phía sau ALB

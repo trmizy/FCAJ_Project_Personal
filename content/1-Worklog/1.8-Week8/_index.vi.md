@@ -156,4 +156,4 @@ Sau khi học về AWS ML services, mình identify potential ML applications:
 
 ### Liên kết Workshop tương ứng:
 
-- [5.9 EC2 Deployment](../../5-Workshop/5.9-EC2-Deployment/) - AI service deployment strategies
+- [5.4.8 AI Service — database, queue và Bedrock](../../5-Workshop/5.4-Deployment-Guide/5.4.8-AI-Service-Core/) - Triển khai AI service trên Amazon Bedrock

@@ -184,4 +184,4 @@ Amazon Athena      Amazon QuickSight
 
 ### Liên kết Workshop tương ứng:
 
-- [5.8 ECR](../../5-Workshop/5.8-ECR/) - Containerization cho data processing jobs
+- [5.4.11 Migration dữ liệu lên Aurora](../../5-Workshop/5.4-Deployment-Guide/5.4.11-Data-Migration/) - Job migration dữ liệu chạy bằng container (ECR + Fargate)

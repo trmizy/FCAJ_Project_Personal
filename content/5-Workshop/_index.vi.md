@@ -7,23 +7,16 @@ pre: " <b> 5. </b> "
 draft: false
 ---
 
-# Workshop — Triển khai Fitness Assistant trên AWS
+# Workshop — Triển khai Gymini (Fitness Assistant) trên AWS Serverless
 
-{{% notice info %}}
-Trang Workshop đang được phát triển. Nội dung sẽ được cập nhật khi quá trình triển khai hệ thống được hoàn thiện.
-{{% /notice %}}
-3. [5.3 Prerequisites](5.3-Prerequisites/)
-4. [5.4 Run Local](5.4-Run-Local/)
-5. [5.5 Production Containers](5.5-Production-Containers/)
-6. [5.6 Network Infrastructure](5.6-Network-Infrastructure/)
-7. [5.7 RDS PostgreSQL](5.7-RDS-PostgreSQL/)
-8. [5.8 ECR](5.8-ECR/)
-9. [5.9 EC2 Deployment](5.9-EC2-Deployment/)
-10. [5.10 S3 Storage](5.10-S3-Storage/)
-11. [5.11 IAM and Secrets](5.11-IAM-Secrets/)
-12. [5.12 Monitoring and Alerting](5.12-Monitoring-Alerting/)
-13. [5.13 Testing and Validation](5.13-Testing-Validation/)
-14. [5.14 Security and Cost Optimization](5.14-Security-Cost/)
-15. [5.15 Troubleshooting](5.15-Troubleshooting/)
-16. [5.16 Cleanup](5.16-Cleanup/)
-17. [5.17 Conclusion](5.17-Conclusion/)
+Workshop này ghi lại cách ứng dụng Fitness Assistant (tên sản phẩm **Gymini**) được triển khai lên AWS dưới dạng môi trường DEV theo hướng serverless tại `ap-southeast-1`: sáu microservice chạy trên Lambda phía sau Amazon API Gateway, một service ECS Fargate cho chat real-time, Amazon Aurora PostgreSQL Serverless v2, Amazon Bedrock cho AI, và OpenSearch Serverless cho vector search. Mọi bước đều được dựng lại từ runbook triển khai ghi chép trong lúc xây dựng hệ thống, kèm screenshot console gốc.
+
+#### Nội dung
+
+1. [5.1 Tổng quan](5.1-Overview/)
+2. [5.2 Mô tả kiến trúc](5.2-Architecture-Description/)
+3. [5.3 Chuẩn bị](5.3-Prerequisites/)
+4. [5.4 Hướng dẫn triển khai](5.4-Deployment-Guide/)
+5. [5.5 Kiểm thử & xác nhận](5.5-Test-Validation/)
+6. [5.6 Demo](5.6-Demo/)
+7. [5.7 Dọn dẹp tài nguyên](5.7-Cleanup/)
