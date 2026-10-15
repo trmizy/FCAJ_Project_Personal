@@ -1,5 +1,5 @@
 ---
-title: "Blog 2: RAG multi-tenant an toàn với Amazon Bedrock và Verified Permissions"
+title: "Blog 2: Giới hạn truy cập AWS Management Console từ mạng tin cậy"
 date: 2026-07-15
 weight: 2
 chapter: false
@@ -7,82 +7,71 @@ pre: " <b> 3.2. </b> "
 draft: false
 ---
 
-## RAG multi-tenant an toàn với Amazon Bedrock và Verified Permissions
+## Giới hạn truy cập AWS Management Console từ mạng tin cậy bằng sign-in policy và RCP
 
-**Bài gốc:** [Secure multi-tenant RAG with Amazon Bedrock and Verified Permissions](https://aws.amazon.com/blogs/architecture/secure-multi-tenant-rag-with-amazon-bedrock-and-verified-permissions/) (AWS Architecture Blog, 22/06/2026)
+**Bài gốc:** [Restrict AWS Management Console access to expected networks with sign-in resource-based policies and RCPs](https://aws.amazon.com/blogs/security/restrict-aws-management-console-access-to-expected-networks-with-sign-in-resource-based-policies-and-rcps/) (AWS Security Blog, 24/06/2026)
 
 **Chia sẻ trên Facebook:** https://www.facebook.com/share/p/19qBt1z5fU/
 
 ---
 
-Trong một trợ lý AI dùng chung cho cả doanh nghiệp, phòng ban nào cũng muốn hỏi đáp trên cùng một kho tài liệu, nhưng không phải nhân viên nào cũng được xem mọi tài liệu. Báo cáo tài chính chỉ dành cho phòng tài chính, hồ sơ nhân sự chỉ dành cho phòng nhân sự, trong khi cấp quản lý có thể cần đọc xuyên phòng ban. Một bài viết gần đây trên AWS Architecture Blog trình bày cách thực thi điều này ngay trong một knowledge base dùng chung, bằng cách quyết định tại thời điểm truy xuất (retrieval) những tài liệu nào người dùng được phép dùng.
+Với phần lớn các đội ngũ, AWS Management Console là cánh cửa quyền lực nhất để vào một tài khoản AWS: ai đăng nhập được là xem và thay đổi được gần như mọi thứ mà quyền của họ cho phép. Mật khẩu và MFA chứng minh người dùng là ai, nhưng không cho biết request đến từ đâu. Tháng 6/2026, AWS Sign-In bổ sung resource-based policy và resource control policy (RCP), nhờ đó một tài khoản, hoặc cả một organization, có thể từ chối việc đăng nhập console từ những mạng không mong đợi. Một bài viết trên AWS Security Blog hướng dẫn chi tiết cơ chế kiểm soát mới này.
 
-### 1. Vì sao các cách làm quen thuộc khó mở rộng
+### 1. Vì sao trước đây khó giới hạn đăng nhập theo mạng
 
-- **Mỗi phòng ban một knowledge base:** cô lập rõ ràng, nhưng chi phí và công vận hành tăng theo từng phòng ban mới.
-- **Filter viết cứng trong code:** metadata filter kiểu `department = finance` vẫn chạy được, nhưng mỗi lần đổi quy tắc là phải sửa code và deploy lại.
-- **Không có nơi ghi lại quyết định:** khi logic phân quyền nằm rải rác trong code, rất khó trả lời câu hỏi "vì sao người dùng này xem được tài liệu kia?".
+- **Điều kiện trong IAM và SCP chỉ có tác dụng sau khi đăng nhập.** Điều kiện như `aws:SourceIp` trong IAM policy hay SCP có thể từ chối các API action từ mạng lạ, nhưng người dùng vẫn đăng nhập và mở được console.
+- **Quy tắc của identity provider chỉ áp dụng cho người dùng federated.** Quy tắc mạng trong một identity provider bên ngoài không áp dụng cho IAM user hay root user.
+- **Không có một nơi thực thi chung.** Mỗi tài khoản và mỗi loại danh tính lại cần một cách xử lý riêng.
 
-### 2. Giải pháp: một knowledge base, hai lớp phân quyền
+### 2. Cơ chế mới: sign-in policy và RCP
 
-Toàn bộ tài liệu nằm trong một Amazon Bedrock Knowledge Base và được gắn thuộc tính metadata `department`. Quy tắc truy cập được viết bằng Cedar policy trong Amazon Verified Permissions và được đánh giá ở mỗi request:
+- **Sign-in resource-based policy, cho một tài khoản.** Người quản trị mô tả các mạng được mong đợi bằng vài tham số (dải IP nguồn, VPC nguồn cùng Region của nó, và một principal được loại trừ), rồi AWS Sign-In tự sinh policy: các câu lệnh deny chặn đăng nhập trừ khi request đến từ mạng được mong đợi hoặc từ principal được loại trừ.
+- **Resource control policy, cho nhiều tài khoản.** Cùng các quy tắc đó, gắn trong AWS Organizations ở mức organization, organizational unit hoặc một tài khoản, và tự áp dụng cho mọi tài khoản trong phạm vi.
+- **Một công tắc để bật.** Các câu lệnh chưa có tác dụng cho đến khi console authorization được bật cho tài khoản, nên có thể rà soát trước khi thực thi.
 
-- **Lớp 1, quyền gọi API.** Một Lambda authorizer trên Amazon API Gateway xác thực JWT của Amazon Cognito và gọi `IsAuthorized` cho từng group của người dùng. Nếu không group nào được phép, hoặc Verified Permissions trả lỗi, người dùng nhận HTTP 403.
-- **Lớp 2, quyền đọc tài liệu.** Một middleware Lambda hỏi Verified Permissions người dùng được truy vấn knowledge base của những phòng ban nào, rồi chuyển kết quả thành metadata filter cho lệnh `RetrieveAndGenerate`: `equals` khi chỉ có một phòng ban, `orAll` khi có nhiều phòng ban. Cùng policy store đó cũng quyết định người dùng được gọi model nào.
-- **Kiểm tra đầu ra.** Guardrails for Amazon Bedrock kiểm tra câu trả lời có bám vào ngữ cảnh đã truy xuất (contextual grounding) và lọc nội dung độc hại.
+Cơ chế này không tốn thêm chi phí và có ở mọi AWS commercial Region. Nó không thay thế IAM identity-based policy, vốn vẫn quyết định người dùng đã đăng nhập được làm gì.
 
-Trong ví dụ của bài, dept-a và dept-b chỉ được truy vấn tài liệu của phòng mình và dùng Claude 3 Haiku, còn dept-c được truy vấn mọi phòng ban và dùng Amazon Nova Lite 2. Những gì không được cho phép thì mặc định bị từ chối, và thay đổi policy có hiệu lực ngay ở request tiếp theo mà không cần deploy lại code.
-
-### 3. Luồng xử lý một request
+### 3. Một request đăng nhập được kiểm tra thế nào
 
 {{< mermaid >}}
 graph LR
-  U[Người dùng có JWT Cognito] --> W[CloudFront và AWS WAF]
-  W --> G[API Gateway]
-  G -- Lớp 1 --> A[Lambda authorizer]
-  A -- IsAuthorized --> P[Verified Permissions]
-  G --> M[Middleware Lambda]
-  M -- Lớp 2 --> P
-  M -- metadata filter --> K[Bedrock Knowledge Base]
-  K --> R[Guardrails]
-  R --> O[Câu trả lời đã kiểm tra]
+  S[Request đăng nhập] --> N{Mạng được mong đợi hoặc principal được loại trừ}
+  N -- không --> D[Bị từ chối và ghi vào CloudTrail]
+  N -- có --> A[Mật khẩu và MFA]
+  A --> T[Token phiên console]
+  T -- kiểm tra lại khi làm mới --> N
+  T --> I[IAM policy quyết định từng action]
 {{< /mermaid >}}
 
-1. **AWS WAF** áp rate limit và các rule. Nếu bị từ chối, request bị chặn.
-2. **Lambda authorizer (Lớp 1)** kiểm tra người dùng có được gọi API không. Nếu không, kết quả là 403.
-3. **Middleware (Lớp 2)** xác định người dùng được đọc tài liệu của những phòng ban nào. Nếu không có phòng nào, kết quả rỗng.
-4. **Bedrock Knowledge Bases** áp metadata filter trước khi vector search, nên model không bao giờ thấy tài liệu không được phép.
-5. **Guardrails** kiểm tra câu trả lời có bám vào ngữ cảnh không. Nếu không, câu trả lời bị chặn hoặc chỉnh sửa.
+1. **Trước khi kiểm tra thông tin đăng nhập**, AWS Sign-In đánh giá action `signin:Authenticate` theo policy. Request từ ngoài dải IP hoặc VPC được mong đợi sẽ bị từ chối, kể cả khi mật khẩu và MFA đúng, trừ khi đến từ principal được loại trừ.
+2. **Xác thực bình thường** diễn ra sau đó: mật khẩu và MFA, hoặc đăng nhập federated.
+3. **Khi console xin token phiên** (`signin:CreateOAuth2Token` và `signin:AuthorizeOAuth2Access`), cùng các quy tắc mạng được đánh giá lại, và lặp lại mỗi lần phiên xin credential mới.
+4. **Ràng buộc Region** chặn request tự nhận đến từ VPC được phép nhưng lại xin một Region khác, vì VPC ID chỉ là duy nhất trong một Region.
+5. **Mọi lần thử đều được ghi lại** thành event `ConsoleLogin` trong CloudTrail. Lần bị chặn hiện `AccessDenied` kèm thông báo "Authorization denied because of a resource-based policy", hoặc "...resource control policy" nếu RCP chặn.
 
-### 4. Gắn nhãn tài liệu khi ingest
+### 4. Checklist triển khai an toàn
 
-1. Tệp được upload lên S3 theo prefix của phòng ban (ví dụ `docs/dept-a/report.pdf`) phát sinh một event EventBridge, được đưa vào hàng đợi SQS.
-2. Một Lambda function ghi file sidecar `.metadata.json` bên cạnh tệp, với nội dung `{"metadataAttributes": {"department": "dept-a"}}`. Lần xử lý lỗi được đưa vào dead-letter queue.
-3. Cứ năm phút, một Lambda chạy theo lịch gọi `StartIngestionJob`. Bedrock chia tài liệu thành đoạn (300 token, chồng lấp 20%), tạo embedding và đánh index kèm thuộc tính phòng ban.
-4. Tài liệu chưa có sidecar bị bỏ qua và ghi log, để một tệp chưa gắn nhãn không bao giờ hiển thị cho tất cả mọi người.
-
-### 5. Checklist triển khai an toàn
-
-- **Hiểu đúng mức cô lập.** Đây là cô lập ở mức filter (logic), không phải cô lập bằng IAM hay hạ tầng riêng. Với các khách hàng khác nhau của một sản phẩm SaaS, bài viết khuyến nghị mỗi tenant một knowledge base riêng.
-- **Fail closed.** Cả hai lớp đều từ chối khi Verified Permissions không khả dụng. Cache các quyết định cũ giúp tăng availability, nhưng có thể vẫn cho phép quyền đã bị thu hồi.
-- **Giữ cache của authorizer ngắn.** Mặc định 300 giây của API Gateway có thể giữ quyền đã thu hồi tới năm phút. Đặt TTL 0 hoặc 30–60 giây thì thu hồi nhanh hơn, đổi lại nhiều lời gọi Verified Permissions hơn.
-- **Bảo vệ policy và nhãn.** Giới hạn ai được tạo, sửa, xóa policy, ghi lại mọi thay đổi bằng CloudTrail, và chỉ cho phép Lambda gắn nhãn được ghi file sidecar. S3 Versioning và Object Lock hỗ trợ việc này.
-- **Chú ý khoảng trễ khi ingest.** Có một khoảng ngắn giữa lúc upload và lúc sidecar được tạo. Batching window của SQS (mặc định 30 giây) cần khớp với lịch ingest.
-- **Guardrails không chặn được mọi prompt injection**, nên vẫn cần kiểm tra độ dài input và làm sạch câu truy vấn.
+- **Liệt kê các mạng được mong đợi trước:** dải IP egress của văn phòng và VPN, cùng các VPC ID (kèm Region) mà người dùng đăng nhập từ đó.
+- **Luôn giữ một principal được loại trừ** để truy cập khẩn cấp (break-glass), tránh việc khai báo sai dải IP khóa tất cả mọi người ở ngoài.
+- **Tạo, rà soát, rồi mới bật.** Tạo các câu lệnh (thao tác ghi thực hiện ở `us-east-1`), rà soát bằng `aws signin get-resource-policy`, và chỉ sau đó mới chạy `aws signin put-console-authorization-configuration`.
+- **Biết cách quay lui:** `delete-console-authorization-configuration` tắt việc thực thi, còn `delete-resource-permission-statement` xóa một câu lệnh.
+- **Bắt đầu với một tài khoản thử nghiệm**, rồi chuyển sang RCP ở mức organization hoặc OU khi nhiều tài khoản cần cùng một quy tắc.
+- **Theo dõi CloudTrail** để thấy các lần `ConsoleLogin` thất bại do sign-in policy, vừa phát hiện tấn công vừa phát hiện người dùng hợp lệ đang ở mạng mới.
+- **Kết hợp với Console Private Access** và VPC endpoint policy để xây dựng đủ ba lớp perimeter: mạng, danh tính và tài nguyên.
 
 ### Góc nhìn cá nhân
 
-Điều mình thích nhất ở mô hình này là phân quyền trở thành dữ liệu thay vì code. Thêm một phòng ban chỉ cần một Cedar policy, một Cognito group và tài liệu đã gắn nhãn, không cần thêm hạ tầng.
+Điều mình thích ở cơ chế này là nó đưa bước kiểm tra lên ngay đầu tiên. Kẻ tấn công lừa lấy được cả mật khẩu lẫn mã MFA vẫn không dùng được chúng từ một mạng lạ.
 
-AI service của Fitness Assistant đã làm retrieval-augmented generation với Amazon Bedrock và vector index trên OpenSearch Serverless (xem Workshop [5.4.8](../../5-Workshop/5.4-Deployment-Guide/5.4.8-AI-Service-Core/) và [5.4.9](../../5-Workshop/5.4-Deployment-Guide/5.4.9-AI-Service-Vector-Search/)). Index này được các job theo lịch nạp từ những nguồn dùng chung như PubMed, RSS feed và bài viết trên web. Quyền được kiểm soát theo từng function bằng IAM: mỗi Lambda role chỉ được gọi đúng các model Bedrock nó cần, và các route AI bị giới hạn tần suất trên API Gateway. Mô hình trong bài sẽ hữu ích ngay khi tài liệu riêng tư được đưa vào index, ví dụ tài liệu nội bộ của một phòng gym chỉ dành cho huấn luyện viên và hội viên của phòng đó. Khi ấy, một Cedar policy cho mỗi phòng gym cùng thuộc tính metadata `gym_id` sẽ hợp lý hơn việc tạo một index riêng cho từng phòng.
+Môi trường DEV của Fitness Assistant được dựng phần lớn qua AWS Management Console (xem Workshop [5.4](../../5-Workshop/5.4-Deployment-Guide/)), nên đăng nhập console là cách vào tài khoản đó mạnh nhất. MFA đã bảo vệ bước này, nhưng dự án không có mạng văn phòng cố định. Trước khi bật sign-in policy, mình cần một địa chỉ nguồn ổn định, ví dụ VPN có IP egress cố định hoặc một VPC truy cập qua Console Private Access, cùng một principal break-glass được loại trừ, để việc đổi IP ở nhà không khóa chính mình khỏi tài khoản.
 
 ### Kết luận
 
-Mô hình này kết hợp ba ý chính: một knowledge base dùng chung có metadata, Cedar policy nằm ngoài code và thay đổi được lúc runtime, và hai lớp phân quyền độc lập cùng fail closed. Đây là cách tiết kiệm chi phí để mỗi phòng ban có góc nhìn riêng trên dữ liệu dùng chung, miễn là đội ngũ nhớ rằng đây là cô lập logic và bảo vệ policy cùng nhãn tài liệu cẩn thận như chính tài liệu.
+Sign-in resource-based policy và RCP lấp được khoảng trống mà IAM policy không làm được: chúng quyết định một phiên console có được bắt đầu hay không, dựa trên nơi request xuất phát. Policy được sinh từ vài tham số, rà soát trước khi thực thi, ghi log trong CloudTrail và miễn phí. Vì vậy đây là một lớp bảo vệ dễ thêm cho bất kỳ tài khoản nào được quản lý qua console, miễn là luôn giữ một principal được loại trừ làm đường quay lại an toàn.
 
 ### Tài liệu tham khảo
 
-- AWS Architecture Blog: [Secure multi-tenant RAG with Amazon Bedrock and Verified Permissions](https://aws.amazon.com/blogs/architecture/secure-multi-tenant-rag-with-amazon-bedrock-and-verified-permissions/)
-- [Tài liệu Amazon Verified Permissions](https://docs.aws.amazon.com/verifiedpermissions/)
-- [Tài liệu Amazon Bedrock Knowledge Bases](https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base.html)
-- [Ngôn ngữ policy Cedar](https://www.cedarpolicy.com/)
+- AWS Security Blog: [Restrict AWS Management Console access to expected networks with sign-in resource-based policies and RCPs](https://aws.amazon.com/blogs/security/restrict-aws-management-console-access-to-expected-networks-with-sign-in-resource-based-policies-and-rcps/)
+- [AWS Sign-In User Guide: console access control](https://docs.aws.amazon.com/signin/latest/userguide/console-access-control.html)
+- [AWS Organizations: resource control policies](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_rcps.html)
+- [Data perimeter policy examples (aws-samples)](https://github.com/aws-samples/data-perimeter-policy-examples)

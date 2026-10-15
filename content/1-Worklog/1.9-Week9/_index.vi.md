@@ -12,25 +12,25 @@ draft: false
 ### Mục tiêu tuần 9:
 
 - Chia sẻ kiến thức với cộng đồng bằng cách viết technical blog post
-- Tìm hiểu cách bảo mật retrieval-augmented generation (RAG) dùng chung cho nhiều nhóm với Amazon Bedrock và Amazon Verified Permissions
+- Tìm hiểu cách giới hạn đăng nhập AWS Management Console chỉ từ các mạng được mong đợi bằng sign-in resource-based policy và resource control policy (RCP)
 
 ### Công việc thực hiện tuần này:
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
 | --- | --- | --- | --- |
-| Viết Blog 2, "RAG multi-tenant an toàn với Amazon Bedrock và Verified Permissions", và đăng lên AWS Study Group VN Facebook group | 28-9-2026 | 03-10-2026 | [Bài gốc trên AWS Architecture Blog](https://aws.amazon.com/blogs/architecture/secure-multi-tenant-rag-with-amazon-bedrock-and-verified-permissions/) <br>[Bài đăng trên Facebook](https://www.facebook.com/share/p/19qBt1z5fU/) |
+| Viết Blog 2, "Giới hạn truy cập AWS Management Console từ mạng tin cậy", và đăng lên AWS Study Group VN Facebook group | 28-9-2026 | 03-10-2026 | [Bài gốc trên AWS Security Blog](https://aws.amazon.com/blogs/security/restrict-aws-management-console-access-to-expected-networks-with-sign-in-resource-based-policies-and-rcps/) <br>[Bài đăng trên Facebook](https://www.facebook.com/share/p/19qBt1z5fU/) |
 
 ### Kết quả đạt được tuần 9:
 
 **Tổng quan:**
 
-Tuần này dành cho community contribution và knowledge sharing. Mình tìm hiểu một bài trên AWS Architecture Blog về cách giữ an toàn cho một knowledge base RAG dùng chung cho nhiều phòng ban, rồi viết và đăng Blog 2 về chủ đề này lên AWS Study Group VN, liên hệ với AI service của Fitness Assistant.
+Tuần này dành cho community contribution và knowledge sharing. Mình tìm hiểu một bài trên AWS Security Blog về tính năng mới của AWS Sign-In giúp giới hạn đăng nhập console chỉ từ các mạng được mong đợi, rồi viết và đăng Blog 2 về chủ đề này lên AWS Study Group VN, liên hệ với cách quản lý tài khoản của Fitness Assistant.
 
 **Kiến thức lý thuyết học được:**
 
-- **Phân quyền ở mức tài liệu cho RAG:** Một Amazon Bedrock Knowledge Base dùng chung, mỗi tài liệu gắn thuộc tính metadata `department`, và Cedar policy trong Amazon Verified Permissions quyết định tại thời điểm truy xuất những tài liệu nào người dùng được dùng. Quy tắc thay đổi được mà không cần deploy lại code.
+- **Sign-in resource-based policy:** Các câu lệnh deny gắn vào AWS Sign-In cho một tài khoản, được sinh từ dải IP nguồn, VPC nguồn và một principal được loại trừ. Policy được kiểm tra trước khi xác thực thông tin đăng nhập (`signin:Authenticate`) và lặp lại mỗi khi phiên console xin token, và chỉ có hiệu lực sau khi bật console authorization.
 
-- **Defense in depth:** Hai lớp độc lập cùng fail closed: Lambda authorizer trên API Gateway cho quyền gọi API, và middleware Lambda chuyển quyết định của policy thành metadata filter cho `RetrieveAndGenerate`. Sau đó Guardrails for Amazon Bedrock kiểm tra câu trả lời có bám vào ngữ cảnh.
+- **Resource control policy (RCP):** Cùng các quy tắc mạng đó, áp dụng qua AWS Organizations cho mọi tài khoản trong một organization hoặc organizational unit.
 
 - **Technical Writing:** Học cách effectively communicate technical concepts tới broader audience.
 
@@ -40,13 +40,13 @@ Tuần này dành cho community contribution và knowledge sharing. Mình tìm h
 
 **Áp dụng vào Fitness Assistant:**
 
-AI service của Fitness Assistant đã làm RAG với Amazon Bedrock và vector index trên OpenSearch Serverless, được các job theo lịch nạp từ những nguồn dùng chung như PubMed, RSS feed và bài viết trên web. Mô hình trong blog áp dụng được ngay khi tài liệu riêng tư được đưa vào index:
-- Thuộc tính metadata như `gym_id` cho mỗi tài liệu riêng tư
-- Một Cedar policy cho mỗi phòng gym thay vì một index cho mỗi phòng
-- Cache của authorizer ngắn, để quyền bị thu hồi hết hiệu lực nhanh
-- Fail closed khi dịch vụ policy không khả dụng
+Môi trường DEV của Fitness Assistant được dựng phần lớn qua AWS Management Console (xem Workshop 5.4), nên đăng nhập console là cách vào tài khoản mạnh nhất. Các cơ chế trong blog sẽ thêm một điều kiện về mạng bên cạnh MFA:
+- Chỉ cho phép đăng nhập từ mạng được mong đợi, ví dụ VPN có IP egress cố định hoặc một VPC truy cập qua Console Private Access
+- Giữ một principal break-glass được loại trừ, để việc đổi IP ở nhà không khóa tài khoản
+- Theo dõi các lần `ConsoleLogin` thất bại do sign-in policy trong CloudTrail
+- Dùng RCP thay cho policy từng tài khoản nếu sau này dự án mở rộng ra nhiều tài khoản
 
 ### Liên kết Workshop tương ứng:
 
-- [3.2 Blog 2](../../3-BlogsPosted/3.2-Blog2/) - RAG multi-tenant an toàn với Amazon Bedrock và Verified Permissions
-- [5.4.9 AI Service — vector search, lịch chạy và API](../../5-Workshop/5.4-Deployment-Guide/5.4.9-AI-Service-Vector-Search/) - Phần vector search mà blog liên hệ tới
+- [3.2 Blog 2](../../3-BlogsPosted/3.2-Blog2/) - Giới hạn truy cập AWS Management Console từ mạng tin cậy
+- [5.2.5 Bảo mật và IAM](../../5-Workshop/5.2-Architecture-Description/5.2.5-Security-IAM/) - Cách dự án đang bảo vệ quyền truy cập hiện nay

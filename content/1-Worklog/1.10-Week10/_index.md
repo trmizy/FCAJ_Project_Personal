@@ -11,7 +11,7 @@ draft: false
 
 ### Week 10 Objectives:
 
-- Contribute a technical article to the community about AWS account security
+- Contribute a technical article to the community about securing generative AI applications on AWS
 - Work on frontend development for group project
 - Connect with professional community through office visits and events
 
@@ -19,18 +19,18 @@ draft: false
 
 | Task | Start Date | Completion Date | Reference Materials |
 | --- | --- | --- | --- |
-| Wrote a technical blog for AWS Study Group VN Facebook group: Limit AWS Management Console access with Trusted Networks | 05-10-2026 | 10-10-2026 | |
+| Wrote Blog 3, "Secure Multi-tenant RAG with Amazon Bedrock and Verified Permissions", for the AWS Study Group VN Facebook group | 05-10-2026 | 10-10-2026 | [Original article on the AWS Architecture Blog](https://aws.amazon.com/blogs/architecture/secure-multi-tenant-rag-with-amazon-bedrock-and-verified-permissions/) |
 | Developed frontend for group project (Homepage, Navbar, Footer, Product details, Cart, Order management, Checkout pages) | 05-10-2026 | 10-10-2026 | |
 
 ### Week 10 Results:
 
 **Overview:**
 
-This week was highly productive, balancing technical research for a community blog with hands-on development for the group project. I explored identity and access management on AWS, and actively participated in the local tech community.
+This week was highly productive, balancing technical research for a community blog with hands-on development for the group project. I explored AI security on AWS, and actively participated in the local tech community.
 
 **Theoretical Knowledge Gained:**
 
-- **Identity & Access Management:** Deepened knowledge of perimeter security by restricting AWS Management Console access using Resource Control Policies (RCPs) and Sign-in Resource-Based Policies.
+- **AI Security:** Researched Secure Multi-tenant RAG architectures using Amazon Bedrock and Verified Permissions for Zero-Trust data authorization.
 
 - **Frontend Development:** Applied web development principles to build critical UI components including Homepage, Navigation elements, Product Details, Cart, and Order/Checkout pages.
 
@@ -43,7 +43,7 @@ This week was highly productive, balancing technical research for a community bl
 **Application to Fitness Assistant:**
 
 **Security Enhancements from Blog Research:**
-- IAM best practices for console access restrictions
+- Multi-tenant data isolation patterns applicable to user workout data
 - Zero-trust architecture principles
 
 **Frontend Development Skills:**
@@ -53,5 +53,5 @@ This week was highly productive, balancing technical research for a community bl
 
 ### Related Workshop Links:
 
-- [3.3 Blog 3](../../3-BlogsPosted/3.3-Blog3/) - AWS Console access restriction blog
+- [3.3 Blog 3](../../3-BlogsPosted/3.3-Blog3/) - Secure Multi-tenant RAG with Amazon Bedrock and Verified Permissions
 - [4.2 Event 2](../../4-EventParticipated/4.2-Event2/) - FCAJ Community Day

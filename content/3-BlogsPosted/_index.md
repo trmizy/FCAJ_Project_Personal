@@ -15,5 +15,5 @@ None of these posts are marked as published until a real URL is filled in below.
 {{% /notice %}}
 
 1. [Blog 1 — Containerizing Microservices and Storing Images in Amazon ECR](3.1-Blog1/)
-2. [Blog 2 — Secure Multi-tenant RAG with Amazon Bedrock and Verified Permissions](3.2-Blog2/)
-3. [Blog 3 — Monitoring an EC2 Container Application with CloudWatch and SNS](3.3-Blog3/)
+2. [Blog 2 — Limit AWS Management Console Access to Trusted Networks](3.2-Blog2/)
+3. [Blog 3 — Secure Multi-tenant RAG with Amazon Bedrock and Verified Permissions](3.3-Blog3/)

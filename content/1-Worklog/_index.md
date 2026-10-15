@@ -26,7 +26,7 @@ Each weekly log includes the objectives, a task table with dates and references,
 6. [Week 6](1.6-Week6/) — Module 5 (containers), Gym and Payment, and the plan for Chat
 7. [Week 7](1.7-Week7/) — Module 6 (data and analytics) and the AI service
 8. [Week 8](1.8-Week8/) — Module 7 (AI/ML), Chat on ECS Fargate and data migration
-9. [Week 9](1.9-Week9/) — Blog 2: secure multi-tenant RAG with Amazon Bedrock
-10. [Week 10](1.10-Week10/) — Blog post on console access and the group project frontend
+9. [Week 9](1.9-Week9/) — Blog 2: limiting console access to trusted networks
+10. [Week 10](1.10-Week10/) — Blog 3 on secure multi-tenant RAG and the group project frontend
 11. [Week 11](1.11-Week11/) — Group project frontend refinements
 12. [Week 12](1.12-Week12/) — Worklog review and the final report
