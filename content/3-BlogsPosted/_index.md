@@ -8,12 +8,12 @@ pre: " <b> 3. </b> "
 
 # Blogs Posted
 
-Three technical blog posts written during this internship, documenting specific parts of the Fitness Assistant → AWS migration in more depth than the Workshop section.
+Technical blog posts written during this internship and shared with the AWS Study Group VN community, each tied to a part of the Fitness Assistant project.
 
 {{% notice warning %}}
 None of these posts are marked as published until a real URL is filled in below. Do not claim a post is "Published" without evidence.
 {{% /notice %}}
 
 1. [Blog 1 — Containerizing Microservices and Storing Images in Amazon ECR](3.1-Blog1/)
-2. [Blog 2 — Migrating PostgreSQL from Docker to Amazon RDS](3.2-Blog2/)
+2. [Blog 2 — Secure Multi-tenant RAG with Amazon Bedrock and Verified Permissions](3.2-Blog2/)
 3. [Blog 3 — Monitoring an EC2 Container Application with CloudWatch and SNS](3.3-Blog3/)

@@ -1,5 +1,5 @@
 ---
-title: "Blog 2: Chuyển PostgreSQL sang Amazon RDS"
+title: "Blog 2: RAG multi-tenant an toàn với Amazon Bedrock và Verified Permissions"
 date: 2026-07-15
 weight: 2
 chapter: false
@@ -7,37 +7,82 @@ pre: " <b> 3.2. </b> "
 draft: false
 ---
 
-## Chuyển PostgreSQL từ Docker sang Amazon RDS
+## RAG multi-tenant an toàn với Amazon Bedrock và Verified Permissions
 
-**Trạng thái:** Draft (bản nháp)
+**Bài gốc:** [Secure multi-tenant RAG with Amazon Bedrock and Verified Permissions](https://aws.amazon.com/blogs/architecture/secure-multi-tenant-rag-with-amazon-bedrock-and-verified-permissions/) (AWS Architecture Blog, 22/06/2026)
 
-**Ngày đăng:** [TODO_DATE]
+**Chia sẻ trên Facebook:** https://www.facebook.com/share/p/19qBt1z5fU/
 
-**URL bài viết:** [TODO_BLOG_URL]
+---
 
-**Ảnh bìa:** TODO screenshot — chưa chụp.
+Trong một trợ lý AI dùng chung cho cả doanh nghiệp, phòng ban nào cũng muốn hỏi đáp trên cùng một kho tài liệu, nhưng không phải nhân viên nào cũng được xem mọi tài liệu. Báo cáo tài chính chỉ dành cho phòng tài chính, hồ sơ nhân sự chỉ dành cho phòng nhân sự, trong khi cấp quản lý có thể cần đọc xuyên phòng ban. Một bài viết gần đây trên AWS Architecture Blog trình bày cách thực thi điều này ngay trong một knowledge base dùng chung, bằng cách quyết định tại thời điểm truy xuất (retrieval) những tài liệu nào người dùng được phép dùng.
 
-### Mục tiêu
+### 1. Vì sao các cách làm quen thuộc khó mở rộng
 
-Ghi lại quá trình chuyển từ một container Docker `postgres:15-alpine` duy nhất (được toàn bộ backend service dùng khi phát triển local) sang Amazon RDS for PostgreSQL, đồng thời giữ nguyên thiết kế **database-per-service** sẵn có của ứng dụng (mỗi trong bảy backend service có database logic và schema/migration Prisma riêng).
+- **Mỗi phòng ban một knowledge base:** cô lập rõ ràng, nhưng chi phí và công vận hành tăng theo từng phòng ban mới.
+- **Filter viết cứng trong code:** metadata filter kiểu `department = finance` vẫn chạy được, nhưng mỗi lần đổi quy tắc là phải sửa code và deploy lại.
+- **Không có nơi ghi lại quyết định:** khi logic phân quyền nằm rải rác trong code, rất khó trả lời câu hỏi "vì sao người dùng này xem được tài liệu kia?".
 
-### Tóm tắt
+### 2. Giải pháp: một knowledge base, hai lớp phân quyền
 
-`fitness-assistant` đã mô hình hóa dữ liệu bằng Prisma, mỗi service có một `schema.prisma` và một thư mục `migrations/` riêng, tất cả trỏ tới các database khác nhau trên cùng một instance Postgres khi phát triển local (`gymcoach_auth`, `gymcoach_user`, `gymcoach_fitness`, `gymcoach_ai`, v.v.). Bài viết này giải thích cách tái hiện đúng bố cục nhiều database đó trên một instance Amazon RDS private duy nhất, và cách chạy `prisma migrate deploy` cho từng service lên đó.
+Toàn bộ tài liệu nằm trong một Amazon Bedrock Knowledge Base và được gắn thuộc tính metadata `department`. Quy tắc truy cập được viết bằng Cedar policy trong Amazon Verified Permissions và được đánh giá ở mỗi request:
 
-### Nội dung chính
+- **Lớp 1, quyền gọi API.** Một Lambda authorizer trên Amazon API Gateway xác thực JWT của Amazon Cognito và gọi `IsAuthorized` cho từng group của người dùng. Nếu không group nào được phép, hoặc Verified Permissions trả lỗi, người dùng nhận HTTP 403.
+- **Lớp 2, quyền đọc tài liệu.** Một middleware Lambda hỏi Verified Permissions người dùng được truy vấn knowledge base của những phòng ban nào, rồi chuyển kết quả thành metadata filter cho lệnh `RetrieveAndGenerate`: `equals` khi chỉ có một phòng ban, `orAll` khi có nhiều phòng ban. Cùng policy store đó cũng quyết định người dùng được gọi model nào.
+- **Kiểm tra đầu ra.** Guardrails for Amazon Bedrock kiểm tra câu trả lời có bám vào ngữ cảnh đã truy xuất (contextual grounding) và lọc nội dung độc hại.
 
-- Tạo DB subnet group trên hai private subnet và khởi tạo RDS instance với public access bị tắt.
-- Tạo mỗi database logic cho từng service thuộc MVP trên instance RDS.
-- Chạy `prisma migrate deploy` cho từng service lên endpoint RDS, và lưu ý rằng Dockerfile production của `user-service` **không** tự động chạy bước này khi container khởi động (khác với `auth-service`/`ai-service`), nên phải chạy như một bước tường minh riêng.
-- Xác minh kết nối chỉ từ bên trong VPC, không bao giờ mở RDS ra internet công cộng.
-- TODO: Bổ sung output lệnh migration thật và screenshot kiểm tra kết nối đã được che thông tin nhạy cảm.
+Trong ví dụ của bài, dept-a và dept-b chỉ được truy vấn tài liệu của phòng mình và dùng Claude 3 Haiku, còn dept-c được truy vấn mọi phòng ban và dùng Amazon Nova Lite 2. Những gì không được cho phép thì mặc định bị từ chối, và thay đổi policy có hiệu lực ngay ở request tiếp theo mà không cần deploy lại code.
 
-### Kiến thức đã học
+### 3. Luồng xử lý một request
 
-- Cách giữ nguyên thiết kế "database-per-service" khi chuyển từ một container Docker duy nhất sang một instance RDS managed duy nhất chứa nhiều database.
-- Vì sao cần kiểm tra dòng `CMD` của Dockerfile production theo từng service thay vì giả định tất cả hành xử giống nhau.
+{{< mermaid >}}
+graph LR
+  U[Người dùng có JWT Cognito] --> W[CloudFront và AWS WAF]
+  W --> G[API Gateway]
+  G -- Lớp 1 --> A[Lambda authorizer]
+  A -- IsAuthorized --> P[Verified Permissions]
+  G --> M[Middleware Lambda]
+  M -- Lớp 2 --> P
+  M -- metadata filter --> K[Bedrock Knowledge Base]
+  K --> R[Guardrails]
+  R --> O[Câu trả lời đã kiểm tra]
+{{< /mermaid >}}
 
-{{% notice warning %}}
-Không bao giờ đăng endpoint RDS thật, username hay password master trong bài viết này. Dùng placeholder `[TODO_RDS_ENDPOINT]`, `[TODO_DATABASE_NAME]`, `[TODO_DATABASE_USER]` cho đến khi credential được che chắn an toàn cho độc giả công khai.
-{{% /notice %}}
+1. **AWS WAF** áp rate limit và các rule. Nếu bị từ chối, request bị chặn.
+2. **Lambda authorizer (Lớp 1)** kiểm tra người dùng có được gọi API không. Nếu không, kết quả là 403.
+3. **Middleware (Lớp 2)** xác định người dùng được đọc tài liệu của những phòng ban nào. Nếu không có phòng nào, kết quả rỗng.
+4. **Bedrock Knowledge Bases** áp metadata filter trước khi vector search, nên model không bao giờ thấy tài liệu không được phép.
+5. **Guardrails** kiểm tra câu trả lời có bám vào ngữ cảnh không. Nếu không, câu trả lời bị chặn hoặc chỉnh sửa.
+
+### 4. Gắn nhãn tài liệu khi ingest
+
+1. Tệp được upload lên S3 theo prefix của phòng ban (ví dụ `docs/dept-a/report.pdf`) phát sinh một event EventBridge, được đưa vào hàng đợi SQS.
+2. Một Lambda function ghi file sidecar `.metadata.json` bên cạnh tệp, với nội dung `{"metadataAttributes": {"department": "dept-a"}}`. Lần xử lý lỗi được đưa vào dead-letter queue.
+3. Cứ năm phút, một Lambda chạy theo lịch gọi `StartIngestionJob`. Bedrock chia tài liệu thành đoạn (300 token, chồng lấp 20%), tạo embedding và đánh index kèm thuộc tính phòng ban.
+4. Tài liệu chưa có sidecar bị bỏ qua và ghi log, để một tệp chưa gắn nhãn không bao giờ hiển thị cho tất cả mọi người.
+
+### 5. Checklist triển khai an toàn
+
+- **Hiểu đúng mức cô lập.** Đây là cô lập ở mức filter (logic), không phải cô lập bằng IAM hay hạ tầng riêng. Với các khách hàng khác nhau của một sản phẩm SaaS, bài viết khuyến nghị mỗi tenant một knowledge base riêng.
+- **Fail closed.** Cả hai lớp đều từ chối khi Verified Permissions không khả dụng. Cache các quyết định cũ giúp tăng availability, nhưng có thể vẫn cho phép quyền đã bị thu hồi.
+- **Giữ cache của authorizer ngắn.** Mặc định 300 giây của API Gateway có thể giữ quyền đã thu hồi tới năm phút. Đặt TTL 0 hoặc 30–60 giây thì thu hồi nhanh hơn, đổi lại nhiều lời gọi Verified Permissions hơn.
+- **Bảo vệ policy và nhãn.** Giới hạn ai được tạo, sửa, xóa policy, ghi lại mọi thay đổi bằng CloudTrail, và chỉ cho phép Lambda gắn nhãn được ghi file sidecar. S3 Versioning và Object Lock hỗ trợ việc này.
+- **Chú ý khoảng trễ khi ingest.** Có một khoảng ngắn giữa lúc upload và lúc sidecar được tạo. Batching window của SQS (mặc định 30 giây) cần khớp với lịch ingest.
+- **Guardrails không chặn được mọi prompt injection**, nên vẫn cần kiểm tra độ dài input và làm sạch câu truy vấn.
+
+### Góc nhìn cá nhân
+
+Điều mình thích nhất ở mô hình này là phân quyền trở thành dữ liệu thay vì code. Thêm một phòng ban chỉ cần một Cedar policy, một Cognito group và tài liệu đã gắn nhãn, không cần thêm hạ tầng.
+
+AI service của Fitness Assistant đã làm retrieval-augmented generation với Amazon Bedrock và vector index trên OpenSearch Serverless (xem Workshop [5.4.8](../../5-Workshop/5.4-Deployment-Guide/5.4.8-AI-Service-Core/) và [5.4.9](../../5-Workshop/5.4-Deployment-Guide/5.4.9-AI-Service-Vector-Search/)). Index này được các job theo lịch nạp từ những nguồn dùng chung như PubMed, RSS feed và bài viết trên web. Quyền được kiểm soát theo từng function bằng IAM: mỗi Lambda role chỉ được gọi đúng các model Bedrock nó cần, và các route AI bị giới hạn tần suất trên API Gateway. Mô hình trong bài sẽ hữu ích ngay khi tài liệu riêng tư được đưa vào index, ví dụ tài liệu nội bộ của một phòng gym chỉ dành cho huấn luyện viên và hội viên của phòng đó. Khi ấy, một Cedar policy cho mỗi phòng gym cùng thuộc tính metadata `gym_id` sẽ hợp lý hơn việc tạo một index riêng cho từng phòng.
+
+### Kết luận
+
+Mô hình này kết hợp ba ý chính: một knowledge base dùng chung có metadata, Cedar policy nằm ngoài code và thay đổi được lúc runtime, và hai lớp phân quyền độc lập cùng fail closed. Đây là cách tiết kiệm chi phí để mỗi phòng ban có góc nhìn riêng trên dữ liệu dùng chung, miễn là đội ngũ nhớ rằng đây là cô lập logic và bảo vệ policy cùng nhãn tài liệu cẩn thận như chính tài liệu.
+
+### Tài liệu tham khảo
+
+- AWS Architecture Blog: [Secure multi-tenant RAG with Amazon Bedrock and Verified Permissions](https://aws.amazon.com/blogs/architecture/secure-multi-tenant-rag-with-amazon-bedrock-and-verified-permissions/)
+- [Tài liệu Amazon Verified Permissions](https://docs.aws.amazon.com/verifiedpermissions/)
+- [Tài liệu Amazon Bedrock Knowledge Bases](https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base.html)
+- [Ngôn ngữ policy Cedar](https://www.cedarpolicy.com/)
