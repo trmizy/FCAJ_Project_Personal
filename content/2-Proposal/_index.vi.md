@@ -44,71 +44,101 @@ Môi trường DEV chủ yếu trả tiền theo mức sử dụng, không có s
 
 ### 3. Kiến trúc giải pháp {#architecture}
 
-Sơ đồ thể hiện các thành phần đã deploy và luồng request giữa chúng. Mô tả đầy đủ — luồng request, lựa chọn dịch vụ, bảo mật, khả năng mở rộng và chi phí — nằm ở [Workshop 5.2](../5-Workshop/5.2-Architecture-Description/).
+Sơ đồ thể hiện kiến trúc mà dự án được thiết kế theo. Đây là mục tiêu mà quá trình triển khai hướng tới; [Workshop 5.5.5](../5-Workshop/5.5-Test-Validation/5.5.5-Status-Open-Items/) theo dõi chính xác phần nào đã chạy thật trong môi trường DEV, và [Workshop 5.2](../5-Workshop/5.2-Architecture-Description/) có mô tả đầy đủ — luồng request, lựa chọn dịch vụ, bảo mật, khả năng mở rộng và chi phí.
 
 {{< mermaid >}}
 graph LR
-    User[Browser]
+    U1[Mobile App]
+    U2[Web Browser]
+    U3["Admin Portal"]
 
-    subgraph Edge ["Public AWS endpoints"]
-        FE["Amazon S3<br/>static website"]
-        GW["API Gateway<br/>HTTP API"]
+    subgraph Edge ["Edge and global"]
+        R53["Route 53<br/>DNS"]
+        WAF["AWS WAF<br/>optional"]
+        CF["Amazon CloudFront<br/>CDN"]
+        FE["Amazon S3<br/>frontend bucket"]
     end
 
-    subgraph VPC ["VPC fitness-assistant-dev-vpc, ap-southeast-1"]
-        subgraph Public ["Public subnets"]
-            ALB["Chat ALB<br/>HTTP 80"]
-            NAT["NAT Gateway"]
-        end
-        subgraph Private ["Private app subnets"]
-            L["Lambda HTTP functions<br/>Auth, User, Fitness, Gym, Payment, AI"]
-            J["Lambda jobs functions"]
-            W["Lambda AI Worker"]
-            C["ECS Fargate<br/>Chat Service, port 3005"]
-            VPCE["Interface VPC endpoints<br/>Secrets Manager, OpenSearch"]
-        end
-        subgraph DB ["Private DB subnets"]
-            A[("Aurora PostgreSQL Serverless v2<br/>7 logical databases")]
-        end
+    GW["Amazon API Gateway<br/>REST API"]
+
+    subgraph Backend ["Serverless backend, AWS Lambda"]
+        AU["Auth"]
+        US["User"]
+        FI["Fitness"]
+        PA["Payment"]
+        GY["Gym"]
+        AIS["AI"]
     end
 
-    SQS[["Amazon SQS<br/>ai-tasks + DLQ"]]
-    EB[["EventBridge Scheduler<br/>13 schedules"]]
-    BR[["Amazon Bedrock<br/>Nova Pro, Cohere Embed"]]
-    OS[("OpenSearch Serverless<br/>vector collection")]
+    subgraph VPC ["VPC 10.0.0.0/16, ap-southeast-1, multi-AZ"]
+        ENI["Private app subnets<br/>Lambda ENI attachment"]
+        PROXY["Amazon RDS Proxy<br/>optional"]
+        DBA[("Aurora Serverless v2<br/>Primary")]
+        DBB[("Aurora Serverless v2<br/>Replica")]
+    end
 
-    User --> FE
-    User -->|REST with JWT| GW
-    User -->|Socket.IO| ALB
-    GW --> L
-    GW -->|chat REST routes| ALB
-    ALB --> C
-    L --> A
-    J --> A
-    W --> A
-    C --> A
-    L -->|SendMessage| SQS
-    SQS --> W
-    EB --> J
-    L --> NAT
-    W --> NAT
-    J --> NAT
-    NAT --> BR
-    L --> VPCE
-    W --> VPCE
-    J --> VPCE
-    VPCE --> OS
+    subgraph Shared ["Shared serverless services"]
+        UP["Amazon S3<br/>uploads bucket"]
+        SEC["AWS Secrets Manager"]
+        CW["Amazon CloudWatch"]
+    end
+
+    EB["Amazon EventBridge<br/>schedules and events"]
+
+    subgraph Async ["Async and AI processing"]
+        SQS1[["Amazon SQS<br/>job queue"]]
+        WRK["Lambda Worker"]
+        BR[["Amazon Bedrock<br/>LLM provider"]]
+        VEC[("OpenSearch Serverless<br/>vector store")]
+    end
+
+    U1 --> CF
+    U2 --> CF
+    U3 --> CF
+    R53 -.-> CF
+    R53 -.-> GW
+    CF --> WAF
+    WAF --> FE
+    U1 --> GW
+    U2 --> GW
+    U3 --> GW
+
+    GW --> AU
+    GW --> US
+    GW --> FI
+    GW --> PA
+    GW --> GY
+    GW --> AIS
+
+    AU --> ENI
+    US --> ENI
+    FI --> ENI
+    PA --> ENI
+    GY --> ENI
+    AIS --> ENI
+    ENI --> PROXY
+    PROXY --> DBA
+    DBA -. replication .-> DBB
+
+    AU --> SEC
+    US --> UP
+    AIS -->|enqueue| SQS1
+    SQS1 --> WRK
+    WRK --> BR
+    WRK --> VEC
+    EB -.-> WRK
+    ENI --> CW
 {{< /mermaid >}}
 
-- **Edge và frontend** — bản build React được phục vụ từ S3 website endpoint. API Gateway (HTTP API) là điểm vào REST duy nhất với các route prefix tường minh và throttling cho route AI; Socket.IO đi thẳng tới Chat ALB.
-- **Xác thực** — Auth service phát hành JWT; mỗi service tự verify token (AI service bằng cách invoke Auth). Lời gọi service-to-service dùng direct Lambda invoke kèm internal secret dùng chung, và route `/internal/*` không bao giờ được public.
-- **Ứng dụng** — 12 Lambda function (Node.js 22.x, 1024 MB) cho HTTP API, scheduled jobs của sáu service và AI worker, tất cả nằm trong hai private application subnet.
-- **Real-time** — Chat service chạy một Fargate task (0.5 vCPU / 1 GB) trong private subnet phía sau ALB internet-facing, có stickiness và idle timeout 120 giây.
-- **Xử lý bất đồng bộ** — SQS (kèm dead-letter queue) cấp việc cho AI worker; 13 schedule EventBridge Scheduler điều khiển settlement, reminder, payout, reconciliation và knowledge ingestion.
-- **AI** — Bedrock Nova Pro qua APAC inference profile cho chat và vision, Cohere Embed Multilingual v3 cho embedding 1024 chiều, OpenSearch Serverless (0–2 OCU) làm vector store.
-- **Dữ liệu** — Aurora PostgreSQL Serverless v2 với bảy logical database; S3 cho upload private, artifact deploy và dump migration; Secrets Manager cho credential.
-- **Network và bảo mật** — VPC `10.0.0.0/16` với private app subnet và DB subnet, một NAT Gateway, interface endpoint cho Secrets Manager và OpenSearch, security group tham chiếu lẫn nhau, mỗi function hoặc task một IAM role.
-- **Quan sát** — CloudWatch Logs cho mọi function và task; alarm đang được lên kế hoạch.
+- **Edge và frontend** — Route 53 cho DNS, AWS WAF tuỳ chọn, và Amazon CloudFront đứng trước một bucket S3 chứa frontend.
+- **API layer** — một Amazon API Gateway REST API duy nhất, với một nhóm route cho mỗi service (`/auth/*`, `/users/*`, `/fitness/*`, `/payments/*`, `/gyms/*`, `/ai/*`, `/health`).
+- **Serverless backend** — sáu AWS Lambda service (Auth, User, Fitness, Payment, Gym, AI), mặc định triển khai trên nhiều Availability Zone.
+- **Dữ liệu** — Aurora Serverless v2 (PostgreSQL) với một primary và một replica trên hai private DB subnet, Multi-AZ replication, và một Amazon RDS Proxy tuỳ chọn đứng trước.
+- **Shared services** — một S3 bucket cho upload, Secrets Manager cho credential, và CloudWatch cho log và metric.
+- **Xử lý bất đồng bộ và AI** — Amazon EventBridge cho schedule và event, Amazon SQS cấp việc cho một Lambda worker, worker này gọi Amazon Bedrock để sinh nội dung và một vector store OpenSearch Serverless để truy xuất.
+- **DevOps** — source code trên GitHub, pipeline CI/CD bằng GitHub Actions xác thực qua OIDC, và Terraform làm infrastructure as code.
+- **Monitoring** — CloudWatch log, metric, alarm và dashboard, Amazon SNS cho cảnh báo, AWS X-Ray cho tracing, và AWS Budgets / Cost Explorer để kiểm soát chi phí.
+- **Network** — mọi thành phần ngoài nhóm Edge và DevOps đều chạy trong một VPC trải trên nhiều Availability Zone, không có EC2 instance hay container nào trong thiết kế này.
 
 ### 4. Dịch vụ AWS sử dụng {#services}
 

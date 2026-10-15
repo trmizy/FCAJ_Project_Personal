@@ -44,71 +44,101 @@ The DEV environment pays mostly for what it uses, there are no servers to patch 
 
 ### 3. Solution Architecture {#architecture}
 
-The diagram shows the deployed components and how requests flow between them. The full description — request flows, service selection, security, scalability and cost — is in [Workshop 5.2](../5-Workshop/5.2-Architecture-Description/).
+The diagram shows the architecture this project is designed around. It is the target the deployment works toward; [Workshop 5.5.5](../5-Workshop/5.5-Test-Validation/5.5.5-Status-Open-Items/) tracks exactly which pieces are confirmed running in the DEV environment today, and [Workshop 5.2](../5-Workshop/5.2-Architecture-Description/) has the full description — request flows, service selection, security, scalability and cost.
 
 {{< mermaid >}}
 graph LR
-    User[Browser]
+    U1[Mobile App]
+    U2[Web Browser]
+    U3["Admin Portal"]
 
-    subgraph Edge ["Public AWS endpoints"]
-        FE["Amazon S3<br/>static website"]
-        GW["API Gateway<br/>HTTP API"]
+    subgraph Edge ["Edge and global"]
+        R53["Route 53<br/>DNS"]
+        WAF["AWS WAF<br/>optional"]
+        CF["Amazon CloudFront<br/>CDN"]
+        FE["Amazon S3<br/>frontend bucket"]
     end
 
-    subgraph VPC ["VPC fitness-assistant-dev-vpc, ap-southeast-1"]
-        subgraph Public ["Public subnets"]
-            ALB["Chat ALB<br/>HTTP 80"]
-            NAT["NAT Gateway"]
-        end
-        subgraph Private ["Private app subnets"]
-            L["Lambda HTTP functions<br/>Auth, User, Fitness, Gym, Payment, AI"]
-            J["Lambda jobs functions"]
-            W["Lambda AI Worker"]
-            C["ECS Fargate<br/>Chat Service, port 3005"]
-            VPCE["Interface VPC endpoints<br/>Secrets Manager, OpenSearch"]
-        end
-        subgraph DB ["Private DB subnets"]
-            A[("Aurora PostgreSQL Serverless v2<br/>7 logical databases")]
-        end
+    GW["Amazon API Gateway<br/>REST API"]
+
+    subgraph Backend ["Serverless backend, AWS Lambda"]
+        AU["Auth"]
+        US["User"]
+        FI["Fitness"]
+        PA["Payment"]
+        GY["Gym"]
+        AIS["AI"]
     end
 
-    SQS[["Amazon SQS<br/>ai-tasks + DLQ"]]
-    EB[["EventBridge Scheduler<br/>13 schedules"]]
-    BR[["Amazon Bedrock<br/>Nova Pro, Cohere Embed"]]
-    OS[("OpenSearch Serverless<br/>vector collection")]
+    subgraph VPC ["VPC 10.0.0.0/16, ap-southeast-1, multi-AZ"]
+        ENI["Private app subnets<br/>Lambda ENI attachment"]
+        PROXY["Amazon RDS Proxy<br/>optional"]
+        DBA[("Aurora Serverless v2<br/>Primary")]
+        DBB[("Aurora Serverless v2<br/>Replica")]
+    end
 
-    User --> FE
-    User -->|REST with JWT| GW
-    User -->|Socket.IO| ALB
-    GW --> L
-    GW -->|chat REST routes| ALB
-    ALB --> C
-    L --> A
-    J --> A
-    W --> A
-    C --> A
-    L -->|SendMessage| SQS
-    SQS --> W
-    EB --> J
-    L --> NAT
-    W --> NAT
-    J --> NAT
-    NAT --> BR
-    L --> VPCE
-    W --> VPCE
-    J --> VPCE
-    VPCE --> OS
+    subgraph Shared ["Shared serverless services"]
+        UP["Amazon S3<br/>uploads bucket"]
+        SEC["AWS Secrets Manager"]
+        CW["Amazon CloudWatch"]
+    end
+
+    EB["Amazon EventBridge<br/>schedules and events"]
+
+    subgraph Async ["Async and AI processing"]
+        SQS1[["Amazon SQS<br/>job queue"]]
+        WRK["Lambda Worker"]
+        BR[["Amazon Bedrock<br/>LLM provider"]]
+        VEC[("OpenSearch Serverless<br/>vector store")]
+    end
+
+    U1 --> CF
+    U2 --> CF
+    U3 --> CF
+    R53 -.-> CF
+    R53 -.-> GW
+    CF --> WAF
+    WAF --> FE
+    U1 --> GW
+    U2 --> GW
+    U3 --> GW
+
+    GW --> AU
+    GW --> US
+    GW --> FI
+    GW --> PA
+    GW --> GY
+    GW --> AIS
+
+    AU --> ENI
+    US --> ENI
+    FI --> ENI
+    PA --> ENI
+    GY --> ENI
+    AIS --> ENI
+    ENI --> PROXY
+    PROXY --> DBA
+    DBA -. replication .-> DBB
+
+    AU --> SEC
+    US --> UP
+    AIS -->|enqueue| SQS1
+    SQS1 --> WRK
+    WRK --> BR
+    WRK --> VEC
+    EB -.-> WRK
+    ENI --> CW
 {{< /mermaid >}}
 
-- **Edge and frontend** — the React build is served from an S3 website endpoint. API Gateway (HTTP API) is the single REST entry point with explicit route prefixes and throttling on the AI routes; Socket.IO goes to the Chat ALB.
-- **Authentication** — the Auth service issues JWTs; each service verifies tokens itself (the AI service by invoking Auth). Service-to-service calls use direct Lambda invokes with a shared internal secret, and `/internal/*` routes are never published.
-- **Application** — 12 Lambda functions (Node.js 22.x, 1024 MB) for the six services' HTTP APIs, their scheduled jobs and the AI worker, all in two private application subnets.
-- **Real time** — the Chat service runs as one Fargate task (0.5 vCPU / 1 GB) in the private subnets behind an internet-facing ALB with stickiness and a 120-second idle timeout.
-- **Asynchronous processing** — SQS (with a dead-letter queue) feeds the AI worker; 13 EventBridge Scheduler schedules drive settlements, reminders, payouts, reconciliation and knowledge ingestion.
-- **AI** — Bedrock Nova Pro through the APAC inference profile for chat and vision, Cohere Embed Multilingual v3 for 1024-dimension embeddings, OpenSearch Serverless (0–2 OCU) as the vector store.
-- **Data** — Aurora PostgreSQL Serverless v2 with seven logical databases; S3 for private uploads, deployment artifacts and migration dumps; Secrets Manager for credentials.
-- **Network and security** — VPC `10.0.0.0/16` with private app and DB subnets, one NAT Gateway, interface endpoints for Secrets Manager and OpenSearch, security groups that reference each other, one IAM role per function or task.
-- **Observability** — CloudWatch Logs for every function and task; alarms are planned.
+- **Edge and frontend** — Route 53 for DNS, an optional AWS WAF, and Amazon CloudFront in front of an Amazon S3 frontend bucket.
+- **API layer** — a single Amazon API Gateway REST API, with one route group per service (`/auth/*`, `/users/*`, `/fitness/*`, `/payments/*`, `/gyms/*`, `/ai/*`, `/health`).
+- **Serverless backend** — six AWS Lambda services (Auth, User, Fitness, Payment, Gym, AI), deployed across multiple Availability Zones by default.
+- **Data** — Aurora Serverless v2 (PostgreSQL) with a primary and a replica across two private DB subnets, Multi-AZ replication, and an optional Amazon RDS Proxy in front of it.
+- **Shared services** — an S3 uploads bucket, Secrets Manager for credentials, and CloudWatch for logs and metrics.
+- **Asynchronous and AI processing** — Amazon EventBridge for schedules and events, Amazon SQS feeding a Lambda worker, which calls Amazon Bedrock for generation and an OpenSearch Serverless vector store for retrieval.
+- **DevOps** — GitHub source code, a GitHub Actions CI/CD pipeline authenticating through OIDC, and Terraform as infrastructure as code.
+- **Monitoring** — CloudWatch logs, metrics, alarms and dashboards, Amazon SNS for alerts, AWS X-Ray for tracing, and AWS Budgets / Cost Explorer for cost control.
+- **Network** — everything outside the Edge and DevOps groups runs in a VPC spread across multiple Availability Zones, with no EC2 instances or containers in this design.
 
 ### 4. AWS Services Used {#services}
 
