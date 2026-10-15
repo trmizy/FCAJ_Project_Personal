@@ -9,9 +9,9 @@ draft: false
 
 ## Giới hạn truy cập AWS Management Console từ mạng tin cậy bằng sign-in policy và RCP
 
-**Bài gốc:** [Restrict AWS Management Console access to expected networks with sign-in resource-based policies and RCPs](https://aws.amazon.com/blogs/security/restrict-aws-management-console-access-to-expected-networks-with-sign-in-resource-based-policies-and-rcps/) (AWS Security Blog, 24/06/2026)
+**Trạng thái:** Draft (bản nháp) — chưa chia sẻ công khai.
 
-**Chia sẻ trên Facebook:** https://www.facebook.com/share/p/19qBt1z5fU/
+**Bài gốc:** [Restrict AWS Management Console access to expected networks with sign-in resource-based policies and RCPs](https://aws.amazon.com/blogs/security/restrict-aws-management-console-access-to-expected-networks-with-sign-in-resource-based-policies-and-rcps/) (AWS Security Blog, 24/06/2026)
 
 ---
 

@@ -9,9 +9,9 @@ draft: false
 
 ## Limit AWS Management Console Access to Trusted Networks with Sign-in Policies and RCPs
 
-**Original article:** [Restrict AWS Management Console access to expected networks with sign-in resource-based policies and RCPs](https://aws.amazon.com/blogs/security/restrict-aws-management-console-access-to-expected-networks-with-sign-in-resource-based-policies-and-rcps/) (AWS Security Blog, 24 June 2026)
+**Status:** Draft — not yet shared externally.
 
-**Shared on Facebook:** https://www.facebook.com/share/p/19qBt1z5fU/
+**Original article:** [Restrict AWS Management Console access to expected networks with sign-in resource-based policies and RCPs](https://aws.amazon.com/blogs/security/restrict-aws-management-console-access-to-expected-networks-with-sign-in-resource-based-policies-and-rcps/) (AWS Security Blog, 24 June 2026)
 
 ---
 

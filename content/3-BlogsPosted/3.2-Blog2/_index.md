@@ -9,7 +9,9 @@ draft: false
 
 ## Challenges and Cost Optimization in AWS Deployment: Lessons Learned from Gymini
 
-**Status:** Technical case study written from the experience of deploying Gymini for this internship — not published externally, no Facebook link yet.
+**Status:** Technical case study written from the experience of deploying Gymini for this internship.
+
+**Shared on Facebook:** https://www.facebook.com/share/p/19qBt1z5fU/
 
 {{% notice note %}}
 This post follows what is already confirmed elsewhere in this report (linked at each point). The parts about AWS credit running out faster than expected and about adopting CloudFormation are presented as an **illustrative case study**, reasoned from the real cost profile of the deployed architecture — not a confirmed billing history — and CloudFormation is **not** currently used for this project (every resource so far was created by hand through the AWS Console, see [5.4](../../5-Workshop/5.4-Deployment-Guide/)). The closing "Evidence and limitations" section lists exactly what is confirmed, what is a reasonable inference, and what is only a proposal.

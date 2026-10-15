@@ -18,13 +18,13 @@ draft: false
 
 | Task | Start Date | Completion Date | Reference Materials |
 | --- | --- | --- | --- |
-| Wrote Blog 2, "Challenges and Cost Optimization in AWS Deployment: Lessons Learned from Gymini", as a technical case study | 28-9-2026 | 03-10-2026 | [AWS CloudFormation User Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html) <br>[AWS Well-Architected Framework — Cost Optimization Pillar](https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html) |
+| Wrote Blog 2, "Challenges and Cost Optimization in AWS Deployment: Lessons Learned from Gymini", as a technical case study, and shared it to the AWS Study Group VN Facebook group | 28-9-2026 | 03-10-2026 | [AWS CloudFormation User Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html) <br>[AWS Well-Architected Framework — Cost Optimization Pillar](https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html) <br>[Post on Facebook](https://www.facebook.com/share/p/19qBt1z5fU/) |
 
 ### Week 9 Results:
 
 **Overview:**
 
-This week was dedicated to reviewing the AWS deployment experience so far and writing it up as Blog 2: why a multi-service deployment is not a one-day task, the concrete troubleshooting incidents already documented in the Workshop (the Chat service's secret-value mistake, Lambda's secret caching), and why AWS CloudFormation is worth adopting given that deployment today is entirely manual.
+This week was dedicated to reviewing the AWS deployment experience so far, writing it up as Blog 2 and sharing it with the AWS Study Group VN: why a multi-service deployment is not a one-day task, the concrete troubleshooting incidents already documented in the Workshop (the Chat service's secret-value mistake, Lambda's secret caching), and why AWS CloudFormation is worth adopting given that deployment today is entirely manual.
 
 **Theoretical Knowledge Gained:**
 
@@ -35,7 +35,7 @@ This week was dedicated to reviewing the AWS deployment experience so far and wr
 
 **Hands-on Labs Completed:**
 
-- Wrote Blog 2 as a case study, pulling concrete evidence from the Workshop pages already written (5.2.6, 5.2.7, 5.4.10, 5.5.5) instead of writing generic advice
+- Wrote Blog 2 as a case study, pulling concrete evidence from the Workshop pages already written (5.2.6, 5.2.7, 5.4.10, 5.5.5) instead of writing generic advice, and published it to the AWS Study Group VN Facebook group
 
 **Application to Fitness Assistant:**
 

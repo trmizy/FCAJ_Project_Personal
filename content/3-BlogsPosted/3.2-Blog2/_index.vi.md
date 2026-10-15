@@ -9,7 +9,9 @@ draft: false
 
 ## Thách thức triển khai và tối ưu chi phí trên AWS: Bài học thực tế từ dự án Gymini
 
-**Trạng thái:** Case study kỹ thuật, viết từ kinh nghiệm triển khai Gymini trong nội dung thực tập này — chưa đăng công khai, chưa có link Facebook.
+**Trạng thái:** Case study kỹ thuật, viết từ kinh nghiệm triển khai Gymini trong nội dung thực tập này.
+
+**Chia sẻ trên Facebook:** https://www.facebook.com/share/p/19qBt1z5fU/
 
 {{% notice note %}}
 Bài viết bám theo những gì đã được xác nhận trong runbook triển khai và trong chính báo cáo này (link kèm theo từng mục). Phần nói về việc "credit AWS cạn nhanh hơn dự kiến" và việc "chuyển sang CloudFormation" được trình bày như một **case study minh hoạ**, dựa trên cấu trúc chi phí thật của kiến trúc đã deploy — không phải lịch sử chi tiêu billing đã xác nhận, và CloudFormation hiện **chưa** được dùng cho dự án này (toàn bộ hạ tầng được tạo tay qua AWS Console, xem [5.4](../../5-Workshop/5.4-Deployment-Guide/)). Mục "Bằng chứng và giới hạn" ở cuối bài liệt kê rõ phần nào đã xác nhận, phần nào là suy luận hợp lý, phần nào chỉ là đề xuất.

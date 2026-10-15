@@ -18,13 +18,13 @@ draft: false
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
 | --- | --- | --- | --- |
-| Viết Blog 2, "Thách thức triển khai và tối ưu chi phí trên AWS: Bài học thực tế từ dự án Gymini", dưới dạng case study kỹ thuật | 28-9-2026 | 03-10-2026 | [AWS CloudFormation User Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html) <br>[AWS Well-Architected Framework — Cost Optimization Pillar](https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html) |
+| Viết Blog 2, "Thách thức triển khai và tối ưu chi phí trên AWS: Bài học thực tế từ dự án Gymini", dưới dạng case study kỹ thuật, và đăng lên AWS Study Group VN Facebook group | 28-9-2026 | 03-10-2026 | [AWS CloudFormation User Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html) <br>[AWS Well-Architected Framework — Cost Optimization Pillar](https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html) <br>[Bài đăng trên Facebook](https://www.facebook.com/share/p/19qBt1z5fU/) |
 
 ### Kết quả đạt được tuần 9:
 
 **Tổng quan:**
 
-Tuần này dành để nhìn lại quá trình triển khai AWS từ đầu đến giờ và viết thành Blog 2: vì sao triển khai nhiều service không phải việc một ngày, những sự cố gỡ lỗi cụ thể đã ghi trong Workshop (lỗi nhập sai kiểu giá trị secret của Chat service, cơ chế cache secret của Lambda), và vì sao nên cân nhắc AWS CloudFormation khi việc deploy hiện tại hoàn toàn làm tay.
+Tuần này dành để nhìn lại quá trình triển khai AWS từ đầu đến giờ, viết thành Blog 2 và chia sẻ với AWS Study Group VN: vì sao triển khai nhiều service không phải việc một ngày, những sự cố gỡ lỗi cụ thể đã ghi trong Workshop (lỗi nhập sai kiểu giá trị secret của Chat service, cơ chế cache secret của Lambda), và vì sao nên cân nhắc AWS CloudFormation khi việc deploy hiện tại hoàn toàn làm tay.
 
 **Kiến thức lý thuyết học được:**
 
@@ -35,7 +35,7 @@ Tuần này dành để nhìn lại quá trình triển khai AWS từ đầu đ�
 
 **Hands-on labs đã thực hiện:**
 
-- Viết Blog 2 dưới dạng case study, lấy bằng chứng cụ thể từ các trang Workshop đã có sẵn (5.2.6, 5.2.7, 5.4.10, 5.5.5) thay vì viết lời khuyên chung chung
+- Viết Blog 2 dưới dạng case study, lấy bằng chứng cụ thể từ các trang Workshop đã có sẵn (5.2.6, 5.2.7, 5.4.10, 5.5.5) thay vì viết lời khuyên chung chung, và đăng lên AWS Study Group VN Facebook group
 
 **Áp dụng vào Fitness Assistant:**
 
