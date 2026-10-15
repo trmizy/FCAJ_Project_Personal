@@ -11,42 +11,41 @@ draft: false
 
 ### Mục tiêu tuần 9:
 
-- Chia sẻ kiến thức với cộng đồng bằng cách viết technical blog post
-- Tìm hiểu cách giới hạn đăng nhập AWS Management Console chỉ từ các mạng được mong đợi bằng sign-in resource-based policy và resource control policy (RCP)
+- Nhìn lại quá trình triển khai Gymini lên AWS từ đầu đến giờ và viết thành một case study kỹ thuật
+- Tìm hiểu AWS CloudFormation như một cách lấp khoảng trống "chưa có CI/CD" đã được ghi nhận trong Workshop
 
 ### Công việc thực hiện tuần này:
 
 | Công việc | Ngày bắt đầu | Ngày hoàn thành | Tài liệu tham khảo |
 | --- | --- | --- | --- |
-| Viết Blog 2, "Giới hạn truy cập AWS Management Console từ mạng tin cậy", và đăng lên AWS Study Group VN Facebook group | 28-9-2026 | 03-10-2026 | [Bài gốc trên AWS Security Blog](https://aws.amazon.com/blogs/security/restrict-aws-management-console-access-to-expected-networks-with-sign-in-resource-based-policies-and-rcps/) <br>[Bài đăng trên Facebook](https://www.facebook.com/share/p/19qBt1z5fU/) |
+| Viết Blog 2, "Thách thức triển khai và tối ưu chi phí trên AWS: Bài học thực tế từ dự án Gymini", dưới dạng case study kỹ thuật | 28-9-2026 | 03-10-2026 | [AWS CloudFormation User Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html) <br>[AWS Well-Architected Framework — Cost Optimization Pillar](https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html) |
 
 ### Kết quả đạt được tuần 9:
 
 **Tổng quan:**
 
-Tuần này dành cho community contribution và knowledge sharing. Mình tìm hiểu một bài trên AWS Security Blog về tính năng mới của AWS Sign-In giúp giới hạn đăng nhập console chỉ từ các mạng được mong đợi, rồi viết và đăng Blog 2 về chủ đề này lên AWS Study Group VN, liên hệ với cách quản lý tài khoản của Fitness Assistant.
+Tuần này dành để nhìn lại quá trình triển khai AWS từ đầu đến giờ và viết thành Blog 2: vì sao triển khai nhiều service không phải việc một ngày, những sự cố gỡ lỗi cụ thể đã ghi trong Workshop (lỗi nhập sai kiểu giá trị secret của Chat service, cơ chế cache secret của Lambda), và vì sao nên cân nhắc AWS CloudFormation khi việc deploy hiện tại hoàn toàn làm tay.
 
 **Kiến thức lý thuyết học được:**
 
-- **Sign-in resource-based policy:** Các câu lệnh deny gắn vào AWS Sign-In cho một tài khoản, được sinh từ dải IP nguồn, VPC nguồn và một principal được loại trừ. Policy được kiểm tra trước khi xác thực thông tin đăng nhập (`signin:Authenticate`) và lặp lại mỗi khi phiên console xin token, và chỉ có hiệu lực sau khi bật console authorization.
-
-- **Resource control policy (RCP):** Cùng các quy tắc mạng đó, áp dụng qua AWS Organizations cho mọi tài khoản trong một organization hoặc organizational unit.
-
-- **Technical Writing:** Học cách effectively communicate technical concepts tới broader audience.
+- **Free Tier vs. credit khuyến mãi vs. pay-as-you-go:** ba thứ khác nhau, có credit không có nghĩa hạ tầng miễn phí — nó chỉ trì hoãn thời điểm phải trả tiền thật.
+- **Resource tính phí cố định vs. tính theo mức dùng:** phần lớn service của dự án tính tiền theo mức dùng, nhưng vài resource (NAT Gateway, capacity tối thiểu của Aurora, Fargate task của Chat, ALB, VPC endpoint, IPv4 public) tính theo giờ bất kể lưu lượng — đúng với nhóm resource đã được ước tính trong ngân sách của Proposal.
+- **AWS CloudFormation:** stack, template, parameter, output, Change Set, drift detection, và quan trọng không kém là những gì nó *không* đảm bảo (giảm chi phí tự động, hay xoá stack là xoá sạch mọi resource).
+- **Technical Writing:** cấu trúc một case study tách bạch rõ điều đã xác nhận với điều chỉ là suy luận hợp lý, thay vì trình bày mọi thứ như nhau.
 
 **Hands-on labs đã thực hiện:**
 
-- Viết và đăng Blog 2 trong AWS Study Group VN Facebook group
+- Viết Blog 2 dưới dạng case study, lấy bằng chứng cụ thể từ các trang Workshop đã có sẵn (5.2.6, 5.2.7, 5.4.10, 5.5.5) thay vì viết lời khuyên chung chung
 
 **Áp dụng vào Fitness Assistant:**
 
-Môi trường DEV của Fitness Assistant được dựng phần lớn qua AWS Management Console (xem Workshop 5.4), nên đăng nhập console là cách vào tài khoản mạnh nhất. Các cơ chế trong blog sẽ thêm một điều kiện về mạng bên cạnh MFA:
-- Chỉ cho phép đăng nhập từ mạng được mong đợi, ví dụ VPN có IP egress cố định hoặc một VPC truy cập qua Console Private Access
-- Giữ một principal break-glass được loại trừ, để việc đổi IP ở nhà không khóa tài khoản
-- Theo dõi các lần `ConsoleLogin` thất bại do sign-in policy trong CloudTrail
-- Dùng RCP thay cho policy từng tài khoản nếu sau này dự án mở rộng ra nhiều tài khoản
+Viết case study này hoá ra lại là một lần tự rà soát trung thực các khoảng trống vận hành của dự án:
+- Chưa có pipeline CI/CD — mọi bước deploy ở [5.4](../../5-Workshop/5.4-Deployment-Guide/) đều làm tay qua console
+- Chưa có CloudWatch alarm và chưa bật AWS Budgets alert ([5.2.6](../../5-Workshop/5.2-Architecture-Description/5.2.6-Scalability-Operations/), [5.2.7](../../5-Workshop/5.2-Architecture-Description/5.2.7-Cost-Optimization-Cleanup/))
+- Đã có thứ tự dọn dẹp nhưng chưa chạy thật ([5.7](../../5-Workshop/5.7-Cleanup/))
+- CloudFormation (hoặc Terraform đã nhắc tới trong kiến trúc mục tiêu đề xuất) là bước tiếp theo hợp lý một khi dự án không còn deploy thủ công
 
 ### Liên kết Workshop tương ứng:
 
-- [3.2 Blog 2](../../3-BlogsPosted/3.2-Blog2/) - Giới hạn truy cập AWS Management Console từ mạng tin cậy
-- [5.2.5 Bảo mật và IAM](../../5-Workshop/5.2-Architecture-Description/5.2.5-Security-IAM/) - Cách dự án đang bảo vệ quyền truy cập hiện nay
+- [3.2 Blog 2](../../3-BlogsPosted/3.2-Blog2/) - Thách thức triển khai và tối ưu chi phí trên AWS
+- [5.2.7 Tối ưu chi phí và dọn dẹp](../../5-Workshop/5.2-Architecture-Description/5.2.7-Cost-Optimization-Cleanup/) - Các khoản chi phí cố định thật mà case study này dựa vào

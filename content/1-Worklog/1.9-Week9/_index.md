@@ -11,42 +11,41 @@ draft: false
 
 ### Week 9 Objectives:
 
-- Share knowledge with the community by writing technical blog posts
-- Learn how to restrict AWS Management Console sign-in to expected networks with sign-in resource-based policies and resource control policies (RCPs)
+- Reflect on the Fitness Assistant AWS deployment so far and write it up as a technical case study
+- Look into AWS CloudFormation as a way to close the "no CI/CD yet" gap already tracked in the Workshop
 
 ### Work Completed This Week:
 
 | Task | Start Date | Completion Date | Reference Materials |
 | --- | --- | --- | --- |
-| Wrote Blog 2, "Limit AWS Management Console Access to Trusted Networks", and published it to the AWS Study Group VN Facebook group | 28-9-2026 | 03-10-2026 | [Original article on the AWS Security Blog](https://aws.amazon.com/blogs/security/restrict-aws-management-console-access-to-expected-networks-with-sign-in-resource-based-policies-and-rcps/) <br>[Post on Facebook](https://www.facebook.com/share/p/19qBt1z5fU/) |
+| Wrote Blog 2, "Challenges and Cost Optimization in AWS Deployment: Lessons Learned from Gymini", as a technical case study | 28-9-2026 | 03-10-2026 | [AWS CloudFormation User Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html) <br>[AWS Well-Architected Framework — Cost Optimization Pillar](https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html) |
 
 ### Week 9 Results:
 
 **Overview:**
 
-This week was dedicated to community contribution and knowledge sharing. I studied an AWS Security Blog article on a new AWS Sign-In feature that limits console sign-in to expected networks, then wrote and published Blog 2 about it for the AWS Study Group VN, relating it to how the Fitness Assistant account is managed.
+This week was dedicated to reviewing the AWS deployment experience so far and writing it up as Blog 2: why a multi-service deployment is not a one-day task, the concrete troubleshooting incidents already documented in the Workshop (the Chat service's secret-value mistake, Lambda's secret caching), and why AWS CloudFormation is worth adopting given that deployment today is entirely manual.
 
 **Theoretical Knowledge Gained:**
 
-- **Sign-in resource-based policies:** Deny statements attached to AWS Sign-In for one account, generated from a source IP range, a source VPC and an excluded principal. They are checked before the credentials (`signin:Authenticate`) and again whenever the console session asks for tokens, and they only take effect once console authorization is turned on.
-
-- **Resource control policies (RCPs):** The same network rules applied through AWS Organizations to every account in an organization or organizational unit.
-
-- **Technical Writing:** Learned how to effectively communicate technical concepts to a broader audience.
+- **Free Tier vs. promotional credit vs. pay-as-you-go:** three different things, and having credit does not mean the infrastructure is free — it only postpones real billing.
+- **Fixed-cost vs. usage-based resources:** most of this project's services bill by usage, but a few (NAT Gateway, Aurora's capacity floor, the Chat Fargate task, the ALB, VPC endpoints, public IPv4) bill by the hour regardless of traffic, which is exactly the resource profile already estimated in the Proposal's budget.
+- **AWS CloudFormation:** stacks, templates, parameters, outputs, Change Sets, drift detection, and — importantly — what it does *not* guarantee (cost reduction, or that deleting a stack removes every resource).
+- **Technical Writing:** structuring a case study that separates confirmed facts from reasonable inference, instead of presenting everything as equally certain.
 
 **Hands-on Labs Completed:**
 
-- Wrote and published Blog 2 in the AWS Study Group VN Facebook group
+- Wrote Blog 2 as a case study, pulling concrete evidence from the Workshop pages already written (5.2.6, 5.2.7, 5.4.10, 5.5.5) instead of writing generic advice
 
 **Application to Fitness Assistant:**
 
-The DEV environment of the Fitness Assistant was built mostly through the AWS Management Console (see Workshop 5.4), so console sign-in is the most powerful way into the account. The blog's controls would add a network condition on top of MFA:
-- Allow sign-in only from expected networks, such as a VPN with a fixed egress IP or a VPC reached through Console Private Access
-- Keep one excluded break-glass principal, so a changed home IP address cannot lock the account
-- Watch CloudTrail `ConsoleLogin` failures caused by the sign-in policy
-- Use RCPs instead of per-account policies if the project later grows to several accounts
+Writing this case study turned into an honest audit of the project's own operational gaps:
+- No CI/CD pipeline yet — every deployment step in [5.4](../../5-Workshop/5.4-Deployment-Guide/) is done by hand through the console
+- No CloudWatch alarms and no AWS Budgets alert yet ([5.2.6](../../5-Workshop/5.2-Architecture-Description/5.2.6-Scalability-Operations/), [5.2.7](../../5-Workshop/5.2-Architecture-Description/5.2.7-Cost-Optimization-Cleanup/))
+- A documented but not yet executed clean-up order ([5.7](../../5-Workshop/5.7-Cleanup/))
+- CloudFormation (or the Terraform already named in the proposed target architecture) is the natural next step once the project moves past manual deployment
 
 ### Related Workshop Links:
 
-- [3.2 Blog 2](../../3-BlogsPosted/3.2-Blog2/) - Limit AWS Management Console Access to Trusted Networks
-- [5.2.5 Security and IAM](../../5-Workshop/5.2-Architecture-Description/5.2.5-Security-IAM/) - How access to the project is secured today
+- [3.2 Blog 2](../../3-BlogsPosted/3.2-Blog2/) - Challenges and Cost Optimization in AWS Deployment
+- [5.2.7 Cost Optimization and Clean-up](../../5-Workshop/5.2-Architecture-Description/5.2.7-Cost-Optimization-Cleanup/) - The real fixed-cost items this case study is grounded in

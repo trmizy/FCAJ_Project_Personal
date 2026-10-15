@@ -15,5 +15,6 @@ None of these posts are marked as published until a real URL is filled in below.
 {{% /notice %}}
 
 1. [Blog 1 — Containerizing Microservices and Storing Images in Amazon ECR](3.1-Blog1/)
-2. [Blog 2 — Limit AWS Management Console Access to Trusted Networks](3.2-Blog2/)
+2. [Blog 2 — Challenges and Cost Optimization in AWS Deployment](3.2-Blog2/)
 3. [Blog 3 — Secure Multi-tenant RAG with Amazon Bedrock and Verified Permissions](3.3-Blog3/)
+4. [Blog 4 — Limit AWS Management Console Access to Trusted Networks](3.4-Blog4/)
