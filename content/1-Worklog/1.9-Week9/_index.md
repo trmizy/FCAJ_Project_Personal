@@ -12,38 +12,41 @@ draft: false
 ### Week 9 Objectives:
 
 - Share knowledge with the community by writing technical blog posts
-- Focus on EC2 cost optimization strategies
+- Learn how to secure retrieval-augmented generation (RAG) shared by many teams with Amazon Bedrock and Amazon Verified Permissions
 
 ### Work Completed This Week:
 
 | Task | Start Date | Completion Date | Reference Materials |
 | --- | --- | --- | --- |
-| Wrote blog post about EC2 cost optimization and published to AWS Study Group VN Facebook group | 28-9-2026 | 03-10-2026 | |
+| Wrote Blog 2, "Secure Multi-tenant RAG with Amazon Bedrock and Verified Permissions", and published it to the AWS Study Group VN Facebook group | 28-9-2026 | 03-10-2026 | [Original article on the AWS Architecture Blog](https://aws.amazon.com/blogs/architecture/secure-multi-tenant-rag-with-amazon-bedrock-and-verified-permissions/) <br>[Post on Facebook](https://www.facebook.com/share/p/19qBt1z5fU/) |
 
 ### Week 9 Results:
 
 **Overview:**
 
-This week was dedicated to community contribution and knowledge sharing. I wrote and published a technical blog post detailing strategies for EC2 cost optimization, sharing insights with the AWS Study Group VN.
+This week was dedicated to community contribution and knowledge sharing. I studied an AWS Architecture Blog article on keeping one shared RAG knowledge base safe for many departments, then wrote and published Blog 2 about it for the AWS Study Group VN, relating it to the AI service of the Fitness Assistant.
 
 **Theoretical Knowledge Gained:**
 
-- **Cost Optimization:** Consolidated understanding of EC2 pricing models, right-sizing, and cost-saving strategies (such as Spot Instances, Savings Plans, and Auto Scaling).
+- **Document-level authorization for RAG:** One shared Amazon Bedrock Knowledge Base whose documents carry a `department` metadata attribute, and Cedar policies in Amazon Verified Permissions that decide at retrieval time which documents each user may use. Rules change without redeploying code.
+
+- **Defense in depth:** Two independent layers that both fail closed: a Lambda authorizer on API Gateway for API access, and a middleware Lambda that turns the policy decision into a metadata filter for `RetrieveAndGenerate`. Guardrails for Amazon Bedrock then checks that the answer is grounded.
 
 - **Technical Writing:** Learned how to effectively communicate technical concepts to a broader audience.
 
 **Hands-on Labs Completed:**
 
-- Authored and successfully published blog post about EC2 cost optimization in the AWS Study Group VN Facebook group, receiving feedback and engaging with the community
+- Wrote and published Blog 2 in the AWS Study Group VN Facebook group
 
 **Application to Fitness Assistant:**
 
-The blog post about EC2 cost optimization is directly applicable to Fitness Assistant deployment. The documented strategies include:
-- Right-sizing EC2 instances for containerized workloads
-- Evaluating Spot Instances for non-critical services
-- Implementing Auto Scaling for predictable traffic patterns
-- Cost monitoring and alerting best practices
+The AI service of the Fitness Assistant already does RAG with Amazon Bedrock and a vector index on OpenSearch Serverless, filled by scheduled jobs from shared sources such as PubMed, RSS feeds and web articles. The pattern from the blog applies as soon as private documents enter that index:
+- A metadata attribute such as `gym_id` on each private document
+- A Cedar policy per gym instead of one index per gym
+- A short authorizer cache, so revoked access ends quickly
+- Fail-closed behavior when the policy service is unavailable
 
 ### Related Workshop Links:
 
-- [3.1 Blog 1](../../3-BlogsPosted/3.1-Blog1/) - EC2 Cost Optimization blog post
+- [3.2 Blog 2](../../3-BlogsPosted/3.2-Blog2/) - Secure Multi-tenant RAG with Amazon Bedrock and Verified Permissions
+- [5.4.9 AI Service — vector search, scheduling and API](../../5-Workshop/5.4-Deployment-Guide/5.4.9-AI-Service-Vector-Search/) - The vector search the blog relates to

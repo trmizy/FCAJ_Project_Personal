@@ -56,7 +56,7 @@ In this final week, my primary operational focus was to review, refine, and aggr
 - Data analytics (Glue, Athena, QuickSight) from Module 6
 
 **Community Contributions:**
-- Published technical blogs about cost optimization and security
+- Published technical blogs about container images on Amazon ECR and about AWS security (multi-tenant RAG, console access)
 - Participated in FCAJ Community Day events
 - Shared knowledge with AWS Study Group VN community
 

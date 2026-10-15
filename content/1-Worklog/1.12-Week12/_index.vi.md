@@ -56,7 +56,7 @@ Trong final week này, primary operational focus của mình là review, refine,
 - Data analytics (Glue, Athena, QuickSight) từ Module 6
 
 **Community Contributions:**
-- Published technical blogs về cost optimization và security
+- Published technical blogs về container image trên Amazon ECR và bảo mật trên AWS (RAG multi-tenant, truy cập Console)
 - Participated trong FCAJ Community Day events
 - Shared knowledge với AWS Study Group VN community
 
