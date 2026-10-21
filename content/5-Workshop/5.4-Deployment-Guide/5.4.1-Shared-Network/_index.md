@@ -8,6 +8,8 @@ pre: " <b> 5.4.1. </b> "
 
 All Lambda-based services share one VPC and one Lambda security group; the Chat Service adds its own security groups in [5.4.10](../5.4.10-Chat-Service-ECS/).
 
+In every screenshot on the deployment pages, the **red rectangles** mark what to fill in or click for the sub-step written just above it. Where the runbook has no screenshot for an action, the text says so.
+
 #### Starting point
 
 The base VPC, the two private application subnets, the private DB subnets, the Aurora cluster and the Secrets Manager VPC endpoint already existed before the first step recorded in the runbook, so their creation is not shown here. The table is the reference used by every later step.
@@ -26,37 +28,45 @@ The steps below were added during the User Service deployment, when the first La
 
 #### Step 1 — Create and attach an Internet Gateway
 
-**VPC → Internet gateways → Create internet gateway**, name it `fitness-assistant-dev-igw`, then **Actions → Attach to a VPC → `fitness-assistant-dev-vpc`**.
+**1.1 — Create the gateway.** Open **VPC → Internet gateways → Create internet gateway**, enter the name tag `fitness-assistant-dev-igw` and click **Create internet gateway**.
 
-![Internet Gateway fitness-assistant-dev-igw attached to the VPC](/images/workshop/runbook/img023.jpg)
+![Create internet gateway: name tag fitness-assistant-dev-igw, then Create](/images/workshop/runbook/img023.jpg)
+
+**1.2 — Attach it to the VPC.** Open the new gateway and choose **Actions → Attach to a VPC → `fitness-assistant-dev-vpc`**. *The runbook has no screenshot of this action.*
 
 #### Step 2 — Create a public subnet for the NAT Gateway
 
-**VPC → Subnets → Create subnet**: VPC `fitness-assistant-dev-vpc`, name `fitness-assistant-dev-public-a`, AZ `ap-southeast-1a`, CIDR `10.0.1.0/24`. Auto-assign public IPv4 stays off — the NAT Gateway uses its own Elastic IP. One public subnet is enough for one NAT Gateway in DEV.
+**2.1 — Fill in the subnet.** Open **VPC → Subnets → Create subnet** and enter: VPC `fitness-assistant-dev-vpc`, subnet name `fitness-assistant-dev-public-a`, Availability Zone `ap-southeast-1a`, IPv4 subnet CIDR block `10.0.1.0/24`. Then scroll down and click **Create subnet**.
 
-![Public subnet fitness-assistant-dev-public-a (10.0.1.0/24)](/images/workshop/runbook/img024.jpg)
+![Create subnet: VPC, name public-a, ap-southeast-1a, CIDR 10.0.1.0/24](/images/workshop/runbook/img024.jpg)
+
+Auto-assign public IPv4 stays off — the NAT Gateway uses its own Elastic IP. One public subnet is enough for one NAT Gateway in DEV.
 
 #### Step 3 — Create the public route table
 
-**VPC → Route tables → Create route table**: name `fitness-assistant-dev-public-rt`, VPC `fitness-assistant-dev-vpc`. In **Routes → Edit routes**, add `0.0.0.0/0 → Internet Gateway fitness-assistant-dev-igw`.
+**3.1 — Create the table.** Open **VPC → Route tables → Create route table**, name it `fitness-assistant-dev-public-rt`, choose the VPC `fitness-assistant-dev-vpc` and click **Create route table**. *The runbook has no screenshot of this action.*
 
-![Public route table with 0.0.0.0/0 pointing to the Internet Gateway](/images/workshop/runbook/img025.jpg)
+**3.2 — Add the internet route.** Select the table, open **Routes → Edit routes → Add route**, enter the destination `0.0.0.0/0`, choose the target **Internet Gateway** `fitness-assistant-dev-igw`, then click **Save changes**.
 
-In **Subnet associations → Edit subnet associations**, associate `fitness-assistant-dev-public-a`.
+![Edit routes: 0.0.0.0/0 to the Internet Gateway, Save changes](/images/workshop/runbook/img025.jpg)
 
-![Subnet association of fitness-assistant-dev-public-a](/images/workshop/runbook/img026.jpg)
+**3.3 — Associate the public subnet.** Open **Subnet associations → Edit subnet associations**, tick `fitness-assistant-dev-public-a` and click **Save associations**.
+
+![Edit subnet associations: tick public-a, Save associations](/images/workshop/runbook/img026.jpg)
 
 #### Step 4 — Create the NAT Gateway
 
-**VPC → NAT gateways → Create NAT gateway**: name `fitness-assistant-dev-nat-a`, subnet `fitness-assistant-dev-public-a`, connectivity type **Public**, and **Allocate Elastic IP**. Wait for the state to change from *Pending* to *Available* before touching the private route table.
+**4.1 — Fill in the gateway.** Open **VPC → NAT gateways → Create NAT gateway** and enter: name `fitness-assistant-dev-nat-a`, availability mode **Zonal**, subnet `fitness-assistant-dev-public-a`, connectivity type **Public**, and an Elastic IP (click **Allocate Elastic IP** to get one). Then click **Create NAT gateway**.
 
-![NAT Gateway fitness-assistant-dev-nat-a with its Elastic IP](/images/workshop/runbook/img027.jpg)
+![Create NAT gateway: name, Zonal, subnet public-a, Public, Elastic IP, Create](/images/workshop/runbook/img027.jpg)
+
+Wait for the state to change from *Pending* to *Available* before touching the private route table.
 
 #### Step 5 — Route the private app subnets through the NAT Gateway
 
-**VPC → Route tables → `fitness-assistant-dev-private-app-rt` → Routes → Edit routes**, add `0.0.0.0/0 → NAT Gateway fitness-assistant-dev-nat-a`.
+**5.1 — Add the NAT route.** Open **VPC → Route tables → `fitness-assistant-dev-private-app-rt` → Routes → Edit routes → Add route**, enter the destination `0.0.0.0/0`, choose the target **NAT Gateway** `fitness-assistant-dev-nat-a`, then click **Save changes**.
 
-![Private app route table: 10.0.0.0/16 local and 0.0.0.0/0 via the NAT Gateway](/images/workshop/runbook/img028.jpg)
+![Private app route table: 0.0.0.0/0 to the NAT Gateway, Save changes](/images/workshop/runbook/img028.jpg)
 
 The route table now contains:
 
@@ -77,15 +87,19 @@ Do **not** add a NAT route to `fitness-assistant-dev-private-db-rt`. The databas
 
 #### Step 6 — Add a second public subnet (needed later by the Chat ALB) {#second-public-subnet}
 
-An internet-facing Application Load Balancer needs subnets in at least two Availability Zones. When the Chat Service was deployed, a second public subnet was added: **VPC → Subnets → Create subnet**, name `fitness-assistant-dev-public-b`, AZ `ap-southeast-1b`, CIDR `10.0.2.0/24`.
+An internet-facing Application Load Balancer needs subnets in at least two Availability Zones. When the Chat Service was deployed, a second public subnet was added.
 
-![Creating fitness-assistant-dev-public-b (10.0.2.0/24) in ap-southeast-1b](/images/workshop/runbook/img305.jpg)
+**6.1 — Create the subnet.** Open **VPC → Subnets → Create subnet** and enter: VPC `fitness-assistant-dev-vpc`, subnet name `fitness-assistant-dev-public-b`, Availability Zone `ap-southeast-1b`, IPv4 subnet CIDR block `10.0.2.0/24`. Then click **Create subnet**.
 
-Then select the new subnet → **Actions → Edit route table association** and choose `fitness-assistant-dev-public-rt`, the same table used by `public-a`.
+![Create subnet: VPC, name public-b, ap-southeast-1b, CIDR 10.0.2.0/24, Create subnet](/images/workshop/runbook/img305.jpg)
 
-![Edit route table association for the new public subnet](/images/workshop/runbook/img306.jpg)
+**6.2 — Open the route table association.** Select the new subnet and choose **Actions → Edit route table association**.
 
-![public-b associated with fitness-assistant-dev-public-rt (local + 0.0.0.0/0 → IGW)](/images/workshop/runbook/img307.jpg)
+![Subnets list: Actions menu, Edit route table association](/images/workshop/runbook/img306.jpg)
+
+**6.3 — Use the public route table.** Choose `fitness-assistant-dev-public-rt`, the same table used by `public-a` (local + `0.0.0.0/0` → IGW), and click **Save**.
+
+![Edit route table association: fitness-assistant-dev-public-rt, Save](/images/workshop/runbook/img307.jpg)
 
 #### Result
 
