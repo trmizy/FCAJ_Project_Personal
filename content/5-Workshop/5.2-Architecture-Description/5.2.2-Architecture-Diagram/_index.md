@@ -6,7 +6,7 @@ chapter: false
 pre: " <b> 5.2.2. </b> "
 ---
 
-The diagrams below are rendered directly from this report's source (Mermaid), so they stay in sync with the text rather than drifting from a separately exported image. Unlike earlier revisions of this page, every node here is checked directly against live AWS state (not copied from an older draft) — [5.4 Deployment Guide](../../5.4-Deployment-Guide/) and [5.5.5 Validation status and open items](../../5.5-Test-Validation/5.5.5-Status-Open-Items/) carry the step-by-step evidence behind each claim, and [5.2.1](../5.2.1-Architecture-Overview/) covers how the deployment arrived at its current state.
+The diagram below is the architecture image supplied for this project. Unlike earlier revisions of this page, every node here is checked directly against live AWS state (not copied from an older draft) — [5.4 Deployment Guide](../../5.4-Deployment-Guide/) and [5.5.5 Validation status and open items](../../5.5-Test-Validation/5.5.5-Status-Open-Items/) carry the step-by-step evidence behind each claim, and [5.2.1](../5.2.1-Architecture-Overview/) covers how the deployment arrived at its current state.
 
 {{% notice note %}}
 Two corrections made while re-verifying this page on 2026-10-21, against real AWS calls, not inferred:
@@ -17,44 +17,6 @@ Two corrections made while re-verifying this page on 2026-10-21, against real AW
 ### Component diagram
 
 ![AWS serverless architecture of Fitness Assistant](/images/workshop/architecture/architecture.png)
-
-### DevOps and monitoring
-
-{{< mermaid >}}
-graph LR
-    subgraph DevOps ["DevOps and infrastructure as code"]
-        GH["GitHub<br/>source code"]
-        GA["GitHub Actions<br/>CI/CD pipeline"]
-        OIDC["OIDC<br/>authentication"]
-        CFN["AWS CloudFormation<br/>API Gateway, CI/CD IAM roles"]
-        TF["Terraform<br/>one unrelated bootstrap API only"]
-    end
-    AWSR["AWS resources<br/>provisioned"]
-
-    GH --> GA
-    GA --> OIDC
-    OIDC --> CFN
-    CFN --> AWSR
-    OIDC -.-> TF
-
-    subgraph Monitoring ["Monitoring, alerting and observability"]
-        CW2["Amazon CloudWatch<br/>logs and metrics"]
-        AL["CloudWatch Alarms<br/>notifications"]
-        SNS1["Amazon SNS<br/>email alerts"]
-        DASH["CloudWatch Dashboards"]
-        XR["AWS X-Ray<br/>tracing, optional"]
-        BUD["AWS Budgets<br/>cost alerts"]
-        CE["AWS Cost Explorer<br/>cost analysis"]
-    end
-
-    AWSR --> CW2
-    CW2 --> AL
-    AL --> SNS1
-    CW2 --> DASH
-    AWSR -. optional .-> XR
-    AWSR --> BUD
-    AWSR --> CE
-{{< /mermaid >}}
 
 {{% notice note %}}
 Everything in the component diagram outside the Edge and DevOps groups runs inside a VPC spread across multiple Availability Zones. The chat service is the one deliberate exception to "no EC2 instances or containers in this design": it is stateful WebSocket traffic, which does not fit a request/response Lambda well, so it runs as an ECS Fargate task behind its own Application Load Balancer — both on-demand (started/stopped per session with the NAT Gateway and OpenSearch/Secrets Manager VPC endpoints, via `dev-start.ps1`/`dev-stop.ps1`), not always-on.

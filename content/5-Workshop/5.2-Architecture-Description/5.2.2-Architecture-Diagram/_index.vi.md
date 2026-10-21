@@ -6,7 +6,7 @@ chapter: false
 pre: " <b> 5.2.2. </b> "
 ---
 
-Các sơ đồ dưới đây được render trực tiếp từ source của báo cáo (Mermaid), nên luôn đồng bộ với nội dung thay vì bị lệch so với một ảnh export riêng. Khác với các bản trước của trang này, mọi node ở đây đều đã được đối chiếu trực tiếp với trạng thái AWS thật (không chép lại từ bản nháp cũ) — [5.4 Hướng dẫn triển khai](../../5.4-Deployment-Guide/) và [5.5.5 Trạng thái kiểm thử và việc còn mở](../../5.5-Test-Validation/5.5.5-Status-Open-Items/) có đầy đủ bằng chứng từng bước đằng sau mỗi khẳng định, còn [5.2.1](../5.2.1-Architecture-Overview/) nói về cách quá trình triển khai đi đến trạng thái hiện tại.
+Sơ đồ dưới đây là ảnh kiến trúc được cung cấp cho dự án. Khác với các bản trước của trang này, mọi node ở đây đều đã được đối chiếu trực tiếp với trạng thái AWS thật (không chép lại từ bản nháp cũ) — [5.4 Hướng dẫn triển khai](../../5.4-Deployment-Guide/) và [5.5.5 Trạng thái kiểm thử và việc còn mở](../../5.5-Test-Validation/5.5.5-Status-Open-Items/) có đầy đủ bằng chứng từng bước đằng sau mỗi khẳng định, còn [5.2.1](../5.2.1-Architecture-Overview/) nói về cách quá trình triển khai đi đến trạng thái hiện tại.
 
 {{% notice note %}}
 2 chỗ sửa khi rà soát lại trang này ngày 21/10/2026, đối chiếu trực tiếp với AWS thật, không suy đoán:
@@ -17,44 +17,6 @@ Các sơ đồ dưới đây được render trực tiếp từ source của bá
 ### Sơ đồ thành phần
 
 ![Kiến trúc AWS serverless của Fitness Assistant](/images/workshop/architecture/architecture.png)
-
-### DevOps và monitoring
-
-{{< mermaid >}}
-graph LR
-    subgraph DevOps ["DevOps and infrastructure as code"]
-        GH["GitHub<br/>source code"]
-        GA["GitHub Actions<br/>CI/CD pipeline"]
-        OIDC["OIDC<br/>authentication"]
-        CFN["AWS CloudFormation<br/>API Gateway, CI/CD IAM roles"]
-        TF["Terraform<br/>chỉ 1 API bootstrap không liên quan"]
-    end
-    AWSR["AWS resources<br/>provisioned"]
-
-    GH --> GA
-    GA --> OIDC
-    OIDC --> CFN
-    CFN --> AWSR
-    OIDC -.-> TF
-
-    subgraph Monitoring ["Monitoring, alerting and observability"]
-        CW2["Amazon CloudWatch<br/>logs and metrics"]
-        AL["CloudWatch Alarms<br/>notifications"]
-        SNS1["Amazon SNS<br/>email alerts"]
-        DASH["CloudWatch Dashboards"]
-        XR["AWS X-Ray<br/>tracing, optional"]
-        BUD["AWS Budgets<br/>cost alerts"]
-        CE["AWS Cost Explorer<br/>cost analysis"]
-    end
-
-    AWSR --> CW2
-    CW2 --> AL
-    AL --> SNS1
-    CW2 --> DASH
-    AWSR -. optional .-> XR
-    AWSR --> BUD
-    AWSR --> CE
-{{< /mermaid >}}
 
 {{% notice note %}}
 Mọi thành phần trong sơ đồ thành phần, ngoại trừ nhóm Edge và DevOps, đều chạy trong một VPC trải trên nhiều Availability Zone. Chat service là ngoại lệ duy nhất có chủ đích của "không EC2 instance hay container nào trong thiết kế này": đây là traffic WebSocket có trạng thái (stateful), không hợp với mô hình request/response của Lambda, nên chạy dưới dạng ECS Fargate task sau Application Load Balancer riêng — cả hai đều on-demand (bật/tắt theo phiên làm việc cùng NAT Gateway và VPC endpoint của OpenSearch/Secrets Manager, qua `dev-start.ps1`/`dev-stop.ps1`), không chạy thường trực.
