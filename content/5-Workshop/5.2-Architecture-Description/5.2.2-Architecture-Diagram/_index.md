@@ -6,93 +6,17 @@ chapter: false
 pre: " <b> 5.2.2. </b> "
 ---
 
-The diagrams below are rendered directly from this report's source (Mermaid), so they stay in sync with the text rather than drifting from a separately exported image. They show the designed, target architecture for this project: a fully serverless backend behind a REST API, with CI/CD and a full monitoring stack as part of the standard design rather than an afterthought. [5.4 Deployment Guide](../../5.4-Deployment-Guide/) and [5.5.5 Validation status and open items](../../5.5-Test-Validation/5.5.5-Status-Open-Items/) say exactly which of these pieces are confirmed running in the DEV environment today, and [5.2.1](../5.2.1-Architecture-Overview/) covers how the deployment arrived at its current state.
+The diagrams below are rendered directly from this report's source (Mermaid), so they stay in sync with the text rather than drifting from a separately exported image. Unlike earlier revisions of this page, every node here is checked directly against live AWS state (not copied from an older draft) — [5.4 Deployment Guide](../../5.4-Deployment-Guide/) and [5.5.5 Validation status and open items](../../5.5-Test-Validation/5.5.5-Status-Open-Items/) carry the step-by-step evidence behind each claim, and [5.2.1](../5.2.1-Architecture-Overview/) covers how the deployment arrived at its current state.
+
+{{% notice note %}}
+Two corrections made while re-verifying this page on 2026-10-21, against real AWS calls, not inferred:
+- **API Gateway is an HTTP API, not a REST API** — this project uses `apigatewayv2`, confirmed by every route/CORS/stage call made against it throughout this engagement. An earlier revision of this diagram said "REST API"; that was wrong.
+- **The Aurora Serverless v2 reader replica is already deployed**, not a "designed but not built" item: `aws rds describe-db-clusters` lists two real cluster members (`fitness-assistant-dev-aurora-instance-1`, writer; `fitness-assistant-dev-aurora-instance-2`, reader, `PromotionTier: 1`), re-confirmed live the same day this note was written.
+{{% /notice %}}
 
 ### Component diagram
 
-{{< mermaid >}}
-graph LR
-    U1[Mobile App]
-    U2[Web Browser]
-    U3["Admin Portal"]
-
-    subgraph Edge ["Edge and global"]
-        R53["Route 53<br/>DNS"]
-        WAF["AWS WAF<br/>optional"]
-        CF["Amazon CloudFront<br/>CDN"]
-        FE["Amazon S3<br/>frontend bucket"]
-    end
-
-    GW["Amazon API Gateway<br/>REST API"]
-
-    subgraph Backend ["Serverless backend, AWS Lambda"]
-        AU["Auth"]
-        US["User"]
-        FI["Fitness"]
-        PA["Payment"]
-        GY["Gym"]
-        AIS["AI"]
-    end
-
-    subgraph VPC ["VPC 10.0.0.0/16, ap-southeast-1, multi-AZ"]
-        ENI["Private app subnets<br/>Lambda ENI attachment"]
-        PROXY["Amazon RDS Proxy<br/>optional"]
-        DBA[("Aurora Serverless v2<br/>Primary")]
-        DBB[("Aurora Serverless v2<br/>Replica")]
-    end
-
-    subgraph Shared ["Shared serverless services"]
-        UP["Amazon S3<br/>uploads bucket"]
-        SEC["AWS Secrets Manager"]
-        CW["Amazon CloudWatch"]
-    end
-
-    EB["Amazon EventBridge<br/>schedules and events"]
-
-    subgraph Async ["Async and AI processing"]
-        SQS1[["Amazon SQS<br/>job queue"]]
-        WRK["Lambda Worker"]
-        BR[["Amazon Bedrock<br/>LLM provider"]]
-        VEC[("OpenSearch Serverless<br/>vector store")]
-    end
-
-    U1 --> CF
-    U2 --> CF
-    U3 --> CF
-    R53 -.-> CF
-    R53 -.-> GW
-    CF --> WAF
-    WAF --> FE
-    U1 --> GW
-    U2 --> GW
-    U3 --> GW
-
-    GW --> AU
-    GW --> US
-    GW --> FI
-    GW --> PA
-    GW --> GY
-    GW --> AIS
-
-    AU --> ENI
-    US --> ENI
-    FI --> ENI
-    PA --> ENI
-    GY --> ENI
-    AIS --> ENI
-    ENI --> PROXY
-    PROXY --> DBA
-    DBA -. replication .-> DBB
-
-    AU --> SEC
-    US --> UP
-    AIS -->|enqueue| SQS1
-    SQS1 --> WRK
-    WRK --> BR
-    WRK --> VEC
-    EB -.-> WRK
-    ENI --> CW
-{{< /mermaid >}}
+![AWS serverless architecture of Fitness Assistant](/images/workshop/architecture/architecture.png)
 
 ### DevOps and monitoring
 
@@ -102,14 +26,16 @@ graph LR
         GH["GitHub<br/>source code"]
         GA["GitHub Actions<br/>CI/CD pipeline"]
         OIDC["OIDC<br/>authentication"]
-        TF["Terraform<br/>infrastructure as code"]
+        CFN["AWS CloudFormation<br/>API Gateway, CI/CD IAM roles"]
+        TF["Terraform<br/>one unrelated bootstrap API only"]
     end
     AWSR["AWS resources<br/>provisioned"]
 
     GH --> GA
     GA --> OIDC
-    OIDC --> TF
-    TF --> AWSR
+    OIDC --> CFN
+    CFN --> AWSR
+    OIDC -.-> TF
 
     subgraph Monitoring ["Monitoring, alerting and observability"]
         CW2["Amazon CloudWatch<br/>logs and metrics"]
@@ -131,5 +57,11 @@ graph LR
 {{< /mermaid >}}
 
 {{% notice note %}}
-Everything in the component diagram outside the Edge and DevOps groups runs inside a VPC spread across multiple Availability Zones, with no EC2 instances or containers in this design. The DevOps and monitoring pieces (GitHub Actions, Terraform, CloudWatch Alarms, SNS, Dashboards, X-Ray, Budgets) describe the intended operating model; [5.5.5](../../5.5-Test-Validation/5.5.5-Status-Open-Items/) is the page to check for what has actually been built and confirmed so far.
+Everything in the component diagram outside the Edge and DevOps groups runs inside a VPC spread across multiple Availability Zones. The chat service is the one deliberate exception to "no EC2 instances or containers in this design": it is stateful WebSocket traffic, which does not fit a request/response Lambda well, so it runs as an ECS Fargate task behind its own Application Load Balancer — both on-demand (started/stopped per session with the NAT Gateway and OpenSearch/Secrets Manager VPC endpoints, via `dev-start.ps1`/`dev-stop.ps1`), not always-on.
+
+The AI component is a dual-provider setup, not a single LLM: **Ollama running a self-hosted Qwen3-4B model is the default for local/dev work** (no per-token cost, no AWS dependency), while **the real, deployed AWS Lambda calls Amazon Bedrock's Nova Pro** — not through the DEV account's own Bedrock quota (which is account-level 0 and not self-service-adjustable), but through a dedicated cross-account IAM role in a separate AWS account, assumed via STS for every Bedrock call. This was exercised for real, not just configured: CloudWatch shows a successful `llm_call` log line with `provider":"bedrock"` and a real `apac.amazon.nova-pro-v1:0` response.
+
+On infrastructure-as-code: **CloudFormation, not Terraform, is what actually provisions and manages this project's real AWS resources** (API Gateway, the CI/CD OIDC IAM roles, the on-demand network stack, the frontend CDN, monitoring) — confirmed by listing every live `CREATE_COMPLETE`/`UPDATE_COMPLETE` stack in the account. The repository does contain a Terraform module, but it is wired up only to a separate, unrelated "hello world" bootstrap API with no live `.tfstate` for this environment — it is not this project's real IaC path, despite being present in the codebase.
+
+[5.5.5](../../5.5-Test-Validation/5.5.5-Status-Open-Items/) is the page to check for the full, itemized build/confirmed status of every piece here.
 {{% /notice %}}
