@@ -8,6 +8,8 @@ pre: " <b> 5.4.7. </b> "
 
 Payment Service xử lý nạp ví, thanh toán hợp đồng PT, rút tiền và webhook của provider. Các endpoint nội bộ nhạy cảm (checkout, chuyển tiền ví, giải ngân hợp đồng, no-show, chấm dứt hợp đồng, rút tiền của gym) chỉ truy cập được qua direct Lambda invoke từ Gym, User và AI — không bao giờ qua API public.
 
+Trong mọi ảnh bên dưới, các **khung đỏ** đánh dấu ô cần nhập hoặc nút cần bấm của bước nhỏ được viết ngay phía trên ảnh.
+
 | Mục | Giá trị |
 |---|---|
 | Logical database | `fitness_assistant_payment` (11 Prisma migration) |
@@ -28,48 +30,69 @@ fitness-assistant-dev-aurora
 
 #### Bước 1 — Secret và artifact
 
-Tạo `fitness-assistant/dev/payment-database` (`database = fitness_assistant_payment`), sau đó upload `payment-migrate-lambda.zip` (~69 MiB) và `payment-lambda.zip` lên bucket deployments.
+**1.1 — Tạo secret.** Trong **Secrets Manager → Store a new secret** chọn **Other type of secret**, nhập năm cặp giống các service khác với `database` = `fitness_assistant_payment`, đặt tên `fitness-assistant/dev/payment-database`.
 
-![Upload payment-lambda.zip và payment-migrate-lambda.zip (105.1 MB)](/images/workshop/runbook/img123.jpg)
+*Runbook không có ảnh của thao tác này; form giống [5.4.6 Bước 1](../5.4.6-Gym-Service/).*
+
+**1.2 — Upload hai file zip.** Trong bucket deployments bấm **Upload**, thêm `payment-lambda.zip` (36 MB) và `payment-migrate-lambda.zip` (~69 MiB, nên bắt buộc dùng S3), rồi bắt đầu upload. Ảnh cho thấy cả hai file trong danh sách (tổng 105.1 MB).
+
+![payment-lambda.zip và payment-migrate-lambda.zip đang upload](/images/workshop/runbook/img123.jpg)
 
 #### Bước 2 — Migration role
 
-`fitness-assistant-dev-payment-migrate-role` với hai managed policy và inline policy `fitness-assistant-dev-payment-migration-secret` chỉ cho `fitness-assistant/dev/payment-database*`.
+**2.1 — Tạo role.** **IAM → Roles → Create role**, chọn **AWS service → Lambda**, gắn `AWSLambdaBasicExecutionRole` và `AWSLambdaVPCAccessExecutionRole`, đặt tên `fitness-assistant-dev-payment-migrate-role`.
 
-![Role fitness-assistant-dev-payment-migrate-role](/images/workshop/runbook/img124.jpg)
+![Role mới với hai managed policy](/images/workshop/runbook/img124.jpg)
 
-![Inline policy cho secret database của Payment](/images/workshop/runbook/img125.jpg)
+**2.2 — Viết policy cho secret.** Trên role mở **Add permissions → Create inline policy**, chuyển sang **JSON** và cho phép `secretsmanager:GetSecretValue` / `DescribeSecret` chỉ trên `fitness-assistant/dev/payment-database*`.
 
-![Tên policy fitness-assistant-dev-payment-migration-secret](/images/workshop/runbook/img126.jpg)
+![JSON editor với statement cho secret của Payment](/images/workshop/runbook/img125.jpg)
+
+**2.3 — Đặt tên và tạo policy.** Nhập tên `fitness-assistant-dev-payment-migration-secret` và bấm **Create policy**.
+
+![Tên policy và nút Create policy](/images/workshop/runbook/img126.jpg)
 
 #### Bước 3 — Migration Lambda
 
-`fitness-assistant-dev-payment-migrate`: 1024 MB, 15 phút, handler `dist/migrate-lambda.handler`, `DATABASE_SECRET_ID=fitness-assistant/dev/payment-database`, hai private app subnet + Lambda SG, code từ S3 ở copy mode.
+**3.1 — Điền thông tin function.** **Lambda → Create function**, giữ **Author from scratch**, tên `fitness-assistant-dev-payment-migrate`, runtime **Node.js 22.x**, custom execution role `fitness-assistant-dev-payment-migrate-role`, rồi **Create function**.
 
-![Create function fitness-assistant-dev-payment-migrate](/images/workshop/runbook/img127.jpg)
+![Author from scratch, tên, runtime và migrate role](/images/workshop/runbook/img127.jpg)
 
-![Memory 1024 MB, timeout 15 phút](/images/workshop/runbook/img128.jpg)
+**3.2 — Đặt memory và timeout.** **Configuration → General configuration → Edit**: **Memory** `1024` MB, **Timeout** `15` phút `0` giây, **Save**.
 
-![Handler dist/migrate-lambda.handler](/images/workshop/runbook/img129.jpg)
+![Memory 1024 MB, timeout 15 phút, Save](/images/workshop/runbook/img128.jpg)
 
-![DATABASE_SECRET_ID cho database Payment](/images/workshop/runbook/img130.jpg)
+**3.3 — Đặt handler.** **Code → Runtime settings → Edit**: `dist/migrate-lambda.handler`, **Save**.
 
-![Cấu hình VPC](/images/workshop/runbook/img131.jpg)
+![Handler dist/migrate-lambda.handler và Save](/images/workshop/runbook/img129.jpg)
+
+**3.4 — Thêm environment variable.** **Configuration → Environment variables → Edit**: key `DATABASE_SECRET_ID`, value `fitness-assistant/dev/payment-database`, **Save**.
+
+![DATABASE_SECRET_ID cho database Payment và Save](/images/workshop/runbook/img130.jpg)
+
+**3.5 — Gắn VPC.** **Configuration → VPC → Edit**: VPC của dự án, cả hai private app subnet và `fitness-assistant-dev-lambda-sg`, **Save**.
+
+![VPC, hai private app subnet, security group của Lambda và Save](/images/workshop/runbook/img131.jpg)
+
+**3.6 — Nạp code.** **Upload from → Amazon S3 location**: `s3://fitness-assistant-deployments-dev-<account-id>/payment-migrate-lambda.zip`, copy mode, **Update**.
+
+*Runbook không có ảnh của thao tác này; hộp thoại giống [5.4.6 Bước 4.4](../5.4.6-Gym-Service/).*
 
 #### Bước 4 — Chạy 11 migration
 
-Kiểm tra secret thật sự ghi `database = fitness_assistant_payment`, rồi invoke function một lần với `{}`. Handler có safety guard chỉ chấp nhận đúng tên database này, tự tạo logical database nếu chưa có và chỉ chạy `prisma migrate deploy`.
+**4.1 — Invoke một lần.** Kiểm tra secret thật sự ghi `database = fitness_assistant_payment`, rồi mở tab **Test** và invoke function một lần với `{}`. Handler có safety guard chỉ chấp nhận đúng tên database này, tự tạo logical database nếu chưa có và chỉ chạy `prisma migrate deploy`.
+
+![Tab Test: Executing function succeeded và JSON response](/images/workshop/runbook/img132.jpg)
 
 **Kết quả mong đợi:** `database = fitness_assistant_payment`, `migrateExitCode = 0`, `11 migrations found`, `All migrations have been successfully applied.`
 
-![Kết quả migration: status ok, fitness_assistant_payment, migration đã áp dụng](/images/workshop/runbook/img132.jpg)
-
 #### Bước 5 — Runtime role
 
-`fitness-assistant-dev-payment-lambda-role` với hai managed policy cộng:
+**5.1 — Tạo role.** **IAM → Roles → Create role**, AWS service → Lambda, cùng hai managed policy, tên `fitness-assistant-dev-payment-lambda-role`.
 
-- `fitness-assistant-dev-payment-database-secret` cho secret của Payment;
-- `fitness-assistant-dev-payment-service-invoke`:
+![Role mới với hai managed policy](/images/workshop/runbook/img133.jpg)
+
+**5.2 — Thêm hai inline policy.** `fitness-assistant-dev-payment-database-secret` cho secret của Payment, và `fitness-assistant-dev-payment-service-invoke`:
 
 ```json
 {
@@ -88,23 +111,31 @@ Kiểm tra secret thật sự ghi `database = fitness_assistant_payment`, rồi 
 }
 ```
 
-![Role fitness-assistant-dev-payment-lambda-role](/images/workshop/runbook/img133.jpg)
-
 ![Role với hai managed policy và hai inline policy](/images/workshop/runbook/img134.jpg)
 
 #### Bước 6 — Payment Lambda
 
-`fitness-assistant-dev-payment`, 1024 MB, 30 giây, handler `dist/lambda.handler`, code `s3://fitness-assistant-deployments-dev-<account-id>/payment-lambda.zip`, cùng VPC với các Lambda dùng database khác.
+**6.1 — Điền thông tin function.** **Lambda → Create function**, tên `fitness-assistant-dev-payment`, runtime **Node.js 22.x**, custom execution role `fitness-assistant-dev-payment-lambda-role`, **Create function**.
 
-![Create function fitness-assistant-dev-payment](/images/workshop/runbook/img135.jpg)
+![Author from scratch, tên, runtime và Payment role](/images/workshop/runbook/img135.jpg)
 
-![Memory 1024 MB, timeout 30 giây](/images/workshop/runbook/img136.jpg)
+**6.2 — Đặt memory và timeout.** **Memory** `1024` MB, **Timeout** `0` phút `30` giây, **Save**.
 
-![Handler dist/lambda.handler](/images/workshop/runbook/img137.jpg)
+![Memory 1024 MB, timeout 30 giây, Save](/images/workshop/runbook/img136.jpg)
 
-![Code từ payment-lambda.zip trên S3](/images/workshop/runbook/img138.jpg)
+**6.3 — Đặt handler.** `dist/lambda.handler`, **Save**.
 
-![Cấu hình VPC của Payment Lambda](/images/workshop/runbook/img139.jpg)
+![Handler dist/lambda.handler và Save](/images/workshop/runbook/img137.jpg)
+
+**6.4 — Nạp code.** **Upload from → Amazon S3 location**: `s3://fitness-assistant-deployments-dev-<account-id>/payment-lambda.zip`, copy mode, **Update**.
+
+![Link S3 tới payment-lambda.zip và Update](/images/workshop/runbook/img138.jpg)
+
+**6.5 — Gắn VPC.** Cùng VPC, subnet và security group với các Lambda dùng database khác, **Save**.
+
+![VPC, hai private app subnet, security group của Lambda và Save](/images/workshop/runbook/img139.jpg)
+
+**6.6 — Thêm environment variable.**
 
 | Biến | Giá trị |
 |---|---|
@@ -119,9 +150,15 @@ Kiểm tra secret thật sự ghi `database = fitness_assistant_payment`, rồi 
 
 Credential của provider (`VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`, key MoMo / PayOS / ZaloPay) chỉ được thêm khi có credential sandbox thật.
 
+*Runbook không có ảnh của form environment variable cho function này.*
+
 #### Bước 7 — Route trên API Gateway
 
-Tạo Lambda integration `fitness-assistant-dev-payment` (payload 2.0). `ANY /me` và `ANY /admin` đã thuộc service khác, nên Payment dùng prefix cụ thể:
+**7.1 — Tạo integration.** **API Gateway → fitness-assistant-dev-api → Integrations → Create**: Lambda function `fitness-assistant-dev-payment`, payload `2.0`.
+
+*Runbook không có ảnh của thao tác này; form giống [5.4.6 Bước 6.1](../5.4.6-Gym-Service/).*
+
+**7.2 — Tạo route.** `ANY /me` và `ANY /admin` đã thuộc service khác, nên Payment dùng prefix cụ thể:
 
 | Nhóm | Route |
 |---|---|
@@ -129,29 +166,51 @@ Tạo Lambda integration `fitness-assistant-dev-payment` (payload 2.0). `ANY /me
 | Người dùng | `ANY /me/payments`, `/me/wallet`, `/me/pt-wallet`, `/me/withdrawals` — mỗi cái kèm route `/{proxy+}` |
 | Admin | `ANY /admin/payments`, `ANY /admin/payments/{proxy+}` |
 
-Không bao giờ tạo `/internal` và `/internal/{proxy+}`. Sau đó mở **Integrations → Attach integrations to routes** và xác nhận mọi route của Payment trỏ tới `fitness-assistant-dev-payment` — route chưa có integration sẽ trả `Not Found`.
+Không bao giờ tạo `/internal` và `/internal/{proxy+}`.
 
-![Route của Payment đã gắn vào Payment integration](/images/workshop/runbook/img140.jpg)
+**7.3 — Kiểm tra việc gắn route.** Mở **Integrations → Attach integrations to routes**, chọn từng route của Payment và xác nhận nó trỏ tới `fitness-assistant-dev-payment` — route chưa có integration sẽ trả `Not Found`.
+
+![Route ANY /payments/{proxy+} hiện Lambda function fitness-assistant-dev-payment](/images/workshop/runbook/img140.jpg)
 
 #### Bước 8 — Jobs Lambda và schedule reconciliation
 
-`fitness-assistant-dev-payment-jobs`: cùng role, artifact, VPC và environment với HTTP Lambda, handler `dist/jobs-lambda.handler`, 1024 MB, 1 phút.
+`fitness-assistant-dev-payment-jobs` dùng cùng role, artifact, VPC và environment với HTTP Lambda.
 
-![Create function fitness-assistant-dev-payment-jobs](/images/workshop/runbook/img141.jpg)
+**8.1 — Điền thông tin function.** **Lambda → Create function**, tên `fitness-assistant-dev-payment-jobs`, runtime **Node.js 22.x**, role `fitness-assistant-dev-payment-lambda-role`, **Create function**.
 
-![Handler dist/jobs-lambda.handler](/images/workshop/runbook/img142.jpg)
+![Author from scratch, tên payment-jobs, runtime và Payment role](/images/workshop/runbook/img141.jpg)
 
-![Memory 1024 MB, timeout 1 phút](/images/workshop/runbook/img143.jpg)
+**8.2 — Đặt handler.** `dist/jobs-lambda.handler`, **Save**.
 
-![Cấu hình VPC của jobs Lambda](/images/workshop/runbook/img144.jpg)
+![Handler dist/jobs-lambda.handler và Save](/images/workshop/runbook/img142.jpg)
 
-Tạo `fitness-assistant-dev-payment-jobs-scheduler-role` (trust `scheduler.amazonaws.com`, inline policy `fitness-assistant-dev-invoke-payment-jobs` chỉ cho Payment jobs Lambda), rồi tạo schedule `fitness-assistant-dev-payment-reconciliation`: `rate(5 minutes)`, payload `{"job": "reconciliation"}`, enabled, 5 phút / 2 lần thử, không DLQ, key do AWS sở hữu.
+**8.3 — Đặt memory và timeout.** **Memory** `1024` MB, **Timeout** `1` phút `0` giây, **Save**.
 
-![Schedule fitness-assistant-dev-payment-reconciliation với rate(5 minutes)](/images/workshop/runbook/img145.jpg)
+![Memory 1024 MB, timeout 1 phút, Save](/images/workshop/runbook/img143.jpg)
 
-![Target fitness-assistant-dev-payment-jobs với payload {"job": "reconciliation"}](/images/workshop/runbook/img146.jpg)
+**8.4 — Gắn VPC.** Cùng VPC, subnet và security group, **Save**. Nạp cùng code `payment-lambda.zip` và sao chép các environment variable.
 
-![Settings với scheduler role của Payment](/images/workshop/runbook/img147.jpg)
+![VPC, hai private app subnet, security group của Lambda và Save](/images/workshop/runbook/img144.jpg)
+
+**8.5 — Tạo scheduler role.** `fitness-assistant-dev-payment-jobs-scheduler-role` (trust `scheduler.amazonaws.com`, inline policy `fitness-assistant-dev-invoke-payment-jobs` chỉ cho Payment jobs Lambda).
+
+*Runbook không có ảnh của thao tác này.*
+
+**8.6 — Đặt tên schedule.** **EventBridge → Schedules → Create schedule**: tên `fitness-assistant-dev-payment-reconciliation`, **Recurring schedule**, **Rate-based schedule**, rate `5` `minutes`.
+
+![Tên schedule, Recurring schedule, Rate-based, rate 5 phút](/images/workshop/runbook/img145.jpg)
+
+**8.7 — Chọn target.** Chọn ô **AWS Lambda — Invoke**, chọn `fitness-assistant-dev-payment-jobs` và nhập payload `{"job": "reconciliation"}`.
+
+![AWS Lambda Invoke, function payment-jobs và payload reconciliation](/images/workshop/runbook/img146.jpg)
+
+**8.8 — Chọn settings.** Giữ retry bật với maximum age `0` giờ `5` phút và `2` lần thử, DLQ **None**, key do AWS sở hữu, và **Use existing role** với `fitness-assistant-dev-payment-jobs-scheduler-role`. Rồi bấm **Next** và tạo schedule.
+
+![Retry 5 phút / 2 lần, DLQ None, scheduler role có sẵn, Next](/images/workshop/runbook/img147.jpg)
+
+{{% notice note %}}
+Banner ở đầu ba ảnh cuối vẫn nêu schedule Gym tạo trước đó (`fitness-assistant-dev-gym-referral-settlement`); bản thân form là của schedule reconciliation của Payment.
+{{% /notice %}}
 
 Mỗi 5 phút, job reconciliation poll gateway để xác nhận các giao dịch đang chờ, thử lại kích hoạt và huỷ hoàn tiền, và dọn các giao dịch treo.
 
@@ -159,8 +218,9 @@ Mỗi 5 phút, job reconciliation poll gateway để xác nhận các giao dịc
 
 Gym được deploy trước khi Payment tồn tại, nên cần được "báo" về Payment:
 
-1. Thêm `PAYMENT_LAMBDA_NAME=fitness-assistant-dev-payment` vào **cả** `fitness-assistant-dev-gym` và `fitness-assistant-dev-gym-jobs` (payout và referral settlement cũng gọi Payment). Không cần `PAYMENT_SERVICE_URL` khi dùng direct invoke.
-2. Mở rộng invoke policy của Gym role (hoặc thêm `fitness-assistant-dev-gym-invoke-payment`):
+**9.1 — Thêm biến vào cả hai function Gym.** Thêm `PAYMENT_LAMBDA_NAME=fitness-assistant-dev-payment` vào **cả** `fitness-assistant-dev-gym` và `fitness-assistant-dev-gym-jobs` (payout và referral settlement cũng gọi Payment). Không cần `PAYMENT_SERVICE_URL` khi dùng direct invoke.
+
+**9.2 — Mở rộng invoke policy của Gym role** (hoặc thêm `fitness-assistant-dev-gym-invoke-payment`):
 
 ```json
 {
@@ -173,6 +233,8 @@ Gym được deploy trước khi Payment tồn tại, nên cần được "báo"
   ]
 }
 ```
+
+*Runbook không có ảnh của Bước 9.*
 
 Gym scheduler role không cần quyền này — scheduler chỉ invoke `gym-jobs`, và chính `gym-jobs` mới gọi Payment.
 
