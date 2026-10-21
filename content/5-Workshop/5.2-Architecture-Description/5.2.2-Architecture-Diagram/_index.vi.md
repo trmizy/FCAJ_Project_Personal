@@ -8,12 +8,6 @@ pre: " <b> 5.2.2. </b> "
 
 Sơ đồ dưới đây là ảnh kiến trúc được cung cấp cho dự án. Khác với các bản trước của trang này, mọi node ở đây đều đã được đối chiếu trực tiếp với trạng thái AWS thật (không chép lại từ bản nháp cũ) — [5.4 Hướng dẫn triển khai](../../5.4-Deployment-Guide/) và [5.5.5 Trạng thái kiểm thử và việc còn mở](../../5.5-Test-Validation/5.5.5-Status-Open-Items/) có đầy đủ bằng chứng từng bước đằng sau mỗi khẳng định, còn [5.2.1](../5.2.1-Architecture-Overview/) nói về cách quá trình triển khai đi đến trạng thái hiện tại.
 
-{{% notice note %}}
-2 chỗ sửa khi rà soát lại trang này ngày 21/10/2026, đối chiếu trực tiếp với AWS thật, không suy đoán:
-- **API Gateway là HTTP API, không phải REST API** — dự án này dùng `apigatewayv2`, đã xác nhận qua mọi lệnh route/CORS/stage gọi tới nó xuyên suốt dự án. Bản trước của sơ đồ này ghi "REST API" — sai.
-- **Aurora Serverless v2 reader replica đã được triển khai thật**, không còn là mục "đã thiết kế nhưng chưa xây" nữa: `aws rds describe-db-clusters` liệt kê 2 cluster member thật (`fitness-assistant-dev-aurora-instance-1`, writer; `fitness-assistant-dev-aurora-instance-2`, reader, `PromotionTier: 1`), xác nhận lại trực tiếp đúng ngày viết ghi chú này.
-{{% /notice %}}
-
 ### Sơ đồ thành phần
 
 ![Kiến trúc AWS serverless của Fitness Assistant](/images/workshop/architecture/architecture.png)

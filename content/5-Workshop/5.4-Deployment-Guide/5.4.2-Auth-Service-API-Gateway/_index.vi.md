@@ -14,7 +14,12 @@ Trong mọi ảnh bên dưới, các **khung đỏ** đánh dấu ô cần nhậ
 
 Một migration Lambda tạm thời, `fitness-assistant-dev-auth-migrate`, được tạo theo [khuôn mẫu chung](../#common-pattern) và được invoke một lần. Các thao tác dưới đây cấu hình và chạy nó.
 
-**1.1 — Đặt memory và timeout.** Mở **Lambda → Functions → `fitness-assistant-dev-auth-migrate` → Configuration → General configuration → Edit**. Nhập **Memory** `1024` MB và **Timeout** `5` min `0` sec, rồi bấm **Save**.
+**1.1 — Đặt memory và timeout.** Mở **Lambda → Functions → `fitness-assistant-dev-auth-migrate` → Configuration → General configuration → Edit**. Nhập các giá trị sau, rồi bấm **Save**:
+
+```text
+Memory:  1024 MB
+Timeout: 5 min 0 sec
+```
 
 ![Edit basic settings: memory 1024 MB, timeout 5 phút, Save](/images/workshop/runbook/img003.jpg)
 
@@ -26,11 +31,22 @@ Một migration Lambda tạm thời, `fitness-assistant-dev-auth-migrate`, đư�
 
 ![Edit VPC: VPC, hai private app subnet và Lambda security group, rồi Save](/images/workshop/runbook/img005.jpg)
 
-**1.4 — Đặt tên secret.** Trong **Configuration → Environment variables → Edit**, thêm key `DATABASE_SECRET_ID` với giá trị `fitness-assistant/dev/database` rồi bấm **Save**. Biến này sẽ xuất hiện trong danh sách.
+**1.4 — Đặt tên secret.** Trong **Configuration → Environment variables → Edit**, thêm key và giá trị sau rồi bấm **Save**:
+
+```text
+Key:   DATABASE_SECRET_ID
+Value: fitness-assistant/dev/database
+```
+
+Biến này sẽ xuất hiện trong danh sách.
 
 ![Environment variable DATABASE_SECRET_ID = fitness-assistant/dev/database](/images/workshop/runbook/img006.jpg)
 
-**1.5 — Invoke migration.** Mở tab **Test**, tạo một test event có body là `{}`, rồi bấm **Test**.
+**1.5 — Invoke migration.** Mở tab **Test**, tạo một test event có body như sau, rồi bấm **Test**:
+
+```json
+{}
+```
 
 ![Tab Test: nút Test ở cuối trang](/images/workshop/runbook/img002.jpg)
 
@@ -44,7 +60,12 @@ Sau khi Lambda chính của Auth đã được verify với Aurora (Bước 3), 
 
 Auth Lambda cache database secret theo từng execution environment. Sau khi mật khẩu Aurora được đổi trong Secrets Manager, các container còn warm vẫn có thể giữ credential cũ. Để buộc tạo execution environment mới, thêm một biến vô hại:
 
-**2.1 — Thêm `DEPLOY_REVISION`.** Trong **Lambda → `fitness-assistant-dev-auth` → Configuration → Environment variables → Edit**, bấm **Add environment variable**, nhập key `DEPLOY_REVISION` và giá trị `20260827-1`, rồi bấm **Save**.
+**2.1 — Thêm `DEPLOY_REVISION`.** Trong **Lambda → `fitness-assistant-dev-auth` → Configuration → Environment variables → Edit**, bấm **Add environment variable**, nhập key và giá trị bên dưới, rồi bấm **Save**:
+
+```text
+Key:   DEPLOY_REVISION
+Value: 20260827-1
+```
 
 ```
 DEPLOY_REVISION = 20260827-1
@@ -56,7 +77,13 @@ Code không bao giờ đọc biến này; chỉ cần đổi cấu hình là cá
 
 #### Bước 3 — Smoke test một route thật sự truy vấn database
 
-**3.1 — Tạo test event.** Trong **`fitness-assistant-dev-auth` → Test**, chọn **Create new event**, đặt tên `auth-login-db-smoke`, dán event API Gateway v2.0 bên dưới cho `POST /auth/login` với email không tồn tại, rồi bấm **Test**:
+**3.1 — Tạo test event.** Trong **`fitness-assistant-dev-auth` → Test**, chọn **Create new event** và đặt tên:
+
+```text
+auth-login-db-smoke
+```
+
+Dán event API Gateway v2.0 bên dưới cho `POST /auth/login` với email không tồn tại, rồi bấm **Test**:
 
 ```json
 {
@@ -102,7 +129,13 @@ Giữ capacity tối thiểu của Aurora ở **0.5 ACU** trong lúc còn đang 
 
 #### Bước 4 — Tạo HTTP API với Auth integration
 
-**4.1 — Đặt tên API và thêm Lambda integration.** Trong **API Gateway → Create API → HTTP API → Build**, nhập API name `fitness-assistant-dev-api` và giữ IP address type **IPv4**. Ở mục **Integrations**, chọn type **Lambda**, region `ap-southeast-1`, function `fitness-assistant-dev-auth` (không bao giờ chọn migration Lambda) và payload format version **2.0**. Sau đó bấm **Next**.
+**4.1 — Đặt tên API và thêm Lambda integration.** Trong **API Gateway → Create API → HTTP API → Build**, nhập API name sau và giữ IP address type **IPv4**:
+
+```text
+fitness-assistant-dev-api
+```
+
+Ở mục **Integrations**, chọn type **Lambda**, region `ap-southeast-1`, function `fitness-assistant-dev-auth` (không bao giờ chọn migration Lambda) và payload format version **2.0**. Sau đó bấm **Next**.
 
 ![Configure API: API name, IPv4, Lambda integration và function, Next](/images/workshop/runbook/img009.jpg)
 
@@ -131,7 +164,13 @@ Các route **không** được tạo: `/auth/internal/*` (endpoint service-to-se
 
 #### Bước 6 — Giữ stage `$default` với auto-deploy
 
-**6.1 — Định nghĩa stage.** Bấm **Next** để sang **Define stages**. Giữ tên stage `$default` với **Auto-deploy** bật, để thay đổi route có hiệu lực ngay mà không cần deploy thủ công, và invoke URL ngắn gọn. Sau đó bấm **Next**.
+**6.1 — Định nghĩa stage.** Bấm **Next** để sang **Define stages**. Giữ tên stage sau với **Auto-deploy** bật, để thay đổi route có hiệu lực ngay mà không cần deploy thủ công, và invoke URL ngắn gọn:
+
+```text
+$default
+```
+
+Sau đó bấm **Next**.
 
 ![Define stages: $default, Auto-deploy bật, Next](/images/workshop/runbook/img011.jpg)
 

@@ -19,8 +19,20 @@ pre: " <b> 5.5.5. </b> "
 | Payment Service | Deployed | Complete | Pending | Needs verification |
 | AI / Worker / Jobs | Deployed | Complete | Pending | Needs verification |
 | Chat Service (REST + Socket.IO) | Deployed | Complete | Pending | Needs verification |
-| Frontend (S3) | Deployed | — | Pending full integration | Needs verification |
-| CI/CD | Not built | — | — | **Incomplete** |
+| Frontend (S3 + CloudFront) | Deployed | — | Pending full integration | Needs verification |
+| CI/CD — CI (PR validation) | Deployed, active | — | Real (every push) | **Complete** |
+| CI/CD — CD (deploy pipeline) | Active, exercised for real | — | Real (Lambda, ECS and infra all exercised) | **Complete** |
+
+#### CI/CD — exactly what's real today
+
+| Piece | Status | Evidence |
+|---|---|---|
+| `pr-validation.yml` (lint, typecheck, unit tests, IaC lint, Docker build) | **Active**, runs on every PR | Real GitHub Actions runs, green |
+| `docker-test.yml` (fast Docker test + Critical DB Integration) | **Active**, runs on every push | Real GitHub Actions runs, green |
+| `dev-build.yml` (Gate 1 — build/hash Lambda zips, no AWS access) | **Active**, auto-runs on push to `aws-deploy` | Real automatic run, correctly skips when no Lambda service changed |
+| `dev-deploy.yml` (Gate 2 — real Lambda code deploy) | **Active**, manual dispatch, reviewer-gated | **Exercised for real**: a dry run, then a real deploy of the `ai` service (3 functions updated, smoke-tested) |
+| `chat-deploy.yml` (Gate 3 — ECS Fargate image deploy) | **Active**, manual dispatch, reviewer-gated | **Exercised for real** on 2026-10-16 — task definition now at revision 9 |
+| `infra-plan.yml` / `infra-deploy.yml` (Gates 4–5 — API Gateway CloudFormation changes) | **Active**, manual dispatch, reviewer-gated | **Exercised for real**: a genuine `execute-change-set` ran successfully and the stack is in sync with its template |
 
 #### Plan to close the open items
 
@@ -33,12 +45,11 @@ pre: " <b> 5.5.5. </b> "
 | Chat E2E | Tests C6 and C8 in [5.5.3](../5.5.3-Chat-Health-SocketIO/) |
 | Frontend integration | Every page of the user and admin flows works against the AWS backends (tests T5–T7 in [5.5.2](../5.5.2-Auth-Frontend-Smoke-Test/)) |
 | Bugs found during E2E | Fixed, redeployed and re-tested |
-| CI/CD | A pipeline builds the artifacts/images and deploys them instead of manual console uploads |
+| Admin account access | **Done 2026-10-21** (see [5.4.13 Step 12](../../5.4-Deployment-Guide/5.4.13-CD-Pipeline-Activation/)): an ADMIN login is available on the deployed app. The owner changes the temporary password in the app after first login. |
 | Cost controls | DEV "sleep" strategy: Aurora down to 0 ACU when idle, Chat service to 0 tasks out of hours, NAT Gateway only when needed |
 | Monitoring | CloudWatch alarms on Lambda errors/throttles, DLQ depth, Aurora capacity and Chat target health, notified by e-mail |
 
 #### Postponed on purpose (not blockers for DEV)
 
-- Rotating the ADMIN credential.
 - Remediating the remaining 12 seed accounts.
-- HTTPS for the frontend and the Chat ALB (needs a domain and an ACM certificate), with CloudFront + Origin Access Control in front of the S3 bucket.
+- HTTPS for the Chat ALB specifically (needs a domain and an ACM certificate — the ALB itself still only has an HTTP:80 listener). **The frontend already has real HTTPS** via the CloudFront distribution in front of the S3 bucket, confirmed live; that part of this item is done, not postponed.

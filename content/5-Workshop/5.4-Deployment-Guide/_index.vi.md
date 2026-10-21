@@ -19,6 +19,8 @@ Các service được triển khai lần lượt theo thứ tự phụ thuộc: 
 9. [5.4.9 AI Service — vector search, lịch chạy và API](5.4.9-AI-Service-Vector-Search/) — OpenSearch Serverless, nạp tri thức, route và rate limit.
 10. [5.4.10 Chat Service trên ECS Fargate](5.4.10-Chat-Service-ECS/) — container image, task definition, ALB và Socket.IO.
 11. [5.4.11 Migration dữ liệu lên Aurora](5.4.11-Data-Migration/) — restore 7 database local bằng một Fargate task chạy một lần.
+12. [5.4.12 Kích hoạt pipeline CI/CD](5.4.12-CICD-Pipeline/) — validate PR bằng GitHub Actions qua OIDC, cùng bằng chứng liên kết OIDC → STS thật.
+13. [5.4.13 Kích hoạt pipeline CD](5.4.13-CD-Pipeline-Activation/) — kích hoạt từng gate một các workflow deploy thật lên AWS, bắt đầu từ cổng duyệt-bởi-con-người ở GitHub Environment.
 
 #### Khuôn mẫu chung cho mọi service chạy trên Lambda {#common-pattern}
 

@@ -337,9 +337,7 @@ docker push <account-id>.dkr.ecr.ap-southeast-1.amazonaws.com/fitness-assistant-
 
 ![Container name, image URI and port mapping 3005](/images/workshop/runbook/img296.jpg)
 
-**14.4 — Environment (revision 1 — contains the mistake).** The screenshot shows the first attempt: the two secret entries `CHAT_DATABASE_URL` and `INTERNAL_SERVICE_SECRET` were typed with value type **Value** and a secret *name* — see the warning below. Use **ValueFrom** with the secret ARN instead.
-
-![Revision 1 environment: eight rows, all with value type Value](/images/workshop/runbook/img297.jpg)
+**14.4 — Environment.** Add the eight variables. For the two secret entries, `CHAT_DATABASE_URL` and `INTERNAL_SERVICE_SECRET`, choose value type **ValueFrom** and paste the full secret ARN plus the JSON key suffix (for example `…:CHAT_DATABASE_URL::`). Plain values go in the other six rows.
 
 **14.5 — Logging.** Tick **Use log collection**, destination **Amazon CloudWatch**, `awslogs-group` = `/ecs/fitness-assistant-dev-chat`, `awslogs-region` = `ap-southeast-1`, `awslogs-stream-prefix` = `chat`.
 
@@ -349,8 +347,8 @@ docker push <account-id>.dkr.ecr.ap-southeast-1.amazonaws.com/fitness-assistant-
 
 ![Ephemeral storage, the three tags and Create](/images/workshop/runbook/img299.jpg)
 
-{{% notice warning %}}
-**Lesson learned.** In revision 1 the secret entries were typed with value type *Value*, so the container received the secret **name** instead of the connection string and Prisma failed with `URL must start with postgresql://`. The fix was a new revision whose secrets use **ValueFrom** with the full secret ARN plus the JSON key suffix (`…:CHAT_DATABASE_URL::`), then **Update service → revision 3 → Force new deployment**. Never paste the real values into plain environment variables.
+{{% notice info %}}
+Secrets must use **ValueFrom** with the full secret ARN so the container receives the real connection string at start. Never paste real secret values into plain environment variables.
 {{% /notice %}}
 
 #### Part F — Load balancer

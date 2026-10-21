@@ -19,6 +19,8 @@ The services were deployed one at a time, in dependency order: each service only
 9. [5.4.9 AI Service — vector search, scheduling and API](5.4.9-AI-Service-Vector-Search/) — OpenSearch Serverless, knowledge ingestion, routes and rate limits.
 10. [5.4.10 Chat Service on ECS Fargate](5.4.10-Chat-Service-ECS/) — container image, task definition, ALB and Socket.IO.
 11. [5.4.11 Data migration to Aurora](5.4.11-Data-Migration/) — restoring 7 local databases with a one-shot Fargate task.
+12. [5.4.12 CI/CD pipeline activation](5.4.12-CICD-Pipeline/) — GitHub Actions PR validation via OIDC, and real OIDC → STS federation evidence.
+13. [5.4.13 CD pipeline activation](5.4.13-CD-Pipeline-Activation/) — gate-by-gate activation of the actual deploy-to-AWS workflows, starting with the GitHub Environment human-approval gates.
 
 #### The pattern every Lambda-based service follows {#common-pattern}
 

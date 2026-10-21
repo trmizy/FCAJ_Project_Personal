@@ -337,9 +337,7 @@ docker push <account-id>.dkr.ecr.ap-southeast-1.amazonaws.com/fitness-assistant-
 
 ![Tên container, image URI và port mapping 3005](/images/workshop/runbook/img296.jpg)
 
-**14.4 — Environment (revision 1 — chứa lỗi).** Ảnh cho thấy lần thử đầu: hai dòng secret `CHAT_DATABASE_URL` và `INTERNAL_SERVICE_SECRET` bị gõ với value type **Value** và *tên* secret — xem cảnh báo bên dưới. Hãy dùng **ValueFrom** với ARN của secret.
-
-![Environment revision 1: tám dòng, đều có value type Value](/images/workshop/runbook/img297.jpg)
+**14.4 — Environment.** Thêm tám biến. Với hai dòng secret, `CHAT_DATABASE_URL` và `INTERNAL_SERVICE_SECRET`, chọn value type **ValueFrom** và dán ARN đầy đủ của secret cộng hậu tố khoá JSON (ví dụ `…:CHAT_DATABASE_URL::`). Sáu dòng còn lại dùng giá trị thường.
 
 **14.5 — Logging.** Tick **Use log collection**, destination **Amazon CloudWatch**, `awslogs-group` = `/ecs/fitness-assistant-dev-chat`, `awslogs-region` = `ap-southeast-1`, `awslogs-stream-prefix` = `chat`.
 
@@ -349,8 +347,8 @@ docker push <account-id>.dkr.ecr.ap-southeast-1.amazonaws.com/fitness-assistant-
 
 ![Ephemeral storage, ba tag và Create](/images/workshop/runbook/img299.jpg)
 
-{{% notice warning %}}
-**Bài học.** Ở revision 1, các dòng secret được gõ với value type *Value*, nên container nhận **tên** secret thay vì chuỗi kết nối và Prisma báo lỗi `URL must start with postgresql://`. Cách sửa là tạo revision mới với secret dùng **ValueFrom** kèm ARN đầy đủ cộng hậu tố khoá JSON (`…:CHAT_DATABASE_URL::`), rồi **Update service → revision 3 → Force new deployment**. Không bao giờ dán giá trị thật vào environment variable thường.
+{{% notice info %}}
+Secret phải dùng **ValueFrom** với ARN đầy đủ để container nhận đúng chuỗi kết nối khi khởi động. Không bao giờ dán giá trị secret thật vào environment variable thường.
 {{% /notice %}}
 
 #### Phần F — Load balancer

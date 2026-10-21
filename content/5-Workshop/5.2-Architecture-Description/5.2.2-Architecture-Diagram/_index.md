@@ -8,12 +8,6 @@ pre: " <b> 5.2.2. </b> "
 
 The diagram below is the architecture image supplied for this project. Unlike earlier revisions of this page, every node here is checked directly against live AWS state (not copied from an older draft) — [5.4 Deployment Guide](../../5.4-Deployment-Guide/) and [5.5.5 Validation status and open items](../../5.5-Test-Validation/5.5.5-Status-Open-Items/) carry the step-by-step evidence behind each claim, and [5.2.1](../5.2.1-Architecture-Overview/) covers how the deployment arrived at its current state.
 
-{{% notice note %}}
-Two corrections made while re-verifying this page on 2026-10-21, against real AWS calls, not inferred:
-- **API Gateway is an HTTP API, not a REST API** — this project uses `apigatewayv2`, confirmed by every route/CORS/stage call made against it throughout this engagement. An earlier revision of this diagram said "REST API"; that was wrong.
-- **The Aurora Serverless v2 reader replica is already deployed**, not a "designed but not built" item: `aws rds describe-db-clusters` lists two real cluster members (`fitness-assistant-dev-aurora-instance-1`, writer; `fitness-assistant-dev-aurora-instance-2`, reader, `PromotionTier: 1`), re-confirmed live the same day this note was written.
-{{% /notice %}}
-
 ### Component diagram
 
 ![AWS serverless architecture of Fitness Assistant](/images/workshop/architecture/architecture.png)

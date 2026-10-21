@@ -14,7 +14,12 @@ In every screenshot below, the **red rectangles** mark what to fill in or click 
 
 A temporary migration Lambda, `fitness-assistant-dev-auth-migrate`, was created following the [common pattern](../#common-pattern) and invoked once. The sub-steps below configure it and run it.
 
-**1.1 — Set memory and timeout.** Open **Lambda → Functions → `fitness-assistant-dev-auth-migrate` → Configuration → General configuration → Edit**. Enter **Memory** `1024` MB and **Timeout** `5` min `0` sec, then click **Save**.
+**1.1 — Set memory and timeout.** Open **Lambda → Functions → `fitness-assistant-dev-auth-migrate` → Configuration → General configuration → Edit**. Enter these values, then click **Save**:
+
+```text
+Memory:  1024 MB
+Timeout: 5 min 0 sec
+```
 
 ![Edit basic settings: memory 1024 MB, timeout 5 minutes, Save](/images/workshop/runbook/img003.jpg)
 
@@ -26,11 +31,22 @@ A temporary migration Lambda, `fitness-assistant-dev-auth-migrate`, was created 
 
 ![Edit VPC: VPC, two private app subnets and the Lambda security group, then Save](/images/workshop/runbook/img005.jpg)
 
-**1.4 — Set the secret name.** In **Configuration → Environment variables → Edit**, add the key `DATABASE_SECRET_ID` with the value `fitness-assistant/dev/database` and click **Save**. The variable now appears in the list.
+**1.4 — Set the secret name.** In **Configuration → Environment variables → Edit**, add the following key and value, then click **Save**:
+
+```text
+Key:   DATABASE_SECRET_ID
+Value: fitness-assistant/dev/database
+```
+
+The variable now appears in the list.
 
 ![Environment variable DATABASE_SECRET_ID = fitness-assistant/dev/database](/images/workshop/runbook/img006.jpg)
 
-**1.5 — Invoke the migration.** Open the **Test** tab, create a test event whose body is `{}`, and click **Test**.
+**1.5 — Invoke the migration.** Open the **Test** tab, create a test event with this body, and click **Test**:
+
+```json
+{}
+```
 
 ![Test tab: the Test button at the bottom of the page](/images/workshop/runbook/img002.jpg)
 
@@ -44,7 +60,12 @@ Once Auth's own Lambda was verified against Aurora (Step 3), the temporary migra
 
 The Auth Lambda caches its database secret per execution environment. After the Aurora password was changed in Secrets Manager, warm containers could still hold the old credential. To force fresh execution environments, add a harmless variable:
 
-**2.1 — Add `DEPLOY_REVISION`.** In **Lambda → `fitness-assistant-dev-auth` → Configuration → Environment variables → Edit**, click **Add environment variable**, enter the key `DEPLOY_REVISION` and the value `20260827-1`, then click **Save**.
+**2.1 — Add `DEPLOY_REVISION`.** In **Lambda → `fitness-assistant-dev-auth` → Configuration → Environment variables → Edit**, click **Add environment variable**, enter the key and value below, then click **Save**:
+
+```text
+Key:   DEPLOY_REVISION
+Value: 20260827-1
+```
 
 ```
 DEPLOY_REVISION = 20260827-1
@@ -56,7 +77,13 @@ The code never reads it; changing the configuration is enough to recycle the env
 
 #### Step 3 — Smoke-test a route that really queries the database
 
-**3.1 — Create the test event.** In **`fitness-assistant-dev-auth` → Test**, choose **Create new event**, name it `auth-login-db-smoke`, paste the API Gateway v2.0 event below for `POST /auth/login` with an e-mail address that does not exist, then click **Test**:
+**3.1 — Create the test event.** In **`fitness-assistant-dev-auth` → Test**, choose **Create new event** and give it this name:
+
+```text
+auth-login-db-smoke
+```
+
+Paste the API Gateway v2.0 event below for `POST /auth/login` with an e-mail address that does not exist, then click **Test**:
 
 ```json
 {
@@ -102,7 +129,13 @@ Keep Aurora's minimum capacity at **0.5 ACU** while services are still being dep
 
 #### Step 4 — Create the HTTP API with the Auth integration
 
-**4.1 — Name the API and add the Lambda integration.** In **API Gateway → Create API → HTTP API → Build**, enter the API name `fitness-assistant-dev-api` and keep the IP address type **IPv4**. Under **Integrations**, choose type **Lambda**, region `ap-southeast-1`, the function `fitness-assistant-dev-auth` (never the migration Lambda) and payload format version **2.0**. Then click **Next**.
+**4.1 — Name the API and add the Lambda integration.** In **API Gateway → Create API → HTTP API → Build**, enter this API name and keep the IP address type **IPv4**:
+
+```text
+fitness-assistant-dev-api
+```
+
+Under **Integrations**, choose type **Lambda**, region `ap-southeast-1`, the function `fitness-assistant-dev-auth` (never the migration Lambda) and payload format version **2.0**. Then click **Next**.
 
 ![Configure API: API name, IPv4, Lambda integration and function, Next](/images/workshop/runbook/img009.jpg)
 
@@ -131,7 +164,13 @@ These routes are **not** created: `/auth/internal/*` (service-to-service endpoin
 
 #### Step 6 — Keep the `$default` stage with auto-deploy
 
-**6.1 — Define the stage.** Click **Next** to reach **Define stages**. Keep the stage name `$default` with **Auto-deploy** switched on, so route changes go live without a manual deployment and the invoke URL stays short. Then click **Next**.
+**6.1 — Define the stage.** Click **Next** to reach **Define stages**. Keep this stage name with **Auto-deploy** switched on, so route changes go live without a manual deployment and the invoke URL stays short:
+
+```text
+$default
+```
+
+Then click **Next**.
 
 ![Define stages: $default, Auto-deploy on, Next](/images/workshop/runbook/img011.jpg)
 
