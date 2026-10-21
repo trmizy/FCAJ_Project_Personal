@@ -8,9 +8,11 @@ pre: " <b> 5.4.9. </b> "
 
 Stack local dùng Qdrant làm vector store. Để lên AWS, code được thêm một lớp abstraction cho vector store với implementation OpenSearch (58/58 test pass), nên production không còn cần `QDRANT_HOST` / `QDRANT_PORT`. Request tới OpenSearch được ký bằng SigV4 (service `aoss`) dùng IAM role của từng Lambda — không có username, password hay API key nào của OpenSearch.
 
+Trong mọi ảnh bên dưới, các **khung đỏ** đánh dấu ô cần nhập hoặc nút cần bấm của bước nhỏ được viết ngay phía trên ảnh.
+
 #### Bước 1 — Upload lại ba AI Lambda
 
-Bản build mới có OpenSearch client và hỗ trợ SigV4 (ZIP HTTP/Worker ≈ 36.325.814 byte), nên được upload trước, giữ nguyên handler:
+Bản build mới có OpenSearch client và hỗ trợ SigV4 (ZIP HTTP/Worker ≈ 36.325.814 byte), nên được upload trước, giữ nguyên từng handler. Với mỗi function dùng **Code → Upload from → .zip file** (hoặc S3) và bấm **Update**:
 
 | Function | Artifact | Handler |
 |---|---|---|
@@ -20,46 +22,62 @@ Bản build mới có OpenSearch client và hỗ trợ SigV4 (ZIP HTTP/Worker �
 
 Thay đổi này không cần migration database.
 
-#### Bước 2 — Collection group có scale-to-zero
+*Runbook không có ảnh của lần upload lại này; hộp thoại giống [5.4.8 Bước 6.2](../5.4.8-AI-Service-Core/).*
 
-**Amazon OpenSearch Service → Serverless → Collection groups → Create collection group**: generation **NextGen**, tên `fitness-assistant-dev-ai`, mô tả "Gymini AI vector search collection group".
+#### Bước 2 — Collection group với scale-to-zero
 
-![Tạo collection group fitness-assistant-dev-ai (NextGen)](/images/workshop/runbook/img207.jpg)
+**2.1 — Đặt tên group.** **Amazon OpenSearch Service → Serverless → Collection groups → Create collection group**: tên `fitness-assistant-dev-ai`, generation **NextGen**, mô tả "Gymini AI vector search collection group".
 
-| Capacity | Tối thiểu | Tối đa |
+![Tên collection group, nhãn NextGen và mô tả](/images/workshop/runbook/img207.jpg)
+
+**2.2 — Đặt capacity.** Cuộn tới **Capacity management** và đặt:
+
+| Capacity | Min | Max |
 |---|---|---|
 | Indexing | **0 OCU** | 2 OCU |
 | Search | **0 OCU** | 2 OCU |
 
-Mức tối thiểu 0 bật scale-to-zero: sau khoảng 10 phút idle, indexing và search giảm về 0 OCU, và request đầu tiên sau đó có thể mất thêm 10–30 giây để "đánh thức". Khoảng 0–2 OCU hợp lý hơn nhiều cho DEV so với mức tối đa mặc định 96.
+Rồi bấm **Create**. Min bằng 0 bật scale-to-zero: sau khoảng 10 phút rảnh, indexing và search về 0 OCU, và request đầu tiên sau đó có thể mất thêm 10–30 giây để "đánh thức". Khoảng 0–2 OCU hợp lý hơn nhiều cho DEV so với mức tối đa mặc định 96.
 
-![Capacity: 0–2 OCU indexing và 0–2 OCU search](/images/workshop/runbook/img208.jpg)
+![Min/max OCU của indexing và search, Create](/images/workshop/runbook/img208.jpg)
 
-![Đã tạo collection group: NextGen, 0/2 OCU](/images/workshop/runbook/img209.jpg)
+**2.3 — Kiểm tra group.** Danh sách phải hiện `fitness-assistant-dev-ai`, NextGen, indexing 0 / 2 OCU và search 0 / 2 OCU.
 
-#### Bước 3 — VPC endpoint private
+![Dòng collection group: NextGen, 0 / 2 OCU](/images/workshop/runbook/img209.jpg)
 
-**OpenSearch Service → Serverless → VPC endpoints → Create VPC endpoint**: VPC `fitness-assistant-dev-vpc`, subnet `private-app-a` và `private-app-b`. Runbook chỉ định dùng `fitness-assistant-dev-vpce-sg` có sẵn (TCP 443 từ Lambda SG); endpoint trong screenshot (`fitness-dev-opensearch-vpce`) đang gắn Lambda SG — security group nào được gắn thì cũng phải cho phép inbound TCP 443 từ Lambda security group. Chờ trạng thái **Available** và ghi lại endpoint ID (`vpce-…`, không phải endpoint URL).
+#### Bước 3 — VPC endpoint riêng
 
-![Trang VPC endpoints của OpenSearch Serverless](/images/workshop/runbook/img210.jpg)
+**3.1 — Mở trang VPC endpoints.** **OpenSearch Service → Serverless → VPC endpoints** và bấm **Create VPC endpoint**. Chính trang này cảnh báo rằng nó quản lý endpoint cho collection **Classic** và collection NextGen dùng console Amazon EC2 VPC endpoints — hãy lưu ý nếu endpoint không hiện trong collection NextGen về sau.
 
-![Endpoint fitness-dev-opensearch-vpce ở hai private app subnet](/images/workshop/runbook/img211.jpg)
+![Trang VPC endpoints và nút Create VPC endpoint](/images/workshop/runbook/img210.jpg)
 
-#### Bước 4 — Vector search collection
+**3.2 — Điền endpoint.** Tên `fitness-dev-opensearch-vpce`, VPC `fitness-assistant-dev-vpc`, subnet `private-app-a` và `private-app-b`. Runbook chỉ định `fitness-assistant-dev-vpce-sg` có sẵn (TCP 443 từ Lambda SG); endpoint trong ảnh cho thấy Lambda SG được gắn — group nào được gắn cũng phải cho phép inbound TCP 443 từ security group của Lambda. Chờ **Available** (ảnh chụp lúc còn **Pending**) và ghi lại endpoint ID (`vpce-…`, không phải endpoint URL).
 
-**Serverless → Collections → Create collection**: NextGen, **Standard create** (không dùng Express — cần kiểm soát private networking và access policy), tên `fitness-assistant-dev-ai-vectors`, mô tả "Gymini AI vector store for RAG and knowledge retrieval", type **Vector search**, collection group `fitness-assistant-dev-ai`, key mã hoá do AWS sở hữu.
+![Endpoint ID, hai private app subnet và security group được gắn (trạng thái Pending)](/images/workshop/runbook/img211.jpg)
 
-![Trang Collections](/images/workshop/runbook/img212.jpg)
+#### Bước 4 — Collection vector search
 
-![Collection fitness-assistant-dev-ai-vectors, type Vector search](/images/workshop/runbook/img213.jpg)
+**4.1 — Bắt đầu tạo collection.** **Serverless → Collections → Create collection**.
 
-![Standard create trong collection group có sẵn](/images/workshop/runbook/img214.jpg)
+![Trang Collections chưa có collection và nút Create collection](/images/workshop/runbook/img212.jpg)
 
-Networking: access type **Private**, qua VPC endpoint ở trên — không có public access.
+**4.2 — Đặt tên và chọn loại.** NextGen, tên `fitness-assistant-dev-ai-vectors`, mô tả "Gymini AI vector store for RAG and knowledge retrieval", loại collection **Vector search**.
 
-![Truy cập private qua VPC endpoint](/images/workshop/runbook/img215.jpg)
+![Tên collection, mô tả và loại Vector search](/images/workshop/runbook/img213.jpg)
 
-Data access: **Create as a new data access policy** tên `fitness-dev-ai-vector-access`, định nghĩa bằng **JSON** thay vì tick quyền trong visual editor:
+**4.3 — Chọn Standard create và group.** Chọn **Standard create** (không dùng Express — cần kiểm soát private networking và access policy), **Select existing collection group** và chọn `fitness-assistant-dev-ai`.
+
+![Standard create, collection group có sẵn fitness-assistant-dev-ai](/images/workshop/runbook/img214.jpg)
+
+**4.4 — Network access.** Giữ khoá mã hoá do AWS sở hữu, chọn access type **Private (recommended)**, tick **VPC endpoints for access** và chọn endpoint ở Bước 3 — không có truy cập public.
+
+![Private access với VPC endpoint đã chọn](/images/workshop/runbook/img215.jpg)
+
+**4.5 — Data access policy, phần 1.** **Create as a new data access policy**, tên `fitness-dev-ai-vector-access`, cách định nghĩa **JSON** thay vì tick quyền trong visual editor.
+
+![Create a new data access policy, tên policy và phương thức JSON](/images/workshop/runbook/img216.jpg)
+
+**4.6 — Data access policy, phần 2.** Dán JSON:
 
 ```json
 [
@@ -92,25 +110,29 @@ Data access: **Create as a new data access policy** tên `fitness-dev-ai-vector-
 ]
 ```
 
-`aoss:DeleteIndex` cố ý không được cấp.
+Cố ý không cấp `aoss:DeleteIndex`.
 
-![Data access policy fitness-dev-ai-vector-access, định nghĩa bằng JSON](/images/workshop/runbook/img216.jpg)
+![JSON editor chứa data access policy](/images/workshop/runbook/img217.jpg)
 
-![JSON của data access policy](/images/workshop/runbook/img217.jpg)
+**4.7 — OpenSearch UI.** Wizard cũng tạo một OpenSearch application và workspace để duyệt dữ liệu: **Create new OpenSearch application** `aoss-fitness-dev-ai` và **Create new workspace** `fitness-dev-ai-vectors`.
 
-Wizard cũng tạo một OpenSearch application (`aoss-fitness-dev-ai`) và workspace để xem dữ liệu, quyền admin chỉ cấp cho IAM principal của account.
+![Application mới aoss-fitness-dev-ai và workspace mới fitness-dev-ai-vectors](/images/workshop/runbook/img218.jpg)
 
-![OpenSearch application và workspace](/images/workshop/runbook/img218.jpg)
+**4.8 — Administrator và tạo collection.** Để trống IAM Identity Center, chỉ cấp quyền administrator cho IAM principal của tài khoản, rồi bấm **Create collection**.
 
-![Admin của application](/images/workshop/runbook/img219.jpg)
+![Administrator của application và nút Create collection](/images/workshop/runbook/img219.jpg)
 
-![Đang tạo collection](/images/workshop/runbook/img220.jpg)
+**4.9 — Chờ tạo xong.** Trang hiện "Creating collection"; đừng rời trang cho tới khi trang chi tiết collection xuất hiện.
 
-Khi collection chuyển sang **Active**, copy **ARN** (cho IAM) và **OpenSearch endpoint** (`https://<collection-id>.aoss.ap-southeast-1.on.aws`, cho Lambda) bằng nút copy của console. Không tạo index bằng tay.
+![Thông báo Important: creating OpenSearch Serverless resources](/images/workshop/runbook/img220.jpg)
+
+Khi collection **Active**, sao chép **ARN** (cho IAM) và **OpenSearch endpoint** (`https://<collection-id>.aoss.ap-southeast-1.on.aws`, cho các Lambda) bằng nút copy của console. Không tạo index bằng tay.
 
 #### Bước 5 — Quyền IAM cho cả ba AI role
 
-Data access policy và IAM là hai lớp quyền tách biệt; thiếu một trong hai đều trả về 403. Thêm inline policy `fitness-assistant-dev-opensearch-access` vào **từng** role `fitness-assistant-dev-ai-lambda-role`, `-ai-worker-role` và `-ai-jobs-role`:
+Data access policy và IAM là hai lớp riêng; thiếu một trong hai sẽ trả 403. Làm hai bước nhỏ dưới đây cho **từng** role `fitness-assistant-dev-ai-lambda-role`, `-ai-worker-role` và `-ai-jobs-role` (ảnh là của role đầu tiên).
+
+**5.1 — Dán policy.** **IAM → Roles → role → Add permissions → Create inline policy → JSON**:
 
 ```json
 {
@@ -126,15 +148,17 @@ Data access policy và IAM là hai lớp quyền tách biệt; thiếu một tro
 }
 ```
 
-Không dùng: `AmazonOpenSearchServerlessFullAccess`, `aoss:DashboardsAccessAll`, `aoss:*` — Lambda chỉ cần data-plane API.
+Không dùng: `AmazonOpenSearchServerlessFullAccess`, `aoss:DashboardsAccessAll`, `aoss:*` — các Lambda chỉ cần data-plane API.
 
-![aoss:APIAccessAll giới hạn trong ARN collection](/images/workshop/runbook/img221.jpg)
+![aoss:APIAccessAll giới hạn theo ARN của collection](/images/workshop/runbook/img221.jpg)
 
-![Tên policy fitness-assistant-dev-opensearch-access](/images/workshop/runbook/img222.jpg)
+**5.2 — Đặt tên và tạo.** `fitness-assistant-dev-opensearch-access`, **Create policy**.
+
+![Tên policy fitness-assistant-dev-opensearch-access và Create policy](/images/workshop/runbook/img222.jpg)
 
 #### Bước 6 — Environment variable
 
-Thêm vào cả ba AI Lambda (và xoá `QDRANT_HOST` / `QDRANT_PORT` nếu có):
+**6.1 — Thêm biến** vào cả ba AI Lambda (**Configuration → Environment variables → Edit**), và xoá `QDRANT_HOST` / `QDRANT_PORT` nếu có:
 
 ```
 VECTOR_STORE_PROVIDER=opensearch
@@ -143,9 +167,9 @@ OPENSEARCH_SERVERLESS_ENDPOINT=https://<collection-id>.aoss.ap-southeast-1.on.aw
 KNOWLEDGE_VECTOR_SIZE=1024
 ```
 
-Worker giữ `LLM_TIMEOUT_MS=180000`.
+Worker giữ `LLM_TIMEOUT_MS=180000`. Ảnh cho thấy ba dòng OpenSearch trên AI Lambda và nút **Save** (`KNOWLEDGE_VECTOR_SIZE` đã được đặt từ [5.4.8](../5.4.8-AI-Service-Core/)).
 
-![Environment variable OpenSearch trên AI Lambda](/images/workshop/runbook/img223.jpg)
+![VECTOR_STORE_PROVIDER, OPENSEARCH_REGION, OPENSEARCH_SERVERLESS_ENDPOINT và Save](/images/workshop/runbook/img223.jpg)
 
 ```
                  Amazon Bedrock
@@ -161,35 +185,49 @@ Worker giữ `LLM_TIMEOUT_MS=180000`.
 
 #### Bước 7 — Để code tự tạo index
 
-Collection hiện *Indexes: -* và cứ để như vậy: các index `exercises`, `fitness_knowledge`, `fitness_faq` và `fitness_evidence` được code bootstrap ở lần dùng đầu tiên với đúng mapping cần thiết — vector field `vector`, type `knn_vector`, dimension **1024**, engine `faiss`, method `hnsw`, space `cosinesimil`. Nếu một index tồn tại với số chiều sai, code báo lỗi thay vì xoá dữ liệu.
+Không có thao tác nào trên console. Collection hiện *Indexes: -* và vẫn như vậy: các index `exercises`, `fitness_knowledge`, `fitness_faq` và `fitness_evidence` được code khởi tạo ở lần dùng đầu tiên với đúng mapping nó cần — vector field `vector`, kiểu `knn_vector`, số chiều **1024**, engine `faiss`, method `hnsw`, space `cosinesimil`. Nếu index đã tồn tại với số chiều sai, code báo lỗi thay vì xoá dữ liệu.
 
 #### Bước 8 — Scheduler role cho AI jobs
 
-Custom trust policy cho `scheduler.amazonaws.com`, role `fitness-assistant-dev-ai-jobs-scheduler-role`, inline policy `fitness-assistant-dev-invoke-ai-jobs` với `lambda:InvokeFunction` chỉ trên `fitness-assistant-dev-ai-jobs`.
+**8.1 — Chọn custom trust policy.** **IAM → Roles → Create role**, chọn **Custom trust policy** và dán statement với principal `scheduler.amazonaws.com`, action `sts:AssumeRole`.
 
-![Custom trust policy cho EventBridge Scheduler](/images/workshop/runbook/img224.jpg)
+![Custom trust policy đã chọn và JSON cho scheduler.amazonaws.com](/images/workshop/runbook/img224.jpg)
 
-![Role fitness-assistant-dev-ai-jobs-scheduler-role](/images/workshop/runbook/img225.jpg)
+**8.2 — Đặt tên role.** `fitness-assistant-dev-ai-jobs-scheduler-role`, rồi **Create role**.
 
-![Inline policy cho AI jobs Lambda](/images/workshop/runbook/img226.jpg)
+![Tên role fitness-assistant-dev-ai-jobs-scheduler-role](/images/workshop/runbook/img225.jpg)
 
-![Tên policy fitness-assistant-dev-invoke-ai-jobs](/images/workshop/runbook/img227.jpg)
+**8.3 — Viết inline policy.** Trên role, **Add permissions → Create inline policy → JSON**: `lambda:InvokeFunction` chỉ trên `fitness-assistant-dev-ai-jobs`.
+
+![JSON editor: lambda:InvokeFunction trên fitness-assistant-dev-ai-jobs](/images/workshop/runbook/img226.jpg)
+
+**8.4 — Đặt tên và tạo.** `fitness-assistant-dev-invoke-ai-jobs`, **Create policy**.
+
+![Tên policy fitness-assistant-dev-invoke-ai-jobs và Create policy](/images/workshop/runbook/img227.jpg)
 
 #### Bước 9 — Năm schedule
 
-Schedule auto-accept: `fitness-assistant-dev-ai-autoaccept`, `rate(15 minutes)`, payload `{"job": "personalized-service-autoaccept-sweep"}`, enabled, dùng AI jobs scheduler role.
+**9.1 — Đặt tên schedule auto-accept.** **EventBridge → Schedules → Create schedule**: tên `fitness-assistant-dev-ai-autoaccept`, **Recurring schedule**, **Rate-based schedule**.
 
-![Schedule fitness-assistant-dev-ai-autoaccept](/images/workshop/runbook/img228.jpg)
+![Tên schedule, Recurring schedule và Rate-based schedule](/images/workshop/runbook/img228.jpg)
 
-![rate(15 minutes), tắt flexible window](/images/workshop/runbook/img229.jpg)
+**9.2 — Đặt tần suất.** `15` `minutes`, flexible time window **Off**, rồi **Next**.
 
-![Target fitness-assistant-dev-ai-jobs với payload auto-accept](/images/workshop/runbook/img230.jpg)
+![Rate 15 phút, flexible window Off và Next](/images/workshop/runbook/img229.jpg)
 
-![Retry policy và DLQ](/images/workshop/runbook/img231.jpg)
+**9.3 — Chọn target.** Bấm ô **AWS Lambda — Invoke**, chọn `fitness-assistant-dev-ai-jobs` và nhập payload `{"job": "personalized-service-autoaccept-sweep"}`.
 
-![Existing role fitness-assistant-dev-ai-jobs-scheduler-role](/images/workshop/runbook/img232.jpg)
+![AWS Lambda Invoke, function ai-jobs và payload auto-accept](/images/workshop/runbook/img230.jpg)
 
-Tiếp theo là bốn schedule nạp tri thức hằng đêm (cron-based, time zone `Asia/Ho_Chi_Minh` để chạy ban đêm theo giờ Việt Nam):
+**9.4 — Chọn settings.** Giữ schedule enabled, bật retry với maximum age `0` giờ `5` phút, `2` lần thử và DLQ **None**.
+
+![Enable, retry 5 phút, 2 lần, DLQ None](/images/workshop/runbook/img231.jpg)
+
+**9.5 — Chọn role.** **Use existing role**: `fitness-assistant-dev-ai-jobs-scheduler-role`, rồi **Next** và tạo schedule.
+
+![Use existing role, AI jobs scheduler role và Next](/images/workshop/runbook/img232.jpg)
+
+**9.6 — Tạo bốn schedule ban đêm** theo cách tương tự, nhưng dạng cron, time zone `Asia/Ho_Chi_Minh` để chạy vào ban đêm giờ Việt Nam:
 
 | Schedule | Biểu thức | Payload |
 |---|---|---|
@@ -198,6 +236,8 @@ Tiếp theo là bốn schedule nạp tri thức hằng đêm (cron-based, time z
 | `fitness-assistant-dev-ai-rss` | `cron(0 3 * * ? *)` | `{"job":"rss-refresh"}` |
 | `fitness-assistant-dev-ai-web` | `cron(30 3 * * ? *)` | `{"job":"web-refresh"}` |
 
+*Runbook không có ảnh của bốn schedule cron.*
+
 ```
 EventBridge Scheduler → AI Jobs Lambda → PubMed / RSS / Web / Local
    → Cohere Embed Multilingual v3 (1024) → OpenSearch Serverless → fitness_knowledge / fitness_evidence …
@@ -205,7 +245,11 @@ EventBridge Scheduler → AI Jobs Lambda → PubMed / RSS / Web / Local
 
 #### Bước 10 — Nối AI Lambda vào API Gateway
 
-Tạo Lambda integration `fitness-assistant-dev-ai` (payload 2.0) và tám route:
+**10.1 — Tạo integration.** **API Gateway → fitness-assistant-dev-api → Integrations → Create**: **Lambda function**, region `ap-southeast-1`, chọn `fitness-assistant-dev-ai`, payload format `2.0`, giữ **Grant API Gateway permission to invoke your Lambda function**, rồi **Create**.
+
+![Lambda function integration, payload 2.0 và Create](/images/workshop/runbook/img233.jpg)
+
+**10.2 — Tạo và gắn tám route.**
 
 ```
 ANY /ai            ANY /ai/{proxy+}
@@ -214,15 +258,21 @@ ANY /marketplace   ANY /marketplace/{proxy+}
 ANY /admin/ai      ANY /admin/ai/{proxy+}
 ```
 
-Các greedy route bao phủ `POST /ai/ask`, `GET /ai/conversations`, `POST /ai/agent/goal-image`, `POST /plans/workout/generate`, `GET /plans/job/{id}`, `GET /admin/ai/overview`, v.v. Authorization của route để **NONE**: AI Lambda tự verify Bearer JWT qua Auth Lambda và từ chối header `x-user-id` / `x-user-role` giả mạo, nên thêm JWT authorizer ở API Gateway sẽ tạo ra lớp xác thực thứ hai không nhất quán. Không tạo `/internal/*`, `/metrics` và `/{proxy+}`.
+Các greedy route bao phủ `POST /ai/ask`, `GET /ai/conversations`, `POST /ai/agent/goal-image`, `POST /plans/workout/generate`, `GET /plans/job/{id}`, `GET /admin/ai/overview` và các route khác. Route authorization giữ **NONE**: AI Lambda tự verify Bearer JWT qua Auth Lambda và từ chối header `x-user-id` / `x-user-role` giả mạo, nên thêm JWT authorizer của API Gateway sẽ tạo ra lớp auth thứ hai thiếu nhất quán. Không tạo `/internal/*`, `/metrics` và `/{proxy+}`.
 
-![Lambda integration cho fitness-assistant-dev-ai](/images/workshop/runbook/img233.jpg)
+**10.3 — Kiểm tra một route.** Ở **Attach integrations to routes**, chọn `ANY /admin/ai`; chi tiết phải hiện `fitness-assistant-dev-ai`.
 
-![Route AI đã gắn vào integration](/images/workshop/runbook/img234.jpg)
+![Route ANY /admin/ai được chọn, Lambda function fitness-assistant-dev-ai](/images/workshop/runbook/img234.jpg)
 
 #### Bước 11 — Payment → AI
 
-Sau khi thanh toán thành công, Payment kích hoạt dịch vụ cá nhân hoá bằng cách invoke endpoint nội bộ của AI Lambda `POST /internal/personalized-service/orders/:id/activate-after-payment` (idempotent, nên retry an toàn). Thêm `AI_LAMBDA_NAME=fitness-assistant-dev-ai` vào cả `fitness-assistant-dev-payment` và `fitness-assistant-dev-payment-jobs`, và thêm vào Payment role:
+Sau khi thanh toán thành công, Payment kích hoạt dịch vụ cá nhân hoá bằng cách invoke endpoint nội bộ của AI Lambda `POST /internal/personalized-service/orders/:id/activate-after-payment` (idempotent, nên thử lại an toàn).
+
+**11.1 — Thêm biến.** Thêm `AI_LAMBDA_NAME=fitness-assistant-dev-ai` vào cả `fitness-assistant-dev-payment` và `fitness-assistant-dev-payment-jobs`.
+
+![AI_LAMBDA_NAME = fitness-assistant-dev-ai trên Payment Lambda](/images/workshop/runbook/img235.jpg)
+
+**11.2 — Cho phép invoke.** Thêm vào Payment role:
 
 ```json
 {
@@ -233,21 +283,23 @@ Sau khi thanh toán thành công, Payment kích hoạt dịch vụ cá nhân ho�
 }
 ```
 
-![AI_LAMBDA_NAME trên Payment Lambda](/images/workshop/runbook/img235.jpg)
+*Runbook không có ảnh của việc sửa policy.*
 
-Không cần public URL, route `/internal` hay Lambda Function URL cho việc này. Chuỗi lúc này là: người dùng → AI marketplace → Payment → provider → webhook/reconciliation → Payment Lambda → (direct invoke) AI Lambda → kích hoạt dịch vụ.
+Không tạo public URL, route `/internal` hay Lambda Function URL cho việc này. Chuỗi gọi giờ là: người dùng → AI marketplace → Payment → provider → webhook/reconciliation → Payment Lambda → (direct invoke) AI Lambda → kích hoạt dịch vụ.
 
-#### Bước 12 — Rate limit các route AI để bảo vệ chi phí Bedrock
+#### Bước 12 — Giới hạn tốc độ các route AI để bảo vệ chi phí Bedrock
 
-Application gateway cũ giới hạn `/ai/ask` ở 20 request mỗi 60 giây, và AI Service không có ngân sách token theo người dùng, nên nếu không giới hạn, một bug frontend có thể gửi hàng trăm lời gọi Bedrock tính phí. Trong **API Gateway → `fitness-assistant-dev-api` → Stages → `$default` → route throttling**, chỉ giới hạn các route AI (không giới hạn toàn API):
+Application gateway cũ giới hạn `/ai/ask` ở 20 request mỗi 60 giây, và AI Service không có ngân sách token theo từng user, nên nếu không giới hạn thì một lỗi frontend có thể gửi hàng trăm lời gọi Bedrock tốn tiền. Trong **API Gateway → `fitness-assistant-dev-api` → Stages → `$default` → route throttling**, chỉ giới hạn các route AI (không phải toàn bộ API):
 
-| Route | Rate (req/giây) | Burst |
+| Route | Rate (req/s) | Burst |
 |---|---|---|
 | `ANY /ai`, `ANY /ai/{proxy+}` | 1 | 3 |
 | `ANY /plans`, `ANY /plans/{proxy+}` | 1 | 3 |
 | `ANY /marketplace`, `ANY /marketplace/{proxy+}` | 3 | 6 |
 | `ANY /admin/ai`, `ANY /admin/ai/{proxy+}` | 1 | 3 |
 
-API Gateway dùng token bucket và trả **HTTP 429** khi vượt giới hạn; đây là mục tiêu best-effort chứ không phải trần cứng, và áp dụng theo route chứ không theo người dùng. Frontend phải hiển thị thông báo "quá nhiều yêu cầu, vui lòng thử lại sau" kèm backoff thay vì retry liên tục. Usage plan / API key (tính năng của REST API) và Lambda reserved concurrency (sẽ bóp toàn bộ route AI cùng lúc) cố ý không dùng.
+*Runbook không có ảnh của cấu hình throttling.*
 
-Toàn bộ đường đi AI lúc này có: JWT → route throttling ở API Gateway → AI HTTP Lambda (Auth, Aurora, Nova Pro, Cohere, OpenSearch, SQS) → AI Worker; EventBridge → AI Jobs → OpenSearch; Payment → endpoint nội bộ của AI.
+API Gateway dùng token bucket và trả **HTTP 429** khi vượt giới hạn; các giới hạn là mục tiêu best-effort chứ không phải trần cứng, và áp dụng theo route chứ không theo user. Frontend phải hiển thị thông báo "quá nhiều yêu cầu, hãy thử lại sau" kèm backoff thay vì thử lại liên tục. Cố ý không dùng usage plan / API key (tính năng của REST API) và Lambda reserved concurrency (sẽ throttle mọi route AI cùng lúc).
+
+Đường đi AI đầy đủ giờ gồm: JWT → route throttling của API Gateway → AI HTTP Lambda (Auth, Aurora, Nova Pro, Cohere, OpenSearch, SQS) → AI Worker; EventBridge → AI Jobs → OpenSearch; Payment → endpoint nội bộ của AI.
