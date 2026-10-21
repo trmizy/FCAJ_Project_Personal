@@ -44,29 +44,61 @@ Hands-on participant, registered as **Trần Minh Duy**. In the afternoon block 
 
 ### Main Content
 
-The morning was a set of talks on building AI into the engineering lifecycle; the afternoon was a hands-on workshop block. This is what each part covered:
+The morning was a set of talks on building AI into the engineering lifecycle; the afternoon was a hands-on workshop block. This is what each part covered, based on the slides shown.
 
 #### 1. From Demo to Deployment: Solving Agentic AI's Toughest Challenges
 
-Agentic AI demos well, but deployment needs operational excellence, data governance, reliability and trust. The session walked through the four pillars that separate a proof of concept from production, with practical solutions using Amazon Bedrock and Bedrock AgentCore. Katalon then presented its AI platform for software quality, built on AWS, which independently validates AI-generated code through a governed system of record.
+The session framed Amazon Bedrock as one platform for **building AI apps and agents at scale**, split into two halves:
 
-**Connection to Fitness Assistant:**
-The project's AI service already runs on Amazon Bedrock. The same pillars — reliability, governance, trust — apply to the AI coach, which is why it only proposes plans and waits for the user to confirm before anything is saved.
+- **Models and inference:** models, inference and monitoring, plus fine-tuning, knowledge bases and model distillation.
+- **Agent development:** **AgentCore**, an open agent-development platform that works with any model and any framework, and Bedrock Managed Agents powered by OpenAI (OpenAI models and the OpenAI harness).
+- **Underneath both:** security, guardrails and governance.
+
+The trust section ended with five takeaways: security is not optional, isolate sessions, integrate with existing identity, enforce policies before execution at scale, and define clear boundaries. Katalon then presented its AI platform for software quality, built on AWS, which independently validates AI-generated code through a governed system of record.
 
 #### 2. Building High-Quality Data Products for AI Agents
 
-AI agents are only as good as the data they consume. The session covered patterns for data products that agents can trust: quality, schema design for agent consumption, and real-time integration.
+This was the most detailed session. Its thread: **an agent is only as good as the data it reads**, so data has to be made "AI-ready".
 
-**Connection to Fitness Assistant:**
-The coach reads measurements, profile and workout history. Keeping one authoritative source for each kind of data is the project's equivalent of a trustworthy data product.
+**One wrong fact poisons every layer.** Quality must be enforced where data is produced, not where it is used. The example was a fintech running a card and lending platform: chargebacks and reversals are stored as separate events and never subtracted, so a metric called `monthly_spend` is wrong. It is published to the catalog with no definition, shown as "spend up 40%, this customer looks healthy", read by a credit-limit agent as fact, and finally raises credit limits for thousands of customers automatically. A person would see the jump and check with operations, so the error stops there; an agent has nobody to question it, so the error becomes an action. Catching it at the source is the job of a **data contract**.
+
+**Anatomy of a data contract.** For the data product `monthly_spend` (v2.1) the contract names a business owner (Card Risk) and a steward (Payments Data Engineering), then covers three areas:
+
+| Area | Element | Example |
+|---|---|---|
+| Manage | Quality rules | Every reversal matches an original transaction; `net_spend` ≤ settled; a month-on-month jump above 30% is flagged |
+| Manage | Freshness | Updated by 06:00 daily; older than 24 hours is flagged as unusable |
+| Manage | Version | Changes reviewed and announced to every consumer before release |
+| Understand | Schema | Named columns; breaking changes need a new version |
+| Understand | Meaning | `net_spend` = settled − chargebacks − reversals, per calendar month |
+| Protect | Access | The agent reads totals only, no card numbers; every read is logged |
+
+"No contract, no data product: just a table someone hopes is right."
+
+**What "AI-ready" has to mean now.** Every judgment a human analyst supplied for free has to live in the data itself, in five properties: **trusted** (accurate, fresh and validated before the agent sees it), **contextual** (business meaning made explicit), **traceable** (what the agent did, and why, captured as it happens), **governed** (bounded by design: scoped, controlled, auditable) and **operational** (actionable, not just readable). Miss one, and the agent does not degrade gracefully the way a person would; it fails confidently.
+
+**Four building blocks, in the order to build them:** (1) data contracts and quality, (2) traceability and governance, (3) the context layer, (4) from searchable to actionable. The order matters: start with quality, because every layer built on top inherits its mistakes.
+
+**One copy, any engine, any agent.** A data product only helps agents if every engine and agent can reach it: open table formats (store it once, for example in Apache Iceberg on Amazon S3 Tables), open engines (Athena, Redshift and Spark on EMR or Glue read the same table through the Glue Data Catalog), and open protocols (agents use data and tools through MCP and hand work to other agents through A2A, via AgentCore Gateway and Runtime). The contract travels with the data: the same quality checks, catalog entry and Lake Formation permissions apply to every reader.
+
+**Data retrieval, the core problem.** Before writing agent code, answer three questions: what data does the agent need, where does it live, and which retrieval mechanism fits. Four mechanisms were compared: semantic search / RAG (unstructured content), structured lookup (exact records through SQL or an API), graph traversal (entity relationships and multi-hop paths) and cached context (stable, high-frequency context). One rule stood out: design for silence, not just bad data, because agents hallucinate from absent data as well as wrong data.
+
+**Chat with your data.** Text-to-SQL becomes much more accurate and deterministic with a semantic layer, 25–50 percentage points better regardless of the model. The reasoning-effort setting made little difference, and the quality of data modeling was the key driver of determinism.
+
+**How Vanguard built AI-ready data** (AWS Machine Learning Blog, April 2026): eight principles — a data product and operating model with an owner per asset, governance and security, a unified metadata catalog, a semantic layer, ground-truth examples (50+ question-to-SQL pairs), automated quality checks, change control with definitions as code, and continuous evaluation. Results: time-to-insight from days to minutes, self-service without SQL, high SQL accuracy, and reuse across the business.
 
 #### 3. Migration at Scale with AWS Transform
 
-AWS Transform automates large-scale code modernisation — Java upgrades, .NET porting, framework migrations and tech-debt removal — by describing the transformation in natural language and letting autonomous agents plan, execute and validate the changes.
+AWS Transform automates large-scale code modernisation — Java upgrades, .NET porting, framework migrations and tech-debt removal — by describing the transformation in natural language and letting autonomous agents plan, execute and validate the changes. The reference architecture shown for orchestrating a migration had these parts:
+
+- **People and surface:** engineers and approvers work from Kiro (IDE or CLI), which drives AWS Transform jobs and approval gates through MCP servers.
+- **AWS Transform:** one migration agent made of composable job steps (perform discovery, build a migration plan, build a landing zone, migrate network, migrate servers, containerize), with chat approvals, approvers for plan, network and cutover, and a worklog as the audit trail.
+- **Source and target:** a source environment (VMware, Hyper-V, Nutanix, KVM, bare metal) with a discovery tool, and multi-account AWS targets with a Control Tower landing zone and infrastructure as code (CloudFormation, CDK, Terraform).
+- **Custom agents on AgentCore:** an Agent Builder toolkit lets custom agents run on Amazon Bedrock AgentCore (runtime, gateway, identity through Cognito, memory, guardrails with Cedar policy, CloudWatch and CloudTrail) and integrate with ticketing (ServiceNow, Jira) and SNS notifications.
 
 #### 4. Workshop A — Build with Kiro: From Spec to Working Application (the track I attended)
 
-Workshop A teaches spec-driven development in Kiro, AWS's agentic IDE, by building an application from scratch with AWS solutions architects on hand. AWS sponsored **1,000 Kiro credits per attendee, valid for one day**, so everyone could build and test freely with the newest Claude Opus model.
+Workshop A teaches spec-driven development in Kiro, AWS's agentic IDE, by building an application from scratch with AWS solutions architects on hand. It ran as a guided "Kiro Express" workshop on AWS Workshop Studio: attendees joined the event with an access code, opened Kiro from the event outputs, and followed the workshop steps starting from "Initialize the project". Nothing had to be installed and no AWS account was needed. AWS sponsored **1,000 Kiro credits per attendee, valid for one day**, so everyone could build and test freely with the newest Claude Opus model.
 
 The application I built was a web game: I turned **Flappy Bird into "Flappy Kiro"**. The process followed Kiro's spec workflow:
 
@@ -81,7 +113,13 @@ The outcome is a working app built spec-first, and a workflow that can be reused
 
 #### 5. Customer Spotlight — Kyanon Digital
 
-Bui Hoang Viet, DevOps Engineer at Kyanon Digital, spoke on *Beyond Single-YAML: Taming the Blast Radius of LLM Remediation in Kubernetes*, a talk about real engineering teams running AI in production.
+Bui Hoang Viet, DevOps Engineer at Kyanon Digital, spoke on *Beyond Single-YAML: Taming the Blast Radius of LLM Remediation in Kubernetes*.
+
+- **LLM remediation today** works one unit at a time: a Trivy finding becomes a prompt, the LLM writes a patched YAML, which is dry-run and then applied. Published results look strong: 0.990 precision (GenKubeSec) and 94% repair success on 1,000 manifests (LLMSecConfig). The weakness is the input unit: **one finding plus one manifest**, with no view of how services call each other.
+- **The proposed system** adds cluster context. Trivy findings and Prometheus mesh metrics (call-graph edges) are merged into a ClusterContext. The **upper branch** decides which attack paths matter most: a prioritiser ranks the top-k paths (Bellman-Ford), and an LLM annotator labels them with MITRE ATT&CK techniques (retrieved from a FAISS index) and writes a risk narrative, producing an attack report. The **lower branch** writes a patch and then checks it: remediation generates the patch, validates the schema and runs a health gate, and a "functional blast radius" check confirms that the finding is cleared, the call edges are preserved and the health gate passes.
+- **The test cluster** had 36 deployments, 4 namespaces, 51 call edges and 31 injected findings. 25 were topology-dependent (the correct fix needs a value only the running cluster has) and 6 topology-independent (the fix is fully written in the finding text), which served as the control group.
+
+The point of the talk: a patch that closes a finding can still break the service next to it, so remediation has to be judged by its blast radius, not only by whether the finding disappears.
 
 ### Photos / Video
 

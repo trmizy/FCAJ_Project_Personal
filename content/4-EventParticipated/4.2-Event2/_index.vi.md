@@ -44,29 +44,61 @@ Người tham gia thực hành, đăng ký với tên **Trần Minh Duy**. Trong
 
 ### Nội dung chính
 
-Buổi sáng là các bài nói về đưa AI vào vòng đời kỹ thuật phần mềm; buổi chiều là khối workshop thực hành. Từng phần như sau:
+Buổi sáng là các bài nói về đưa AI vào vòng đời kỹ thuật phần mềm; buổi chiều là khối workshop thực hành. Từng phần như sau, dựa trên các slide được trình chiếu.
 
 #### 1. From Demo to Deployment: Solving Agentic AI's Toughest Challenges
 
-Agentic AI trình diễn rất tốt, nhưng triển khai cần vận hành xuất sắc, quản trị dữ liệu, độ tin cậy và sự tin tưởng. Phiên này trình bày bốn trụ cột phân biệt bản thử nghiệm với production, cùng các giải pháp thực tế dùng Amazon Bedrock và Bedrock AgentCore. Sau đó Katalon giới thiệu nền tảng AI cho chất lượng phần mềm xây trên AWS, kiểm chứng độc lập code do AI sinh ra qua một hệ thống ghi nhận có quản trị.
+Phiên này mô tả Amazon Bedrock như một nền tảng để **xây ứng dụng và agent AI ở quy mô lớn**, chia làm hai nửa:
 
-**Liên hệ với Fitness Assistant:**
-AI service của dự án đã chạy trên Amazon Bedrock. Các trụ cột tương tự — độ tin cậy, quản trị, sự tin tưởng — áp dụng cho AI coach, nên coach chỉ đề xuất kế hoạch và chờ người dùng xác nhận trước khi lưu bất cứ thứ gì.
+- **Models và inference:** models, inference và monitoring, cùng fine-tuning, knowledge bases và model distillation.
+- **Phát triển agent:** **AgentCore**, nền tảng phát triển agent mở, dùng được với mọi model và mọi framework, và Bedrock Managed Agents chạy bằng OpenAI (model OpenAI và harness của OpenAI).
+- **Bên dưới cả hai:** bảo mật, guardrails và quản trị.
+
+Phần về tin cậy kết thúc bằng năm điểm rút ra: bảo mật không phải tuỳ chọn, cô lập các session, tích hợp với hệ thống định danh sẵn có, áp chính sách trước khi thực thi ở quy mô lớn, và xác định ranh giới rõ ràng. Sau đó Katalon giới thiệu nền tảng AI cho chất lượng phần mềm xây trên AWS, kiểm chứng độc lập code do AI sinh ra qua một hệ thống ghi nhận có quản trị.
 
 #### 2. Building High-Quality Data Products for AI Agents
 
-AI agent chỉ tốt bằng dữ liệu mà nó dùng. Phiên này nêu các mẫu xây data product mà agent có thể tin cậy: chất lượng, thiết kế schema cho agent sử dụng, và tích hợp thời gian thực.
+Đây là phiên chi tiết nhất. Mạch chính: **agent chỉ tốt bằng dữ liệu nó đọc**, nên dữ liệu phải được làm cho "sẵn sàng cho AI".
 
-**Liên hệ với Fitness Assistant:**
-Coach đọc số đo, hồ sơ và lịch sử tập luyện. Giữ một nguồn dữ liệu có thẩm quyền duy nhất cho từng loại dữ liệu là cách dự án đạt được tương đương một data product đáng tin cậy.
+**Một sự thật sai làm nhiễm mọi tầng.** Chất lượng phải được đảm bảo ở nơi dữ liệu được tạo ra, không phải nơi nó được dùng. Ví dụ là một fintech chạy nền tảng thẻ và cho vay: chargeback và reversal được lưu như các sự kiện riêng và không bao giờ bị trừ đi, nên chỉ số `monthly_spend` bị sai. Nó được công bố lên catalog không có định nghĩa, hiển thị thành "chi tiêu tăng 40%, khách hàng này có vẻ khoẻ mạnh", được một agent hạn mức tín dụng đọc như sự thật, và cuối cùng tự động nâng hạn mức cho hàng nghìn khách. Một người sẽ thấy bước nhảy và hỏi lại bộ phận vận hành, nên lỗi dừng ở đó; agent không có ai để chất vấn, nên lỗi biến thành hành động. Chặn lỗi từ nguồn là việc của **data contract**.
+
+**Cấu trúc của một data contract.** Với data product `monthly_spend` (v2.1), contract nêu chủ sở hữu nghiệp vụ (Card Risk) và người quản lý (Payments Data Engineering), rồi bao gồm ba mảng:
+
+| Mảng | Thành phần | Ví dụ |
+|---|---|---|
+| Manage | Quality rules | Mỗi reversal khớp một giao dịch gốc; `net_spend` ≤ settled; tăng quá 30% so với tháng trước bị gắn cờ |
+| Manage | Freshness | Cập nhật trước 06:00 mỗi ngày; cũ hơn 24 giờ bị gắn cờ không dùng được |
+| Manage | Version | Thay đổi được xem lại và thông báo cho mọi bên dùng trước khi phát hành |
+| Understand | Schema | Các cột có tên; thay đổi phá vỡ cần phiên bản mới |
+| Understand | Meaning | `net_spend` = settled − chargebacks − reversals, theo tháng dương lịch |
+| Protect | Access | Agent chỉ đọc tổng, không có số thẻ; mọi lần đọc đều được ghi log |
+
+"Không có contract thì không có data product: chỉ là một cái bảng mà ai đó hy vọng là đúng."
+
+**"Sẵn sàng cho AI" giờ phải nghĩa là gì.** Mọi phán đoán mà một nhà phân tích con người cung cấp miễn phí giờ phải nằm trong chính dữ liệu, qua năm thuộc tính: **trusted** (chính xác, mới và đã được kiểm tra trước khi agent thấy), **contextual** (ý nghĩa nghiệp vụ được nêu rõ), **traceable** (agent đã làm gì và tại sao, ghi lại ngay khi xảy ra), **governed** (bị giới hạn theo thiết kế: có phạm vi, được kiểm soát, kiểm toán được) và **operational** (hành động được, không chỉ đọc được). Thiếu một thứ, agent không suy giảm nhẹ nhàng như con người; nó sai một cách tự tin.
+
+**Bốn khối xây dựng, theo thứ tự cần xây:** (1) data contract và chất lượng, (2) truy vết và quản trị, (3) lớp ngữ cảnh, (4) từ tìm kiếm được đến hành động được. Thứ tự quan trọng: bắt đầu từ chất lượng, vì mọi tầng xây lên trên đều thừa hưởng lỗi của nó.
+
+**Một bản sao, mọi engine, mọi agent.** Một data product chỉ giúp agent nếu mọi engine và mọi agent đều tiếp cận được nó: định dạng bảng mở (lưu một lần, ví dụ Apache Iceberg trên Amazon S3 Tables), engine mở (Athena, Redshift và Spark trên EMR hoặc Glue đọc cùng một bảng qua Glue Data Catalog), và giao thức mở (agent dùng dữ liệu và công cụ qua MCP và giao việc cho agent khác qua A2A, thông qua AgentCore Gateway và Runtime). Contract đi cùng dữ liệu: cùng kiểm tra chất lượng, cùng mục trong catalog và cùng quyền Lake Formation áp dụng cho mọi người đọc.
+
+**Truy xuất dữ liệu, vấn đề cốt lõi.** Trước khi viết code agent, trả lời ba câu hỏi: agent cần dữ liệu gì, dữ liệu nằm ở đâu, và cơ chế truy xuất nào phù hợp. Bốn cơ chế được so sánh: semantic search / RAG (nội dung phi cấu trúc), structured lookup (bản ghi chính xác qua SQL hoặc API), graph traversal (quan hệ thực thể và đường đi nhiều bước) và cached context (ngữ cảnh ổn định, tần suất cao). Một quy tắc nổi bật: thiết kế cho sự im lặng, không chỉ cho dữ liệu xấu, vì agent bịa ra không chỉ từ dữ liệu sai mà còn từ dữ liệu vắng mặt.
+
+**Chat với dữ liệu của bạn.** Text-to-SQL chính xác và tất định hơn nhiều khi có semantic layer, tốt hơn 25–50 điểm phần trăm bất kể model nào. Mức reasoning effort ít tạo khác biệt, và chất lượng mô hình hoá dữ liệu là yếu tố chính của tính tất định.
+
+**Cách Vanguard xây dữ liệu sẵn sàng cho AI** (AWS Machine Learning Blog, tháng 4/2026): tám nguyên tắc — data product và mô hình vận hành với một chủ sở hữu cho mỗi tài sản, quản trị và bảo mật, catalog metadata hợp nhất, semantic layer, ví dụ chuẩn (50+ cặp câu hỏi-SQL), kiểm tra chất lượng tự động, kiểm soát thay đổi với định nghĩa dưới dạng code, và đánh giá liên tục. Kết quả: thời gian ra insight từ vài ngày xuống vài phút, tự phục vụ không cần SQL, độ chính xác SQL cao, và dùng lại trên toàn doanh nghiệp.
 
 #### 3. Migration at Scale with AWS Transform
 
-AWS Transform tự động hoá hiện đại hoá code quy mô lớn — nâng cấp Java, chuyển .NET, di chuyển framework và xoá nợ kỹ thuật — bằng cách mô tả phép biến đổi bằng ngôn ngữ tự nhiên rồi để các agent tự động lên kế hoạch, thực thi và kiểm tra.
+AWS Transform tự động hoá hiện đại hoá code quy mô lớn — nâng cấp Java, chuyển .NET, di chuyển framework và xoá nợ kỹ thuật — bằng cách mô tả phép biến đổi bằng ngôn ngữ tự nhiên rồi để các agent tự động lên kế hoạch, thực thi và kiểm tra. Kiến trúc tham chiếu để điều phối một cuộc migration gồm các phần:
+
+- **Con người và giao diện:** kỹ sư và người duyệt làm việc từ Kiro (IDE hoặc CLI), điều khiển các job và cổng duyệt của AWS Transform qua MCP server.
+- **AWS Transform:** một migration agent gồm các bước job ghép được (khám phá, lập kế hoạch migration, dựng landing zone, migrate mạng, migrate server, container hoá), với duyệt qua chat, người duyệt cho kế hoạch, mạng và cutover, và worklog làm dấu vết kiểm toán.
+- **Nguồn và đích:** môi trường nguồn (VMware, Hyper-V, Nutanix, KVM, bare metal) với công cụ khám phá, và các tài khoản AWS đích nhiều tài khoản với landing zone Control Tower và hạ tầng dưới dạng code (CloudFormation, CDK, Terraform).
+- **Agent tuỳ biến trên AgentCore:** bộ Agent Builder cho phép agent tuỳ biến chạy trên Amazon Bedrock AgentCore (runtime, gateway, identity qua Cognito, memory, guardrails với chính sách Cedar, CloudWatch và CloudTrail) và tích hợp với ticketing (ServiceNow, Jira) và thông báo SNS.
 
 #### 4. Workshop A — Build with Kiro: From Spec to Working Application (track tôi tham gia)
 
-Workshop A dạy phát triển hướng đặc tả trong Kiro, IDE agentic của AWS, bằng cách xây một ứng dụng từ đầu với các solutions architect của AWS hỗ trợ tại chỗ. AWS tài trợ **1.000 credit Kiro cho mỗi người tham dự, dùng trong một ngày**, để mọi người xây và thử thoải mái với model Claude Opus mới nhất.
+Workshop A dạy phát triển hướng đặc tả trong Kiro, IDE agentic của AWS, bằng cách xây một ứng dụng từ đầu với các solutions architect của AWS hỗ trợ tại chỗ. Workshop chạy theo kiểu "Kiro Express" có hướng dẫn trên AWS Workshop Studio: người tham dự vào sự kiện bằng một mã truy cập, mở Kiro từ phần event outputs, và làm theo các bước workshop bắt đầu từ "Initialize the project". Không cần cài gì và không cần tài khoản AWS. AWS tài trợ **1.000 credit Kiro cho mỗi người tham dự, dùng trong một ngày**, để mọi người xây và thử thoải mái với model Claude Opus mới nhất.
 
 Ứng dụng tôi xây là một web game: tôi biến **Flappy Bird thành "Flappy Kiro"**. Quy trình theo luồng spec của Kiro:
 
@@ -81,7 +113,13 @@ Kết quả là một ứng dụng chạy được, xây theo đặc tả trư�
 
 #### 5. Customer Spotlight — Kyanon Digital
 
-Bui Hoang Viet, DevOps Engineer tại Kyanon Digital, trình bày *Beyond Single-YAML: Taming the Blast Radius of LLM Remediation in Kubernetes*, một bài nói về các đội kỹ sư thực sự đang chạy AI trong production.
+Bui Hoang Viet, DevOps Engineer tại Kyanon Digital, trình bày *Beyond Single-YAML: Taming the Blast Radius of LLM Remediation in Kubernetes*.
+
+- **LLM remediation hiện nay** làm việc theo từng đơn vị: một phát hiện của Trivy thành một prompt, LLM viết ra YAML đã vá, sau đó dry-run rồi apply. Kết quả đã công bố trông rất tốt: precision 0,990 (GenKubeSec) và 94% sửa thành công trên 1.000 manifest (LLMSecConfig). Điểm yếu nằm ở đơn vị đầu vào: **một phát hiện cộng một manifest**, không nhìn thấy các service gọi nhau thế nào.
+- **Hệ thống đề xuất** thêm ngữ cảnh cụm. Các phát hiện của Trivy và metric mesh của Prometheus (các cạnh call-graph) được gộp thành ClusterContext. **Nhánh trên** quyết định đường tấn công nào quan trọng nhất: một bộ ưu tiên xếp hạng top-k đường (Bellman-Ford), và một LLM annotator gắn nhãn chúng bằng kỹ thuật MITRE ATT&CK (truy xuất từ chỉ mục FAISS) và viết mô tả rủi ro, tạo ra một báo cáo tấn công. **Nhánh dưới** viết bản vá rồi kiểm tra nó: remediation sinh bản vá, kiểm tra schema và chạy health gate, và bước "functional blast radius" xác nhận phát hiện đã được xoá, các cạnh gọi được giữ nguyên và health gate qua.
+- **Cụm thử nghiệm** có 36 deployment, 4 namespace, 51 cạnh gọi và 31 phát hiện được chèn vào. 25 phát hiện phụ thuộc topology (bản sửa đúng cần một giá trị chỉ cụm đang chạy mới có) và 6 độc lập topology (bản sửa được viết đầy đủ trong nội dung phát hiện), dùng làm nhóm đối chứng.
+
+Ý chính của bài nói: một bản vá đóng được một phát hiện vẫn có thể làm hỏng service bên cạnh, nên remediation phải được đánh giá bằng blast radius, không chỉ bằng việc phát hiện có biến mất hay không.
 
 ### Hình ảnh / Video
 
