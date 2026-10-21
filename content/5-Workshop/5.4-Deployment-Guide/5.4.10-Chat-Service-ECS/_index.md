@@ -110,7 +110,7 @@ Internet ─:80─► chat-alb-sg ─:3005─► chat-sg (Fargate task, private 
 
 **3.4 — Upload the code.** **Upload from → .zip file** with `backend/services/chat-service/artifacts/chat-migrate-lambda.zip`, then **Update**.
 
-*The runbook has no screenshot of this upload; the dialog is the same as in [5.4.8 Step 2.6](../5.4.8-AI-Service-Core/#step-2--migration-role-and-lambda).*
+*The runbook has no screenshot of this upload; the dialog is the same as in [5.4.8 Step 2.6](../5.4.8-AI-Service-Core/).*
 
 **3.5 — Set the handler.** **Code → Runtime settings → Edit**: `dist/migrate-lambda.handler`, **Save**.
 

@@ -22,7 +22,7 @@ The new build includes the OpenSearch client and SigV4 support (HTTP/Worker ZIP 
 
 No database migration is required for this change.
 
-*The runbook has no screenshot of this re-upload; the dialog is the same as in [5.4.8 Step 6.2](../5.4.8-AI-Service-Core/#step-6--create-the-ai-http-lambda).*
+*The runbook has no screenshot of this re-upload; the dialog is the same as in [5.4.8 Step 6.2](../5.4.8-AI-Service-Core/).*
 
 #### Step 2 — Collection group with scale-to-zero
 

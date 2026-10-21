@@ -32,7 +32,7 @@ fitness-assistant-dev-aurora
 
 **1.1 — Create the secret.** In **Secrets Manager → Store a new secret** choose **Other type of secret**, enter the same five pairs as the other services with `database` = `fitness_assistant_payment`, and name it `fitness-assistant/dev/payment-database`.
 
-*The runbook has no screenshot of this action; the form is the same as in [5.4.6 Step 1](../5.4.6-Gym-Service/#step-1--create-the-database-secret).*
+*The runbook has no screenshot of this action; the form is the same as in [5.4.6 Step 1](../5.4.6-Gym-Service/).*
 
 **1.2 — Upload both zips.** In the deployments bucket click **Upload**, add `payment-lambda.zip` (36 MB) and `payment-migrate-lambda.zip` (~69 MiB, so S3 is mandatory), and start the upload. The screenshot shows both files in the list (105.1 MB in total).
 
@@ -76,7 +76,7 @@ fitness-assistant-dev-aurora
 
 **3.6 — Load the code.** **Upload from → Amazon S3 location**: `s3://fitness-assistant-deployments-dev-<account-id>/payment-migrate-lambda.zip`, copy mode, **Update**.
 
-*The runbook has no screenshot of this action; it is the same dialog as in [5.4.6 Step 4.4](../5.4.6-Gym-Service/#step-4--create-the-gym-lambda).*
+*The runbook has no screenshot of this action; it is the same dialog as in [5.4.6 Step 4.4](../5.4.6-Gym-Service/).*
 
 #### Step 4 — Run the 11 migrations
 
@@ -156,7 +156,7 @@ Provider credentials (`VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET`, MoMo / PayOS / Zalo
 
 **7.1 — Create the integration.** **API Gateway → fitness-assistant-dev-api → Integrations → Create**: Lambda function `fitness-assistant-dev-payment`, payload `2.0`.
 
-*The runbook has no screenshot of this action; the form is the same as in [5.4.6 Step 6.1](../5.4.6-Gym-Service/#step-6--connect-the-gym-lambda-to-api-gateway).*
+*The runbook has no screenshot of this action; the form is the same as in [5.4.6 Step 6.1](../5.4.6-Gym-Service/).*
 
 **7.2 — Create the routes.** `ANY /me` and `ANY /admin` are already owned by other services, so Payment uses specific prefixes:
 
