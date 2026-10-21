@@ -100,13 +100,28 @@ Bui Hoang Viet, DevOps Engineer tại Kyanon Digital, trình bày *Beyond Single
 ### Bài học rút ra
 
 **1. Một bản demo chạy được chưa phải là một dịch vụ production.**
-Phiên mở đầu và mô tả Workshop B đều nói cùng một ý: xây, deploy, mở rộng, rồi vận hành. Việc deploy Fitness Assistant lên AWS cho thấy cùng khoảng cách đó — một dịch vụ chạy được trên máy vẫn cần bảo mật, giám sát và quy trình deploy lặp lại được trước khi tính là production.
+Phiên mở đầu và mô tả Workshop B đều nói cùng một ý: xây, deploy, mở rộng, rồi vận hành. Amazon Bedrock và AgentCore đặt bảo mật, guardrails và quản trị bên dưới mọi model và agent, chứ không phải thêm vào sau. Việc deploy Fitness Assistant lên AWS cho thấy cùng khoảng cách đó: một dịch vụ chạy được trên máy vẫn cần bảo mật, giám sát và quy trình deploy lặp lại được trước khi tính là production.
 
-**2. Phát triển hướng đặc tả hợp với dự án có quy tắc sở hữu dữ liệu chặt.**
-Việc xây Flappy Kiro ở Workshop A — yêu cầu, rồi thiết kế, rồi kế hoạch công việc, rồi build và chơi thử — giống cách xử lý thay đổi ở Fitness Assistant: tìm hiểu, xác định cái gì sở hữu dữ liệu, rồi mới triển khai.
+**2. Một sự thật sai làm nhiễm mọi tầng, nên chất lượng phải được đảm bảo ở nơi dữ liệu được tạo ra.**
+Ví dụ fintech cho thấy một phép trừ bị thiếu trong một chỉ số (`monthly_spend`) đi qua pipeline, catalog và semantic layer cho đến khi một agent dùng nó để nâng hạn mức tín dụng cho hàng nghìn khách. Một người sẽ nhận ra bước nhảy và hỏi lại; agent không có ai để chất vấn, nên lỗi biến thành hành động. Cách xử lý là **data contract**: có chủ sở hữu và người quản lý, quy tắc chất lượng, độ mới, phiên bản, ý nghĩa được nêu rõ, và quyền truy cập có giới hạn với mọi lần đọc được ghi log. Với Fitness Assistant, đây là lý do mỗi loại dữ liệu có một chủ sở hữu có thẩm quyền duy nhất, và một dự báo không bao giờ ghi đè một số đo thực.
 
-**3. Chất lượng dữ liệu đi trước chất lượng agent.**
-Agent phụ thuộc vào dữ liệu nó đọc, nên mỗi giá trị cần một nguồn thẩm quyền duy nhất và được kiểm tra trước khi agent dùng.
+**3. Dữ liệu "sẵn sàng cho AI" nghĩa là năm điều: trusted, contextual, traceable, governed và operational.**
+Mọi phán đoán mà nhà phân tích con người cung cấp miễn phí giờ phải nằm trong chính dữ liệu. Thiếu một thứ, agent không suy giảm nhẹ nhàng như con người; nó sai một cách tự tin. Đây là lý do AI coach chỉ đề xuất và chờ người dùng xác nhận, và mọi đề xuất đều được ghi lại để có thể giải thích quyết định sau này.
+
+**4. Truy xuất dữ liệu phải được thiết kế, kể cả cho trường hợp im lặng.**
+Trước khi viết code agent, cần quyết định agent cần dữ liệu gì, dữ liệu nằm ở đâu và cơ chế truy xuất nào phù hợp: semantic search cho tài liệu, structured lookup cho bản ghi chính xác, graph traversal cho quan hệ, cached context cho quy tắc ổn định. Agent bịa ra không chỉ từ dữ liệu sai mà còn từ dữ liệu vắng mặt, nên truy xuất nên trả về rõ ràng "không tìm thấy". Một semantic layer làm text-to-SQL chính xác hơn 25–50 điểm phần trăm bất kể model nào, nghĩa là mô hình hoá dữ liệu quan trọng hơn một model lớn hơn.
+
+**5. Sửa chất lượng trước, và chỉ mở dữ liệu một lần qua chuẩn mở.**
+Thứ tự bốn khối xây dựng rất quan trọng: bắt đầu từ data contract và chất lượng, rồi truy vết và quản trị, rồi lớp ngữ cảnh, rồi mới làm dữ liệu hành động được. Một bản sao dữ liệu ở định dạng mở, mọi engine và agent đều đọc được qua MCP và A2A, tránh việc các bản sao lệch nhau và tránh khoá mọi agent vào một công cụ.
+
+**6. Một bản sửa chỉ tốt nếu không làm hỏng những thứ bên cạnh.**
+Bài của Kyanon cho thấy LLM remediation có thể trông rất tốt theo từng phát hiện (precision 0,990, sửa thành công 94%) mà một bản vá vẫn làm hỏng service bên cạnh. Đánh giá một thay đổi bằng "blast radius" — phát hiện được xoá, các cạnh gọi được giữ nguyên, health gate qua — cùng kỷ luật với việc kiểm chứng một lần deploy bằng bước kiểm tra sau-apply.
+
+**7. Ranh giới bảo mật đi trước quy mô.**
+Các điểm rút ra về tin cậy là: bảo mật không phải tuỳ chọn, cô lập session, tích hợp với định danh sẵn có, áp chính sách trước khi thực thi ở quy mô lớn, và xác định ranh giới rõ ràng. Chúng khớp với cách dự án tách người dùng: mọi bề mặt thuộc về người dùng phải giữ cô lập qua đăng xuất, đăng nhập và đổi tài khoản.
+
+**8. Phát triển hướng đặc tả hợp với dự án có quy tắc sở hữu dữ liệu chặt.**
+Việc xây Flappy Kiro ở Workshop A — yêu cầu, rồi thiết kế, rồi kế hoạch công việc, rồi build và chơi thử — giống cách xử lý thay đổi ở Fitness Assistant: tìm hiểu, xác định cái gì sở hữu dữ liệu, rồi mới triển khai. Xem lại yêu cầu và thiết kế trước khi viết code là điều giữ cho kết quả dự đoán được.
 
 ### Đóng góp cá nhân
 

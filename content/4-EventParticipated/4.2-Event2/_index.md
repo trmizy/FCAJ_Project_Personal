@@ -100,13 +100,28 @@ Bui Hoang Viet, DevOps Engineer at Kyanon Digital, spoke on *Beyond Single-YAML:
 ### Lessons Learned
 
 **1. A working demo is not a production service.**
-The opening session and the Workshop B description both say the same thing: build, deploy, extend, then operate. Deploying Fitness Assistant to AWS showed the same gap — a service that runs locally still needs security, monitoring and a repeatable deploy before it counts as production.
+The opening session and the Workshop B description say the same thing: build, deploy, extend, then operate. Amazon Bedrock and AgentCore put security, guardrails and governance underneath every model and agent, not on top as an afterthought. Deploying Fitness Assistant to AWS showed the same gap: a service that runs locally still needs security, monitoring and a repeatable deploy before it counts as production.
 
-**2. Spec-first development fits a project with strict ownership rules.**
-Building Flappy Kiro in Workshop A — requirements, then design, then a task plan, then build and play-test — mirrors how Fitness Assistant changes are handled: investigate, decide what owns the data, then implement.
+**2. One wrong fact poisons every layer, so quality must be enforced where data is produced.**
+The fintech example showed a missing subtraction in one metric (`monthly_spend`) travelling through the pipeline, the catalog and the semantic layer until an agent used it to raise credit limits for thousands of customers. A person would notice the jump and ask; an agent has nobody to question it, so the error becomes an action. The fix is a **data contract**: a named owner and steward, quality rules, freshness, versioning, an explicit meaning, and bounded access with every read logged. For Fitness Assistant this is the reason each kind of data has one authoritative owner, and a forecast never overwrites an actual measurement.
 
-**3. Data quality comes before agent quality.**
-Agents depend on the data they read, so each value should have one authoritative source and be checked before an agent uses it.
+**3. "AI-ready" data means five things: trusted, contextual, traceable, governed and operational.**
+Every judgment a human analyst supplies for free has to live in the data itself. Miss one, and an agent does not degrade gracefully the way a person would; it fails confidently. This is why the AI coach only proposes and waits for the user's confirmation, and why every recommendation is recorded so the decision can be explained afterwards.
+
+**4. Retrieval has to be designed, including for silence.**
+Before writing agent code, decide what data the agent needs, where it lives and which retrieval mechanism fits: semantic search for documents, structured lookup for exact records, graph traversal for relationships, cached context for stable rules. Agents hallucinate from absent data as well as wrong data, so retrieval should return an explicit "nothing found". A semantic layer made text-to-SQL 25–50 percentage points more accurate regardless of the model, which means data modeling matters more than a bigger model.
+
+**5. Fix quality first, and expose the data once through open standards.**
+The order of the four building blocks matters: start with data contracts and quality, then traceability and governance, then the context layer, then making data actionable. One copy of the data in an open format, readable by every engine and agent through MCP and A2A, avoids copies drifting apart and avoids locking every agent into one tool.
+
+**6. A fix is only good if it does not break its neighbours.**
+Kyanon's talk showed that LLM remediation can look excellent per finding (0.990 precision, 94% repair success) while a patch still breaks the service next to it. Judging a change by its "blast radius" — the finding is cleared, the call edges are preserved, the health gate passes — is the same discipline as verifying a deploy with a post-apply check.
+
+**7. Security boundaries come before scale.**
+The trust takeaways were: security is not optional, isolate sessions, integrate with existing identity, enforce policies before execution at scale, and define clear boundaries. They match how the project separates users: every user-owned surface has to stay isolated across logout, login and account switch.
+
+**8. Spec-first development fits a project with strict ownership rules.**
+Building Flappy Kiro in Workshop A — requirements, then design, then a task plan, then build and play-test — mirrors how Fitness Assistant changes are handled: investigate, decide what owns the data, then implement. Reviewing the requirements and design before any code is written is what keeps the result predictable.
 
 ### Personal Contribution
 
