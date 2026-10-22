@@ -56,10 +56,10 @@ Subscription Marketplace cho Cohere được admin chấp nhận một lần; ro
 ### Khoảng trống đã biết (mở, không giấu)
 
 - **Internal secret nằm trong cấu hình Lambda** — `INTERNAL_SERVICE_SECRET` và `CHECKIN_TOKEN_SECRET` là environment variable của Lambda (được mã hoá khi lưu, nhưng ai có quyền xem cấu hình function đều đọc được). Chat đã đọc internal secret từ Secrets Manager; chuyển bản trên Lambda sang đó là việc hardening tiếp theo.
-- **HTTPS** — S3 website endpoint và Chat ALB chỉ có HTTP ở DEV; HTTPS cần domain và chứng chỉ ACM, tốt nhất có CloudFront đứng trước một bucket private (Origin Access Control).
-- **Bucket frontend public-read** — tạm thời, chỉ object (`s3:GetObject`), cho tới khi có CloudFront.
-- **Chưa có WAF** — chưa có gì để gắn web ACL cho tới khi có CloudFront hoặc HTTPS listener.
-- **Xoay vòng credential ADMIN** và **12 seed account còn lại** — hoãn lại, bắt buộc phải xử lý trước khi release rộng hơn.
+- **HTTPS** — web app và Chat được phục vụ qua HTTPS bằng CloudFront; bản thân Chat ALB chỉ có HTTP phía sau nó. Tên miền riêng và chứng chỉ ACM là bước tiếp theo tuỳ chọn.
+- **Bucket frontend public-read** — chỉ object (`s3:GetObject`); CloudFront đọc S3 website endpoint, nên bucket private sau Origin Access Control là một bước gia cố có thể làm.
+- **WAF** — tuỳ chọn và chưa triển khai; CloudFront đã có nên có thể gắn web ACL khi cần.
+- **12 seed account còn lại** — hoãn lại, bắt buộc phải xử lý trước khi release rộng hơn.
 
 ### Screenshot bằng chứng từng chứa secret
 

@@ -23,10 +23,13 @@ pre: " <b> 5.2.4. </b> "
 | **AWS IAM** | Mỗi function hoặc task một role, scope đúng secret, queue, model và đích invoke của nó | Least privilege theo từng service thay vì một role rộng dùng chung — xem [5.2.5](../5.2.5-Security-IAM/). |
 | **Amazon VPC, NAT Gateway, Internet Gateway, VPC endpoint** | Cô lập network và kiểm soát đường ra | Lambda, Fargate và Aurora nằm trong private subnet; một NAT Gateway cho truy cập outbound (Bedrock); interface endpoint giữ traffic Secrets Manager và OpenSearch trong VPC; DB subnet không có route internet nào. |
 | **Amazon CloudWatch Logs** | Log cho mọi Lambda, Chat task và migrator | Đích log mặc định cho cả hai loại compute; dùng để troubleshoot khi deploy. Alarm là việc còn mở ([5.2.6](../5.2.6-Scalability-Operations/)). |
+| **Amazon CloudFront** | Cửa HTTPS cho web app và Chat | Một distribution phục vụ frontend qua HTTPS và định tuyến `/socket.io/*` tới Chat ALB, nên trình duyệt không bao giờ gửi request mixed-content. Origin của nó là S3 website endpoint. |
+| **Amazon CloudWatch Alarms, Amazon SNS, AWS Budgets, AWS X-Ray** | Cảnh báo, thông báo, kiểm soát chi phí và tracing | 12 alarm (lỗi Lambda của sáu service API, API Gateway 5xx, CPU và capacity của Aurora, sức khoẻ NAT Gateway) gửi tới một SNS topic có subscription e-mail đã xác nhận; một budget hàng tháng cảnh báo chi phí; active tracing bật trên sáu Lambda API. |
+| **GitHub Actions với AWS CloudFormation** | CI và CD có cổng duyệt | Kiểm tra PR cùng năm workflow có cổng duyệt deploy code Lambda, image Chat và stack API Gateway ([5.4.12](../../5.4-Deployment-Guide/5.4.12-CICD-Pipeline/), [5.4.13](../../5.4-Deployment-Guide/5.4.13-CD-Pipeline-Activation/)). |
 
-### Cố ý chưa dùng (chưa phải bây giờ)
+### Thành phần tuỳ chọn (không triển khai ở DEV)
 
-- **Amazon CloudFront** — dùng khi frontend không còn chạy trực tiếp qua S3 website endpoint, để bucket chuyển về private phía sau Origin Access Control và site dùng HTTPS. Chưa dùng được trong account này.
-- **AWS WAF** — hiện chưa có CloudFront distribution hay HTTPS listener nào để gắn web ACL.
+- **Amazon Route 53** — site được truy cập qua tên miền CloudFront; tên miền riêng sẽ cần thêm Route 53 và chứng chỉ ACM.
+- **AWS WAF** — tuỳ chọn; CloudFront đã có nên có thể gắn web ACL khi cần.
+- **Amazon RDS Proxy** — tuỳ chọn; các Lambda kết nối thẳng tới Aurora.
 - **Amazon ElastiCache** — chưa cần: hàng đợi đã chuyển sang SQS và Chat Service chạy một task. Chỉ cần khi muốn chia sẻ trạng thái Socket.IO giữa nhiều Chat task.
-- **CI/CD (CodePipeline/CodeBuild hoặc GitHub Actions)** — mọi lần deploy cho tới giờ là bước console/CLI thủ công có ghi lại; đây là khoảng trống lớn nhất còn lại.

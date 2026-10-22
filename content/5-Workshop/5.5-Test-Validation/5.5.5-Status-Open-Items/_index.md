@@ -47,7 +47,7 @@ pre: " <b> 5.5.5. </b> "
 | Bugs found during E2E | Fixed, redeployed and re-tested |
 | Admin account access | **Done 2026-10-21** (see [5.4.13 Step 12](../../5.4-Deployment-Guide/5.4.13-CD-Pipeline-Activation/)): an ADMIN login is available on the deployed app. The owner changes the temporary password in the app after first login. |
 | Cost controls | DEV "sleep" strategy: Aurora down to 0 ACU when idle, Chat service to 0 tasks out of hours, NAT Gateway only when needed |
-| Monitoring | CloudWatch alarms on Lambda errors/throttles, DLQ depth, Aurora capacity and Chat target health, notified by e-mail |
+| Monitoring | **Done**: 12 CloudWatch alarms notify an SNS topic with a confirmed e-mail subscription; a monthly AWS Budget alerts on cost |
 
 #### Postponed on purpose (not blockers for DEV)
 

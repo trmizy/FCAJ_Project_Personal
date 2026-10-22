@@ -56,10 +56,10 @@ The Cohere Marketplace subscription was accepted once by an administrator; runti
 ### Known gaps (open, not hidden)
 
 - **Internal secrets in Lambda configuration** — `INTERNAL_SERVICE_SECRET` and `CHECKIN_TOKEN_SECRET` are Lambda environment variables (encrypted at rest, but readable by anyone allowed to view the function configuration). Chat already reads the internal secret from Secrets Manager; moving the Lambda copies there is a hardening follow-up.
-- **HTTPS** — the S3 website endpoint and the Chat ALB are HTTP-only in DEV; HTTPS needs a domain and an ACM certificate, ideally with CloudFront in front of a private bucket (Origin Access Control).
-- **Public-read frontend bucket** — temporary, objects only (`s3:GetObject`), until CloudFront is available.
-- **No WAF yet** — nothing to attach a web ACL to until CloudFront or an HTTPS listener exists.
-- **ADMIN credential rotation** and **12 remaining seed accounts** — postponed, required before any wider release.
+- **HTTPS** — the web app and Chat are served over HTTPS through CloudFront; the Chat ALB itself is HTTP-only behind it. A custom domain and ACM certificate are an optional next step.
+- **Public-read frontend bucket** — objects only (`s3:GetObject`); CloudFront reads the S3 website endpoint, so a private bucket behind Origin Access Control is a possible hardening step.
+- **WAF** — optional and not deployed; CloudFront is in place, so a web ACL can be attached when needed.
+- **12 remaining seed accounts** — postponed, required before any wider release.
 
 ### Screenshot evidence that contained secrets
 

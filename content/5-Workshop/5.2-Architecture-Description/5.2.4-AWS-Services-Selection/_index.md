@@ -22,11 +22,14 @@ pre: " <b> 5.2.4. </b> "
 | **AWS Secrets Manager** | Every database credential, the database URL for Chat, the shared internal secret | No password in code, images or plain environment variables; each function holds only a secret ID and resolves it at runtime. |
 | **AWS IAM** | One role per function or task, scoped to its own secret, queue, model and invoke targets | Least privilege per service instead of a broad shared role — see [5.2.5](../5.2.5-Security-IAM/). |
 | **Amazon VPC, NAT Gateway, Internet Gateway, VPC endpoints** | Network isolation and controlled egress | Lambda, Fargate and Aurora sit in private subnets; one NAT Gateway gives outbound access (Bedrock); interface endpoints keep Secrets Manager and OpenSearch traffic inside the VPC; DB subnets have no internet route at all. |
-| **Amazon CloudWatch Logs** | Logs for every Lambda, the Chat task and the migrator | Default destination for both compute types; used for troubleshooting during deployment. Alarms are an open item ([5.2.6](../5.2.6-Scalability-Operations/)). |
+| **Amazon CloudWatch Logs** | Logs for every Lambda, the Chat task and the migrator | Default destination for both compute types; used for troubleshooting during deployment. Alarms are covered in [5.2.6](../5.2.6-Scalability-Operations/). |
+| **Amazon CloudFront** | HTTPS front door for the web app and Chat | One distribution serves the frontend over HTTPS and routes `/socket.io/*` to the Chat ALB, so the browser never makes a mixed-content request. Its origin is the S3 website endpoint. |
+| **Amazon CloudWatch Alarms, Amazon SNS, AWS Budgets, AWS X-Ray** | Alerting, notification, cost control and tracing | 12 alarms (Lambda errors for the six API services, API Gateway 5xx, Aurora CPU and capacity, NAT Gateway health) notify an SNS topic with a confirmed e-mail subscription; a monthly budget alerts on cost; active tracing is on the six API Lambdas. |
+| **GitHub Actions with AWS CloudFormation** | CI and gated CD | PR validation plus five gated workflows deploy Lambda code, the Chat image and the API Gateway stack ([5.4.12](../../5.4-Deployment-Guide/5.4.12-CICD-Pipeline/), [5.4.13](../../5.4-Deployment-Guide/5.4.13-CD-Pipeline-Activation/)). |
 
-### Deliberately not used (yet)
+### Optional components (not deployed in DEV)
 
-- **Amazon CloudFront** — planned once the frontend moves off the plain S3 website endpoint, so the bucket can become private behind Origin Access Control and the site can use HTTPS. Not usable in this account yet.
-- **AWS WAF** — there is no CloudFront distribution or HTTPS listener to attach a web ACL to at this stage.
+- **Amazon Route 53** — the site is reached on its CloudFront domain name; a custom domain would add Route 53 and an ACM certificate.
+- **AWS WAF** — optional; CloudFront is in place, so a web ACL can be attached when needed.
+- **Amazon RDS Proxy** — optional; the Lambda functions connect to Aurora directly.
 - **Amazon ElastiCache** — not needed: queues moved to SQS and the Chat Service runs a single task. It becomes necessary only to share Socket.IO state across several Chat tasks.
-- **CI/CD (CodePipeline/CodeBuild or GitHub Actions)** — every deployment so far was a manual, documented console/CLI step; this is the largest remaining gap.

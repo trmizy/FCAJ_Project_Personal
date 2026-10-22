@@ -47,7 +47,7 @@ pre: " <b> 5.5.5. </b> "
 | Lỗi phát hiện khi E2E | Sửa, deploy lại và kiểm thử lại |
 | Tài khoản admin | **Xong 21/10/2026** (xem [5.4.13 Bước 12](../../5.4-Deployment-Guide/5.4.13-CD-Pipeline-Activation/)): đã có một đăng nhập ADMIN trên app đã deploy. Chủ sở hữu đổi mật khẩu tạm trong app sau lần đăng nhập đầu. |
 | Kiểm soát chi phí | Chế độ "sleep" cho DEV: Aurora về 0 ACU khi idle, Chat service về 0 task ngoài giờ, NAT Gateway chỉ bật khi cần |
-| Monitoring | CloudWatch alarm cho lỗi/throttle của Lambda, độ sâu DLQ, capacity của Aurora và health của Chat target, gửi thông báo qua e-mail |
+| Monitoring | **Xong**: 12 CloudWatch alarm gửi tới một SNS topic có subscription e-mail đã xác nhận; một AWS Budget hàng tháng cảnh báo chi phí |
 
 #### Cố ý hoãn lại (không phải blocker cho DEV)
 

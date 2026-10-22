@@ -17,4 +17,3 @@ Không có bài viết nào được đánh dấu đã đăng cho đến khi có
 1. [Blog 1 — Đóng gói Microservices và lưu Docker image trên Amazon ECR](3.1-Blog1/)
 2. [Blog 2 — Thách thức triển khai và tối ưu chi phí trên AWS](3.2-Blog2/)
 3. [Blog 3 — RAG multi-tenant an toàn với Amazon Bedrock và Verified Permissions](3.3-Blog3/)
-4. [Blog 4 — Giới hạn truy cập AWS Management Console từ mạng tin cậy](3.4-Blog4/)
