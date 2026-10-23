@@ -7,8 +7,6 @@ pre: " <b> 1.7. </b> "
 draft: false
 ---
 
-# WORKLOG TUẦN 7
-
 ### Mục tiêu tuần 7:
 
 - Hoàn thành Module 6: Data & Analytics

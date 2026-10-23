@@ -7,43 +7,219 @@ pre: " <b> 5.6. </b> "
 ---
 
 {{% notice info %}}
-The deployment runbook only contains AWS console evidence. Screenshots and a short screen recording of the running application are captured during the final end-to-end pass ([5.5.5](../5.5-Test-Validation/5.5.5-Status-Open-Items/)) and added to this page; until then the page describes the demo script, so the demo is reproducible by anyone with access to the DEV environment.
+Real screenshots from the DEV environment (22–23 October 2026) are included for **5.6.1 step 1 (register, log in), step 2 (onboarding, profile), step 3 (roadmap, training), step 4 (AI coach), step 5 (gyms and PTs), step 6 (payment through the VNPAY sandbox), step 7 (chat) and 5.6.2 item 4 (admin finance)**. Email addresses in the screenshots are masked. **A red box with a number marks exactly where to click or type, in order starting from 1.** The remaining steps (QR check-in, the return screen after payment, the other admin screens) are described as the demo script.
 {{% /notice %}}
 
 #### Entry points
 
 | What | URL |
 |---|---|
-| Web application | `http://fitness-assistant-frontend-dev-<account-id>.s3-website-ap-southeast-1.amazonaws.com` |
-| REST API | `https://<api-id>.execute-api.ap-southeast-1.amazonaws.com` |
-| Real-time chat | `http://fitness-assistant-dev-chat-alb-<id>.ap-southeast-1.elb.amazonaws.com` (used by the frontend for Socket.IO) |
+| Web application | `https://d1ub83a48p566t.cloudfront.net` (CloudFront, HTTPS) |
+| REST API | `https://id1iz7upbl.execute-api.ap-southeast-1.amazonaws.com` |
+| Real-time chat | The same CloudFront address, path `/socket.io/*` (CloudFront forwards it to the Chat ALB; used by the frontend for Socket.IO) |
 
 #### 5.6.1 Member journey
 
 1. **Register and log in** — `/register`, verify, then `/login` (Auth Lambda, JWT).
+
+   ![Registration form, step 1 of 2](/images/workshop/demo/demo-register.png)
+   *Create an account — name, email and password (step 1 of 2).*
+
+   ![Screen for entering the e-mailed verification code](/images/workshop/demo/demo-verify.png)
+   *Step 2 of 2 — a 6-digit code is sent by e-mail, with a countdown before it can be re-sent.*
+
+   ![Login page on the CloudFront address](/images/workshop/demo/demo-login.png)
+   *The login page opened on the CloudFront address (HTTPS).*
+
+   ![Dashboard right after login](/images/workshop/demo/demo-dashboard.png)
+   *The dashboard right after login — body measurements, weight trend, the plan in use and AI Insights.*
+
 2. **Onboarding and profile** — body profile, goals, profile photo uploaded straight to the private S3 bucket with a presigned URL (User Lambda).
+
+   ![Onboarding step 1: level and goal](/images/workshop/demo/demo-onboarding-1.png)
+   *Onboarding step 1 of 6 — choose the training level and the main goal.*
+
+   ![Onboarding step 2: schedule](/images/workshop/demo/demo-onboarding-2.png)
+   *Step 2 of 6 — training days per week, session length and how the schedule is split.*
+
+   ![Onboarding step 3: equipment](/images/workshop/demo/demo-onboarding-3.png)
+   *Step 3 of 6 — where the user trains and which equipment is available (pre-selected by gym type).*
+
+   ![Onboarding step 5: body metrics](/images/workshop/demo/demo-onboarding-4.png)
+   *Step 5 of 6 — age, sex, daily activity level, height and weight.*
+
+   ![Onboarding step 6: review](/images/workshop/demo/demo-onboarding-5.png)
+   *Step 6 of 6 — review everything before finishing.*
+
+   ![Profile and goals page](/images/workshop/demo/demo-profile.png)
+   *The Profile & Goals page after onboarding — personal details, training goal and activity level.*
+
+
+   ![Profile with a profile photo](/images/workshop/demo/demo-profile-avatar.jpg)
+   *The profile after changing the photo — the picture is uploaded to the private S3 bucket with a presigned URL and shown immediately on the Profile page.*
 3. **Training** — browse exercises, create or import a workout plan, start and finish a workout; the reminder jobs pick up today's planned workouts (Fitness Lambda + EventBridge).
+
+   ![Create a roadmap with Gymini, step 1](/images/workshop/demo/demo-roadmap-1.png)
+   *Create a roadmap with Gymini — step 1 of 4: basics (weight, height, age, sex, estimated body fat).*
+
+   ![Create a roadmap with Gymini, step 2](/images/workshop/demo/demo-roadmap-2.png)
+   *Step 2 of 4: activity level and training days; the energy expenditure is calculated immediately (BMR, steps, resistance training, TDEE).*
+
+   ![Create a roadmap with Gymini, step 3](/images/workshop/demo/demo-roadmap-3.png)
+   *Step 3 of 4: the goal (muscle gain), target weight, desired duration and target body fat with the FFMI values.*
+
+   ![Create a roadmap with Gymini, step 4](/images/workshop/demo/demo-roadmap-4.jpg)
+   *Step 4 of 4: the physique diagnosis and the roadmap report (a 6-week starter phase, estimated intake, FFMI, body fat). When the AI service is unavailable, the system uses a fallback draft and says so on the screen so the user can edit it by hand.*
+
+   ![Create a roadmap manually](/images/workshop/demo/demo-roadmap-manual.jpg)
+   *The alternative: create a roadmap manually — name, goal, starting phase and phase length, then create the draft.*
+
+   {{% notice note %}}
+   Real screenshots from the DEV environment (23 October 2026) — the full flow from an AI-generated plan to a completed workout:
+   {{% /notice %}}
+
+   ![Workout plan generated by the AI coach (Nova Pro), weekly schedule](/images/workshop/demo/01-ai-plan-detail.png)
+   *The AI-generated "Muscle gain plan" — 20 weeks, 6 sessions per week, with an explanation of why the AI adjusted the plan.*
+
+   ![Saving the plan to the real schedule](/images/workshop/demo/02-plan-saved-to-schedule.png)
+   *After confirmation: 120 real sessions are synchronised into the calendar, linked to a real Program ID.*
+
+   ![Dialog for the start date and training days](/images/workshop/demo/03-save-schedule-dialog.png)
+   *Replace the old schedule or add to it, choose the start date, the number of weeks and the training days.*
+
+   ![Workout Log overview page](/images/workshop/demo/04-workout-log-overview.png)
+   *The training overview after synchronisation, with a warning when the profile or schedule does not match the goal.*
+
+   ![Monthly calendar with body measurements](/images/workshop/demo/05-workout-calendar-inbody.png)
+   *The monthly calendar (each day tagged with the right muscle groups) and the body-measurement panel (weight, fat, muscle, water).*
+
+   ![Exercise details for one day](/images/workshop/demo/06-day-detail-exercises.png)
+   *Day 5 details — 4 exercises for the "Chest + light back" muscle groups.*
+
+   ![Exercise execution screen with a rest timer](/images/workshop/demo/07-exercise-execution-timer.png)
+   *Performing the Tire Flip — a rest timer and progress for each set.*
+
+   ![Logging weight and reps for a set](/images/workshop/demo/08-set-logging-weight-reps.png)
+   *Logging a real set: the weight lifted, body weight at the time, reps, set type and tempo.*
+
+   ![Logging RPE and RIR with an explanation](/images/workshop/demo/09-set-logging-rpe-rir.png)
+   *Logging perceived exertion (RPE) and reps in reserve (RIR), with an in-app explanation of how to estimate them.*
+
+   ![Set completed notification](/images/workshop/demo/10-set-completed-toast.png)
+   *Set 1 confirmed as completed, moving on to Set 2.*
+
+   ![Workout completed screen](/images/workshop/demo/11-workout-session-complete.png)
+   *Workout completed — 4 of 4 exercises, status Completed.*
+
+   ![Day details at 100 percent](/images/workshop/demo/12-day-detail-100-percent.png)
+   *Day 5 after completion — 100%, with the session feedback recorded.*
+
 4. **AI coach** — ask a question in the AI chat (Bedrock Nova Pro, grounded on the OpenSearch knowledge indexes), then request a generated workout or nutrition plan and watch it complete through the SQS worker (AI HTTP Lambda → SQS → AI Worker).
+
+   ![AI Coach greeting with quick suggestions](/images/workshop/demo/demo-coach-1.png)
+   *Opening the AI Coach — a greeting with quick question suggestions (analyse InBody, build a training schedule, ...).*
+
+   ![AI Coach answering what to train tomorrow](/images/workshop/demo/demo-coach-2.png)
+   *Asking "what do I train tomorrow" — the AI Coach answers from the saved plan: Saturday 24 October 2026 is Chest + Back + Core, with an exercise table and the source "saved AI plan".*
+
+
+   ![Generating an AI plan](/images/workshop/demo/demo-ai-plan-processing.jpg)
+   *Requesting an AI workout plan — the system confirms the request was sent, shows the PROCESSING status and lets the user leave the page while the worker processes it through SQS.*
+
+   ![Today nutrition page](/images/workshop/demo/demo-nutrition-page.jpg)
+   *The Nutrition page — default targets (2000 kcal, 150 g protein), a reminder to personalise, and the Create new plan button.*
+
+   ![AI Plans, empty nutrition tab](/images/workshop/demo/demo-nutrition-plans-empty.jpg)
+   *AI Plans → Nutrition plan — the empty state before a plan is created.*
+
+   ![Create AI nutrition plan dialog](/images/workshop/demo/demo-nutrition-create.jpg)
+   *The Create AI nutrition plan dialog — goal Muscle gain, 3 meals a day, High protein diet, Vietnamese cuisine (Southern); the 7-day plan is generated in 2–5 minutes.*
+
+   ![AI generating the nutrition plan](/images/workshop/demo/demo-nutrition-processing.jpg)
+   *Confirmation that generation started (in the background); the page shows "AI is creating the nutrition plan…" and lets the user leave, with the result appearing when finished.*
+
+   ![Completed nutrition plan](/images/workshop/demo/demo-nutrition-result.jpg)
+   *The completed plan (23 October 2026) — Muscle gain, 2200 kcal a day, 3 meals a day; the Day 1 menu lists three meals with the weight and kcal of each food.*
+
+   ![7-day menu](/images/workshop/demo/demo-nutrition-days.jpg)
+   *The 7-day menu — each day shows total kcal and macros (P/C/F), with the Save to Nutrition, Explain and Adjust actions.*
 5. **Gyms and personal trainers** — browse gyms and PTs, check in at a gym with the signed QR code (Gym Lambda).
+
+   ![List of PTs](/images/workshop/demo/demo-pt-search.jpg)
+   *Find a PT — verified trainers, filterable by goal, from 250,000 ₫ per session.*
+
+   ![A PT profile](/images/workshop/demo/demo-pt-detail.jpg)
+   *PT profile — verified badge, photos, training method, target audience and goals, and a Message button.*
+
+   ![List of gyms](/images/workshop/demo/demo-gym-list.jpg)
+   *Find a gym — chains and branches, with a search box and filters.*
+
+   ![Details of one gym](/images/workshop/demo/demo-gym-detail.jpg)
+   *Gym details — address, introduction and amenities; the Pricing and Reviews tabs.*
+
+   ![Gym owner check-in QR code](/images/workshop/demo/demo-gym-owner-qr.jpg)
+   *The gym owner side (Titan Gym) — a signed check-in QR code to place at the front desk, recent check-ins, the amount available to withdraw and the amount pending.*
 6. **Payment** — top up the wallet or pay for a PT contract through the VNPAY sandbox; the payment is confirmed by the provider callback and the 5-minute reconciliation job (Payment Lambda).
+
+   ![Choosing the payment method for a gym package](/images/workshop/demo/demo-pay-method.jpg)
+   *Paying for a 350,000 ₫ gym package — choose VNPay, ZaloPay or MoMo; the contract is activated only after the gateway confirms the transaction.*
+
+   ![VNPAY sandbox gateway](/images/workshop/demo/demo-vnpay-1.jpg)
+   *Redirected to the VNPAY gateway (Test environment) — choose the payment method.*
+
+   ![VNPAY QR page](/images/workshop/demo/demo-vnpay-2.jpg)
+   *VNPAY QR page (Test) — amount 350,000 VND, order code, the QR code and the transaction expiry timer.*
+
+   ![PT contract awaiting payment](/images/workshop/demo/demo-contract-payment-due.jpg)
+   *A 12-session PT package of 3,600,000 ₫ in the Payment Due status — no start or end date yet, waiting for payment.*
+
+   ![PT contract activated](/images/workshop/demo/demo-contract-active.jpg)
+   *The same contract after the payment gateway confirmed it — status Active, start date 23 October 2026, end date 20 February 2027 and 0/12 sessions.*
 7. **Chat** — open a conversation with a PT; messages arrive live over Socket.IO (Chat on ECS Fargate).
+
+   ![Chat from the member side](/images/workshop/demo/demo-chat-client.jpg)
+   *The member account (Tuấn Trần) talks to Professional Trainer through the Chat service.*
+
+   ![Chat from the PT side, first messages](/images/workshop/demo/demo-chat-pt-1.jpg)
+   *At the same time, the PT account switches to Trainer mode and sees the member’s messages in the conversation list.*
+
+   ![Chat from the PT side, full conversation](/images/workshop/demo/demo-chat-pt-2.jpg)
+   *The complete two-way conversation as seen by the PT — messages sent and received over Socket.IO.*
 
 #### 5.6.2 Admin journey
 
 1. Log in with an admin account.
 2. **Users** — list users, change a role, disable and re-enable an account (`/auth/users/*`).
 3. **PT applications and contracts** — review PT applications and their documents (User Lambda, private S3).
+
+   ![List of PT applications](/images/workshop/demo/demo-admin-pt-applications.jpg)
+   *Admin → PT management — the list of applications, filterable by status (Draft, Approved, ...).*
+
+   ![Reviewing a PT application](/images/workshop/demo/demo-admin-pt-review.jpg)
+   *Details of one application: bio, specialities, availability, attached documents (View Documents) and the Approve, Reject, Need Info and Investigate actions.*
 4. **Payments** — review transactions and withdrawals (`/admin/payments/*`).
+
+   ![Admin finance overview](/images/workshop/demo/demo-admin-finance-overview.jpg)
+   *Admin → Finance → Overview — total revenue 2,600,000 ₫, total payouts 10,000 ₫, and the daily chart.*
+
+   ![Platform-wide reconciliation](/images/workshop/demo/demo-admin-reconciliation.jpg)
+   *Platform-wide reconciliation — status Balanced (difference 0 ₫), escrow and beneficiaries, and the list of items to follow up.*
+
+   ![Wallet integrity checks](/images/workshop/demo/demo-admin-wallet-checks.jpg)
+   *Integrity checks: no negative wallet, every wallet matches the ledger, and PT funds held per contract.*
+
+   ![Closed obligations by group](/images/workshop/demo/demo-admin-obligations.jpg)
+   *Unpaid and closed obligations, one group per status, with the reason and the proof-verification state.*
 5. **AI administration** — open the AI overview (`/admin/ai/*`), rate-limited like every AI route.
 
 #### What the demo proves
 
 | Step | AWS path exercised |
 |---|---|
-| Any page load | S3 static website |
+| Any page load | CloudFront (HTTPS) → S3 |
 | Login, profile, training, gyms, payments, admin | API Gateway → service Lambda → Aurora (private subnets) |
 | AI answers and plans | API Gateway → AI Lambda → Bedrock (via NAT) and OpenSearch (via VPC endpoint), SQS → AI Worker |
 | Reminders, settlements, reconciliation | EventBridge Scheduler → jobs Lambdas |
-| Live chat | Chat ALB → ECS Fargate → Aurora |
+| Live chat | CloudFront → Chat ALB → ECS Fargate → Aurora |
 
 Neither the AI coach nor any other feature of the application replaces medical advice.

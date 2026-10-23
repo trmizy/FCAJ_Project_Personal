@@ -14,7 +14,7 @@ pre: " <b> 5.5.5. </b> "
 | Aurora PostgreSQL | Complete | 7/7 database đã restore | Verified | **Complete** |
 | Auth Service | Deployed | Complete | Passed (kèm fix transaction-atomicity) | **Complete** |
 | User Service | Deployed | Complete | Passed | **Complete** |
-| Fitness Service | Deployed | Complete | Đang chờ | Cần xác nhận |
+| Fitness Service | Deployed | Complete | Một phần — REAL BROWSER 23/10/2026: AI tạo kế hoạch → lưu vào lịch tập thật → thực hiện 1 buổi tập → ghi set (sets/reps/RPE/RIR) → hoàn thành (ảnh ở [5.6.1 bước 3](../../5.6-Demo/)) | Cần xác nhận phần "xem thống kê" + reminder trong log jobs |
 | Gym Service | Deployed | Complete | Đang chờ | Cần xác nhận |
 | Payment Service | Deployed | Complete | Đang chờ | Cần xác nhận |
 | AI / Worker / Jobs | Deployed | Complete | Đang chờ | Cần xác nhận |
@@ -38,7 +38,7 @@ pre: " <b> 5.5.5. </b> "
 
 | Việc | Bài kiểm tra cụ thể cần pass |
 |---|---|
-| E2E Fitness | Tạo kế hoạch tập, ghi một workout, xem thống kê; reminder xuất hiện trong log của jobs |
+| E2E Fitness | ~~Tạo kế hoạch tập, ghi một workout~~ **đã xong 23/10/2026** (ảnh ở [5.6.1](../../5.6-Demo/)); còn lại: xem thống kê, reminder xuất hiện trong log của jobs |
 | E2E Gym | Xem danh sách gym/PT, tạo và quét một QR check-in, chủ phòng xem danh sách thành viên |
 | E2E Payment | Cấu hình credential sandbox VNPAY, thanh toán một hợp đồng PT, nhận return/webhook, thấy job reconciliation xác nhận giao dịch |
 | AI / Worker / Jobs | `POST /ai/ask` trả lời từ Nova Pro; một lần tạo kế hoạch hoàn tất qua SQS; job tri thức đầu tiên bootstrap các index OpenSearch 1024 chiều; auto-accept chạy |

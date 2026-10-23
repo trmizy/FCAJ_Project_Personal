@@ -7,8 +7,6 @@ pre: " <b> 1.10. </b> "
 draft: false
 ---
 
-# WORKLOG WEEK 10
-
 ### Week 10 Objectives:
 
 - Contribute a technical article to the community about securing generative AI applications on AWS

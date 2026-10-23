@@ -7,8 +7,6 @@ pre: " <b> 1.11. </b> "
 draft: false
 ---
 
-# WORKLOG TUẦN 11
-
 ### Mục tiêu tuần 11:
 
 - Refine và improve frontend của group project based on feedback

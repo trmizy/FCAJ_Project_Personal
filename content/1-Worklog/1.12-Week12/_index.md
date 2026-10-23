@@ -7,8 +7,6 @@ pre: " <b> 1.12. </b> "
 draft: false
 ---
 
-# WORKLOG WEEK 12
-
 ### Week 12 Objectives:
 
 - Finalize and aggregate 12-week technical worklog documentation for culminating internship report

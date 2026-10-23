@@ -7,8 +7,6 @@ pre: " <b> 1.11. </b> "
 draft: false
 ---
 
-# WORKLOG WEEK 11
-
 ### Week 11 Objectives:
 
 - Refine and improve frontend of group project based on feedback

@@ -8,7 +8,7 @@ pre: " <b> 6. </b> "
 
 # TỰ ĐÁNH GIÁ
 
-Trong suốt thời gian thực tập tại Amazon Web Services Vietnam Co., Ltd. từ 03/08/2026 đến [TODO: ngày kết thúc], em đã có cơ hội học tập, thực hành và áp dụng kiến thức điện toán đám mây trong một môi trường thực tập có định hướng rõ ràng.
+Trong suốt thời gian thực tập tại Amazon Web Services Vietnam Co., Ltd. từ 03/08/2026 đến 19/10/2026, em đã có cơ hội học tập, thực hành và áp dụng kiến thức điện toán đám mây trong một môi trường thực tập có định hướng rõ ràng.
 
 Dự án chính của em là **Fitness Assistant** - nền tảng hỗ trợ tập luyện và quản lý sức khỏe theo kiến trúc microservices được triển khai trên AWS. Thông qua dự án này, em đã thực hành thiết kế kiến trúc AWS, lựa chọn dịch vụ phù hợp, triển khai container với Docker và Amazon ECR, quản lý image, theo dõi hệ thống, viết blog kỹ thuật và hoàn thiện báo cáo thực tập.
 

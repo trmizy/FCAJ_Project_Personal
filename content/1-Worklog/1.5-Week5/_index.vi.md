@@ -6,8 +6,6 @@ chapter: false
 pre: " <b> 1.5. </b> "
 ---
 
-# WORKLOG TUẦN 5
-
 ### Mục tiêu tuần 5:
 
 - Hoàn thành Module 3: Tối ưu hóa hệ thống, tập trung sâu vào System Performance và Cost Optimization strategies

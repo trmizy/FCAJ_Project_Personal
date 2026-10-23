@@ -7,8 +7,6 @@ pre: " <b> 1.8. </b> "
 draft: false
 ---
 
-# WEEK 8 WORKLOG
-
 ### Week 8 Objectives:
 
 - Complete Module 7: AI/ML service on AWS

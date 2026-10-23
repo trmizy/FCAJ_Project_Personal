@@ -7,8 +7,6 @@ pre: " <b> 1.9. </b> "
 draft: false
 ---
 
-# WORKLOG WEEK 9
-
 ### Week 9 Objectives:
 
 - Reflect on the Fitness Assistant AWS deployment so far and write it up as a technical case study

@@ -6,8 +6,6 @@ chapter: false
 pre: " <b> 1.4. </b> "
 ---
 
-# WORKLOG TUẦN 4
-
 ### Mục tiêu tuần 4:
 
 - Hoàn thành tự học Module 3: Tối ưu hóa hệ thống

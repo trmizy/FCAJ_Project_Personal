@@ -7,8 +7,6 @@ pre: " <b> 1.9. </b> "
 draft: false
 ---
 
-# WORKLOG TUẦN 9
-
 ### Mục tiêu tuần 9:
 
 - Nhìn lại quá trình triển khai Gymini lên AWS từ đầu đến giờ và viết thành một case study kỹ thuật

@@ -7,8 +7,6 @@ pre: " <b> 1.8. </b> "
 draft: false
 ---
 
-# WORKLOG TUẦN 8
-
 ### Mục tiêu tuần 8:
 
 - Hoàn thành Module 7: AI/ML service on AWS

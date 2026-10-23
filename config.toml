@@ -29,9 +29,9 @@ weight = 1
 languageName = "English"
 
 [[Languages.en.menu.shortcuts]]
-name = "<i class='fab fa-aws'></i> AWS Study Group - Blog"
-identifier = "AWS Study Group"
-url = "https://awsstudygroup.com"
+name = "<i class='fab fa-github'></i> GitHub - Fitness Assistant"
+identifier = "GitHub Repository"
+url = "https://github.com/trmizy/fitness-assistant"
 weight = 20
 
 [[Languages.en.menu.shortcuts]]
@@ -46,9 +46,9 @@ weight = 2
 languageName = "Tiếng Việt"
 
 [[Languages.vi.menu.shortcuts]]
-name = "<i class='fab fa-aws'></i> AWS Study Group - Blog"
-identifier = "AWS Study Group"
-url = "http://awsstudygroup.com"
+name = "<i class='fab fa-github'></i> GitHub - Fitness Assistant"
+identifier = "GitHub Repository"
+url = "https://github.com/trmizy/fitness-assistant"
 weight = 20
 
 [[Languages.vi.menu.shortcuts]]

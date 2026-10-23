@@ -7,8 +7,6 @@ pre: " <b> 1.10. </b> "
 draft: false
 ---
 
-# WORKLOG TUẦN 10
-
 ### Mục tiêu tuần 10:
 
 - Contribute một technical article cho community về bảo mật ứng dụng generative AI trên AWS

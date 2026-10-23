@@ -6,8 +6,6 @@ chapter: false
 pre: " <b> 1.5. </b> "
 ---
 
-# WEEK 5 WORKLOG
-
 ### Week 5 Objectives:
 
 - Complete Module 3: Optimizing the system, focusing aggressively on System Performance and Cost Optimization strategies

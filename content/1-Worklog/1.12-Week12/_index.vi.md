@@ -7,8 +7,6 @@ pre: " <b> 1.12. </b> "
 draft: false
 ---
 
-# WORKLOG TUẦN 12
-
 ### Mục tiêu tuần 12:
 
 - Finalize và aggregate 12-week technical worklog documentation cho culminating internship report

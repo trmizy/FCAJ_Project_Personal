@@ -6,8 +6,6 @@ chapter: false
 pre: " <b> 1.4. </b> "
 ---
 
-# WEEK 4 WORKLOG
-
 ### Week 4 Objectives:
 
 - Complete self-study of Module 3: Optimizing the system

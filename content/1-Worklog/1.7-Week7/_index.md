@@ -7,8 +7,6 @@ pre: " <b> 1.7. </b> "
 draft: false
 ---
 
-# WEEK 7 WORKLOG
-
 ### Week 7 Objectives:
 
 - Complete Module 6: Data & Analytics

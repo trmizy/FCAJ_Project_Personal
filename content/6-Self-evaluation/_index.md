@@ -8,7 +8,7 @@ pre: " <b> 6. </b> "
 
 # SELF-EVALUATION
 
-Throughout my internship at Amazon Web Services Vietnam Co., Ltd. from August 3, 2026 to [TODO: end date], I had the opportunity to learn, practice, and apply cloud computing knowledge in a well-structured internship environment.
+Throughout my internship at Amazon Web Services Vietnam Co., Ltd. from August 3, 2026 to October 19, 2026, I had the opportunity to learn, practice, and apply cloud computing knowledge in a well-structured internship environment.
 
 My main project was **Fitness Assistant** - a fitness and health management platform based on microservices architecture deployed on AWS. Through this project, I practiced designing AWS architecture, selecting appropriate services, deploying containers with Docker and Amazon ECR, managing images, monitoring systems, writing technical blogs, and completing internship reports.
 
