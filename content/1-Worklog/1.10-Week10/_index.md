@@ -36,7 +36,7 @@ This week was highly productive, balancing technical research for a community bl
 
 - Successfully wrote and published a technical blog on AWS Study Group VN group
 - Made significant progress on frontend development for the group project, successfully implementing index, navbar, footer, cart, product detail, order, order detail, and confirm order pages
-- Attended FCAJ Community Day event, building strong connections
+- Attended AWS for Software & Financial Services Companies Day (October 8, 2026) in Ho Chi Minh City and did Workshop A on Kiro and spec-driven development
 
 **Application to Fitness Assistant:**
 
@@ -52,4 +52,4 @@ This week was highly productive, balancing technical research for a community bl
 ### Related Workshop Links:
 
 - [3.3 Blog 3](../../3-BlogsPosted/3.3-Blog3/) - Secure Multi-tenant RAG with Amazon Bedrock and Verified Permissions
-- [4.2 Event 2](../../4-EventParticipated/4.2-Event2/) - FCAJ Community Day
+- [4.2 Event 2](../../4-EventParticipated/4.2-Event2/) - AWS for Software & Financial Services Companies Day

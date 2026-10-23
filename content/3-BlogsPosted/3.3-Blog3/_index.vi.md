@@ -11,6 +11,8 @@ draft: false
 
 **Bài gốc:** [Secure multi-tenant RAG with Amazon Bedrock and Verified Permissions](https://aws.amazon.com/blogs/architecture/secure-multi-tenant-rag-with-amazon-bedrock-and-verified-permissions/) (AWS Architecture Blog, 22/06/2026)
 
+**Chia sẻ trên Facebook:** https://www.facebook.com/groups/awsstudygroupfcj/permalink/2314341139330845/
+
 ---
 
 Trong một trợ lý AI dùng chung cho cả doanh nghiệp, phòng ban nào cũng muốn hỏi đáp trên cùng một kho tài liệu, nhưng không phải nhân viên nào cũng được xem mọi tài liệu. Báo cáo tài chính chỉ dành cho phòng tài chính, hồ sơ nhân sự chỉ dành cho phòng nhân sự, trong khi cấp quản lý có thể cần đọc xuyên phòng ban. Một bài viết gần đây trên AWS Architecture Blog trình bày cách thực thi điều này ngay trong một knowledge base dùng chung, bằng cách quyết định tại thời điểm truy xuất (retrieval) những tài liệu nào người dùng được phép dùng.
@@ -33,18 +35,9 @@ Trong ví dụ của bài, dept-a và dept-b chỉ được truy vấn tài li�
 
 ### 3. Luồng xử lý một request
 
-{{< mermaid >}}
-graph LR
-  U[Người dùng có JWT Cognito] --> W[CloudFront và AWS WAF]
-  W --> G[API Gateway]
-  G -- Lớp 1 --> A[Lambda authorizer]
-  A -- IsAuthorized --> P[Verified Permissions]
-  G --> M[Middleware Lambda]
-  M -- Lớp 2 --> P
-  M -- metadata filter --> K[Bedrock Knowledge Base]
-  K --> R[Guardrails]
-  R --> O[Câu trả lời đã kiểm tra]
-{{< /mermaid >}}
+![Luồng xử lý request với hai lớp phân quyền dùng Amazon Verified Permissions](/images/blogs/blog3-request-flow-vi.svg)
+
+*Hình 1 — Luồng xử lý một request qua hai lớp phân quyền. Mã nguồn sơ đồ có thể chỉnh sửa: [file draw.io](../../../files/diagrams/blog3-request-flow-vi.drawio).*
 
 1. **AWS WAF** áp rate limit và các rule. Nếu bị từ chối, request bị chặn.
 2. **Lambda authorizer (Lớp 1)** kiểm tra người dùng có được gọi API không. Nếu không, kết quả là 403.

@@ -11,6 +11,8 @@ draft: false
 
 **Original article:** [Secure multi-tenant RAG with Amazon Bedrock and Verified Permissions](https://aws.amazon.com/blogs/architecture/secure-multi-tenant-rag-with-amazon-bedrock-and-verified-permissions/) (AWS Architecture Blog, 22 June 2026)
 
+**Shared on Facebook:** https://www.facebook.com/groups/awsstudygroupfcj/permalink/2314341139330845/
+
 ---
 
 In a generative AI assistant shared by a whole company, every department wants answers from the same pool of documents, but not every employee should see every document. Finance reports belong to finance and HR files to HR, while managers may need to read across departments. A recent post on the AWS Architecture Blog shows how to enforce this inside one shared knowledge base, by deciding at retrieval time which documents each user is allowed to use.
@@ -33,18 +35,9 @@ In the article's example, dept-a and dept-b may query only their own documents a
 
 ### 3. How a request flows
 
-{{< mermaid >}}
-graph LR
-  U[User with Cognito JWT] --> W[CloudFront and AWS WAF]
-  W --> G[API Gateway]
-  G -- Layer 1 --> A[Lambda authorizer]
-  A -- IsAuthorized --> P[Verified Permissions]
-  G --> M[Middleware Lambda]
-  M -- Layer 2 --> P
-  M -- metadata filter --> K[Bedrock Knowledge Base]
-  K --> R[Guardrails]
-  R --> O[Grounded answer]
-{{< /mermaid >}}
+![Request flow: two authorization layers with Amazon Verified Permissions](/images/blogs/blog3-request-flow-en.svg)
+
+*Figure 1 — How a request flows through the two authorization layers. Editable source: [draw.io file](../../files/diagrams/blog3-request-flow-en.drawio).*
 
 1. **AWS WAF** applies rate limits and rules. If it denies, the request is blocked.
 2. **Lambda authorizer (Layer 1)** checks whether the caller may invoke the API. If not, the answer is 403.

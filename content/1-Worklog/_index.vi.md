@@ -26,7 +26,7 @@ Mỗi worklog tuần gồm mục tiêu, bảng công việc kèm ngày và tài 
 6. [Tuần 6](1.6-Week6/) — Module 5 (container), Gym và Payment, kế hoạch cho Chat
 7. [Tuần 7](1.7-Week7/) — Module 6 (dữ liệu và phân tích) và AI service
 8. [Tuần 8](1.8-Week8/) — Module 7 (AI/ML), Chat trên ECS Fargate và migration dữ liệu
-9. [Tuần 9](1.9-Week9/) — Blog 2: giới hạn truy cập Console từ mạng tin cậy
+9. [Tuần 9](1.9-Week9/) — Blog 2 về thách thức triển khai và tối ưu chi phí
 10. [Tuần 10](1.10-Week10/) — Blog 3 về RAG multi-tenant an toàn và frontend cho project nhóm
 11. [Tuần 11](1.11-Week11/) — Hoàn thiện frontend project nhóm
 12. [Tuần 12](1.12-Week12/) — Rà soát worklog và hoàn thiện báo cáo

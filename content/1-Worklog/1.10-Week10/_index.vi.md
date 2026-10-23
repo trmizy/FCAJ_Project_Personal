@@ -36,7 +36,7 @@ Tuần này highly productive, balancing technical research cho một community 
 
 - Successfully wrote và published một technical blog trên AWS Study Group VN group
 - Made significant progress on frontend development của group project, successfully implementing index, navbar, footer, cart, product detail, order, order detail, và confirm order pages
-- Attended FCAJ Community Day event, building strong connections
+- Tham dự AWS for Software & Financial Services Companies Day (08/10/2026) tại TP. Hồ Chí Minh và làm Workshop A về Kiro và phát triển hướng đặc tả
 
 **Áp dụng vào Fitness Assistant:**
 
@@ -52,4 +52,4 @@ Tuần này highly productive, balancing technical research cho một community 
 ### Liên kết Workshop tương ứng:
 
 - [3.3 Blog 3](../../3-BlogsPosted/3.3-Blog3/) - RAG multi-tenant an toàn với Amazon Bedrock và Verified Permissions
-- [4.2 Event 2](../../4-EventParticipated/4.2-Event2/) - FCAJ Community Day
+- [4.2 Event 2](../../4-EventParticipated/4.2-Event2/) - AWS for Software & Financial Services Companies Day
