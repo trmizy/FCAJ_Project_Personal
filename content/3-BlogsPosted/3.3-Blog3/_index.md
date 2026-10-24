@@ -37,7 +37,7 @@ In the article's example, dept-a and dept-b may query only their own documents a
 
 ![Request flow: two authorization layers with Amazon Verified Permissions](/images/blogs/blog3-request-flow-en.svg)
 
-*Figure 1 — How a request flows through the two authorization layers. Editable source: [draw.io file](../../files/diagrams/blog3-request-flow-en.drawio).*
+*Figure 1 — How a request flows through the two authorization layers. Editable source: [draw.io file](../../files/workshop-files/blog3-request-flow-en.drawio).*
 
 1. **AWS WAF** applies rate limits and rules. If it denies, the request is blocked.
 2. **Lambda authorizer (Layer 1)** checks whether the caller may invoke the API. If not, the answer is 403.

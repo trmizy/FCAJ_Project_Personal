@@ -12,10 +12,10 @@ Most of the resources in the earlier steps were first created by hand in the con
 
 | Stack in the account | Template (download) | What it creates |
 |---|---|---|
-| `fitness-assistant-dev-app-monitoring` | [app-monitoring.yaml](../../../files/cloudformation/app-monitoring.yaml) | 9 CloudWatch alarms and the SNS topic `fitness-assistant-dev-app-alerts` ([5.5.5](../../5.5-Test-Validation/5.5.6-Monitoring-Alerting/)) |
-| `fitness-assistant-dev-frontend-cdn` | [frontend-cdn.yaml](../../../files/cloudformation/frontend-cdn.yaml) | The CloudFront distribution and its Origin Access Control for the frontend bucket |
-| `gymini-dev-on-demand` | [dev-on-demand.yaml](../../../files/cloudformation/dev-on-demand.yaml) | The hourly-billed parts that are switched on and off per session: NAT Gateway, Chat load balancer, listener, target group and VPC endpoints |
-| `fitness-assistant-dev-cicd-iam` | [ci-cd-oidc.yaml](../../../files/cloudformation/ci-cd-oidc.yaml) | The five least-privilege IAM roles that GitHub Actions assumes through OIDC |
+| `fitness-assistant-dev-app-monitoring` | [app-monitoring.yaml](../../../files/workshop-files/app-monitoring.yaml) | 9 CloudWatch alarms and the SNS topic `fitness-assistant-dev-app-alerts` ([5.5.5](../../5.5-Test-Validation/5.5.6-Monitoring-Alerting/)) |
+| `fitness-assistant-dev-frontend-cdn` | [frontend-cdn.yaml](../../../files/workshop-files/frontend-cdn.yaml) | The CloudFront distribution and its Origin Access Control for the frontend bucket |
+| `gymini-dev-on-demand` | [dev-on-demand.yaml](../../../files/workshop-files/dev-on-demand.yaml) | The hourly-billed parts that are switched on and off per session: NAT Gateway, Chat load balancer, listener, target group and VPC endpoints |
+| `fitness-assistant-dev-cicd-iam` | [ci-cd-oidc.yaml](../../../files/workshop-files/ci-cd-oidc.yaml) | The five least-privilege IAM roles that GitHub Actions assumes through OIDC |
 | `fitness-assistant-dev-api-gateway` | managed by the infrastructure workflows | The HTTP API with 254 resources (routes, integrations, stage); too large to attach, changed only through reviewed change sets ([5.4.16](../5.4.16-GitHub-Actions-Workflows/)) |
 
 {{% notice note %}}

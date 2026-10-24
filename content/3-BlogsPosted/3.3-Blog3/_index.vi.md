@@ -37,7 +37,7 @@ Trong ví dụ của bài, dept-a và dept-b chỉ được truy vấn tài li�
 
 ![Luồng xử lý request với hai lớp phân quyền dùng Amazon Verified Permissions](/images/blogs/blog3-request-flow-vi.svg)
 
-*Hình 1 — Luồng xử lý một request qua hai lớp phân quyền. Mã nguồn sơ đồ có thể chỉnh sửa: [file draw.io](../../../files/diagrams/blog3-request-flow-vi.drawio).*
+*Hình 1 — Luồng xử lý một request qua hai lớp phân quyền. Mã nguồn sơ đồ có thể chỉnh sửa: [file draw.io](../../../files/workshop-files/blog3-request-flow-vi.drawio).*
 
 1. **AWS WAF** áp rate limit và các rule. Nếu bị từ chối, request bị chặn.
 2. **Lambda authorizer (Lớp 1)** kiểm tra người dùng có được gọi API không. Nếu không, kết quả là 403.

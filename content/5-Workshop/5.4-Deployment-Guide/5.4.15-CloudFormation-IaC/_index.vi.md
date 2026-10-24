@@ -12,10 +12,10 @@ Phần lớn tài nguyên ở các bước trước lúc đầu được tạo t
 
 | Stack trong tài khoản | Template (tải về) | Tạo ra gì |
 |---|---|---|
-| `fitness-assistant-dev-app-monitoring` | [app-monitoring.yaml](../../../../files/cloudformation/app-monitoring.yaml) | 9 CloudWatch alarm và SNS topic `fitness-assistant-dev-app-alerts` ([5.5.5](../../5.5-Test-Validation/5.5.6-Monitoring-Alerting/)) |
-| `fitness-assistant-dev-frontend-cdn` | [frontend-cdn.yaml](../../../../files/cloudformation/frontend-cdn.yaml) | CloudFront distribution và Origin Access Control cho bucket frontend |
-| `gymini-dev-on-demand` | [dev-on-demand.yaml](../../../../files/cloudformation/dev-on-demand.yaml) | Các phần tính tiền theo giờ, bật tắt theo từng phiên: NAT Gateway, load balancer của Chat, listener, target group và VPC endpoint |
-| `fitness-assistant-dev-cicd-iam` | [ci-cd-oidc.yaml](../../../../files/cloudformation/ci-cd-oidc.yaml) | Năm IAM role đặc quyền tối thiểu mà GitHub Actions assume qua OIDC |
+| `fitness-assistant-dev-app-monitoring` | [app-monitoring.yaml](../../../../files/workshop-files/app-monitoring.yaml) | 9 CloudWatch alarm và SNS topic `fitness-assistant-dev-app-alerts` ([5.5.5](../../5.5-Test-Validation/5.5.6-Monitoring-Alerting/)) |
+| `fitness-assistant-dev-frontend-cdn` | [frontend-cdn.yaml](../../../../files/workshop-files/frontend-cdn.yaml) | CloudFront distribution và Origin Access Control cho bucket frontend |
+| `gymini-dev-on-demand` | [dev-on-demand.yaml](../../../../files/workshop-files/dev-on-demand.yaml) | Các phần tính tiền theo giờ, bật tắt theo từng phiên: NAT Gateway, load balancer của Chat, listener, target group và VPC endpoint |
+| `fitness-assistant-dev-cicd-iam` | [ci-cd-oidc.yaml](../../../../files/workshop-files/ci-cd-oidc.yaml) | Năm IAM role đặc quyền tối thiểu mà GitHub Actions assume qua OIDC |
 | `fitness-assistant-dev-api-gateway` | do các workflow hạ tầng quản lý | HTTP API với 254 resource (route, integration, stage); quá lớn để đính kèm, chỉ thay đổi qua change set đã duyệt ([5.4.16](../5.4.16-GitHub-Actions-Workflows/)) |
 
 {{% notice note %}}

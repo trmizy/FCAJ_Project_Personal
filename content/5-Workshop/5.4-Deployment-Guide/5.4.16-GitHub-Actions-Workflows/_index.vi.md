@@ -12,12 +12,12 @@ Bước này gom sáu workflow GitHub Actions của dự án vào một chỗ, k
 
 | Workflow (tải về) | Kích hoạt | Chạy với danh tính | Làm gì |
 |---|---|---|---|
-| [pr-validation.yml](../../../../files/github-actions/pr-validation.yml) | Mọi pull request vào `master` hoặc `aws-deploy` | Không có quyền AWS | Cài đặt, lint, kiểm tra kiểu, unit test từng service, lint IaC, build Docker image chat và test helper PowerShell |
-| [dev-build.yml](../../../../files/github-actions/dev-build.yml) | Push lên `aws-deploy`, hoặc chạy tay | Không có quyền AWS | Build và băm từng Lambda zip đã đổi, lưu làm artifact của workflow |
-| [dev-deploy.yml](../../../../files/github-actions/dev-deploy.yml) | Chạy tay, cần người duyệt | `GyminiDevAppDeployRole` qua OIDC | Deploy code Lambda của các service được chọn từ một bản build, kiểm tra hash artifact trước, rồi smoke check `/health`; mặc định dry run |
-| [chat-deploy.yml](../../../../files/github-actions/chat-deploy.yml) | Chạy tay, cần người duyệt | `GyminiDevAppDeployRole` | Đăng ký revision task definition ECS mới cho Chat service mà không đổi desired count |
-| [infra-plan.yml](../../../../files/github-actions/infra-plan.yml) | Chạy tay | `GyminiDevInfraPlanRole` | Tạo change set CloudFormation cho stack API Gateway, quét nó, công bố digest các thay đổi; không thể thực thi gì |
-| [infra-deploy.yml](../../../../files/github-actions/infra-deploy.yml) | Chạy tay, cần người duyệt | `GyminiDevInfraApplyRole` | Thực thi một change set đã duyệt, chỉ khi digest khớp với bản plan đã in, rồi chạy các kiểm tra chỉ đọc |
+| [pr-validation.yml](../../../../files/workshop-files/pr-validation.yml) | Mọi pull request vào `master` hoặc `aws-deploy` | Không có quyền AWS | Cài đặt, lint, kiểm tra kiểu, unit test từng service, lint IaC, build Docker image chat và test helper PowerShell |
+| [dev-build.yml](../../../../files/workshop-files/dev-build.yml) | Push lên `aws-deploy`, hoặc chạy tay | Không có quyền AWS | Build và băm từng Lambda zip đã đổi, lưu làm artifact của workflow |
+| [dev-deploy.yml](../../../../files/workshop-files/dev-deploy.yml) | Chạy tay, cần người duyệt | `GyminiDevAppDeployRole` qua OIDC | Deploy code Lambda của các service được chọn từ một bản build, kiểm tra hash artifact trước, rồi smoke check `/health`; mặc định dry run |
+| [chat-deploy.yml](../../../../files/workshop-files/chat-deploy.yml) | Chạy tay, cần người duyệt | `GyminiDevAppDeployRole` | Đăng ký revision task definition ECS mới cho Chat service mà không đổi desired count |
+| [infra-plan.yml](../../../../files/workshop-files/infra-plan.yml) | Chạy tay | `GyminiDevInfraPlanRole` | Tạo change set CloudFormation cho stack API Gateway, quét nó, công bố digest các thay đổi; không thể thực thi gì |
+| [infra-deploy.yml](../../../../files/workshop-files/infra-deploy.yml) | Chạy tay, cần người duyệt | `GyminiDevInfraApplyRole` | Thực thi một change set đã duyệt, chỉ khi digest khớp với bản plan đã in, rồi chạy các kiểm tra chỉ đọc |
 
 {{% notice note %}}
 Các bản đính kèm đã thay account ID bằng giá trị giữ chỗ `123456789012`. Hãy thay nó, cùng tên role và tên bucket, bằng giá trị của tài khoản bạn.

@@ -12,12 +12,12 @@ This step collects the six GitHub Actions workflows of the project in one place,
 
 | Workflow (download) | Trigger | Who it acts as | What it does |
 |---|---|---|---|
-| [pr-validation.yml](../../../files/github-actions/pr-validation.yml) | Every pull request to `master` or `aws-deploy` | No AWS access | Install, lint, type-check, unit tests per service, IaC lint, Docker build of the chat image, and the PowerShell helper tests |
-| [dev-build.yml](../../../files/github-actions/dev-build.yml) | Push to `aws-deploy`, or manual | No AWS access | Builds and hashes each changed Lambda zip and stores it as a workflow artifact |
-| [dev-deploy.yml](../../../files/github-actions/dev-deploy.yml) | Manual, reviewer approval | `GyminiDevAppDeployRole` through OIDC | Deploys the Lambda code of the chosen services from a build, checks the artifact hashes first, then runs a `/health` smoke check; dry run by default |
-| [chat-deploy.yml](../../../files/github-actions/chat-deploy.yml) | Manual, reviewer approval | `GyminiDevAppDeployRole` | Registers a new ECS task definition revision for the Chat service without changing the desired count |
-| [infra-plan.yml](../../../files/github-actions/infra-plan.yml) | Manual | `GyminiDevInfraPlanRole` | Creates a CloudFormation change set for the API Gateway stack, scans it, publishes a digest of the changes; cannot execute anything |
-| [infra-deploy.yml](../../../files/github-actions/infra-deploy.yml) | Manual, reviewer approval | `GyminiDevInfraApplyRole` | Executes one reviewed change set, only if its digest matches what the plan printed, then runs read-only checks |
+| [pr-validation.yml](../../../files/workshop-files/pr-validation.yml) | Every pull request to `master` or `aws-deploy` | No AWS access | Install, lint, type-check, unit tests per service, IaC lint, Docker build of the chat image, and the PowerShell helper tests |
+| [dev-build.yml](../../../files/workshop-files/dev-build.yml) | Push to `aws-deploy`, or manual | No AWS access | Builds and hashes each changed Lambda zip and stores it as a workflow artifact |
+| [dev-deploy.yml](../../../files/workshop-files/dev-deploy.yml) | Manual, reviewer approval | `GyminiDevAppDeployRole` through OIDC | Deploys the Lambda code of the chosen services from a build, checks the artifact hashes first, then runs a `/health` smoke check; dry run by default |
+| [chat-deploy.yml](../../../files/workshop-files/chat-deploy.yml) | Manual, reviewer approval | `GyminiDevAppDeployRole` | Registers a new ECS task definition revision for the Chat service without changing the desired count |
+| [infra-plan.yml](../../../files/workshop-files/infra-plan.yml) | Manual | `GyminiDevInfraPlanRole` | Creates a CloudFormation change set for the API Gateway stack, scans it, publishes a digest of the changes; cannot execute anything |
+| [infra-deploy.yml](../../../files/workshop-files/infra-deploy.yml) | Manual, reviewer approval | `GyminiDevInfraApplyRole` | Executes one reviewed change set, only if its digest matches what the plan printed, then runs read-only checks |
 
 {{% notice note %}}
 The attached copies replace the AWS account ID with the placeholder `123456789012`. Replace it, and the role names and bucket names, with the values of your own account.
