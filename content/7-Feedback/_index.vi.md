@@ -52,4 +52,4 @@ Cung cấp một dự án mẫu hoàn chỉnh về kiến trúc, chi phí và ki
 Có. Tôi muốn tiếp tục tham gia cộng đồng và các sự kiện, và tiếp tục hoàn thiện Fitness Assistant.
 
 **Góp ý khác:**
-Sau chương trình, tôi dự định tiếp tục cải thiện dự án: bổ sung các route còn thiếu trên API Gateway, đưa chat lên HTTPS với tên miền riêng, thêm kiểm thử tự động, và tìm hiểu sâu hơn về AI trên AWS với Amazon Bedrock và AgentCore. Cảm ơn team FCAJ và cộng đồng đã cho tôi cơ hội học hỏi.
+Sau chương trình, tôi dự định tiếp tục cải thiện dự án: đưa chat lên HTTPS với tên miền riêng, thêm kiểm thử tự động, và tìm hiểu sâu hơn về AI trên AWS với Amazon Bedrock và AgentCore. Cảm ơn team FCAJ và cộng đồng đã cho tôi cơ hội học hỏi.

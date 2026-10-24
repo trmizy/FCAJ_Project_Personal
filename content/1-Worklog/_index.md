@@ -27,6 +27,6 @@ Each weekly log includes the objectives, a task table with dates and references,
 7. Week 7 — [Module 6 (data and analytics) and the AI service](1.7-Week7/)
 8. Week 8 — [Module 7 (AI/ML), Chat on ECS Fargate and data migration](1.8-Week8/)
 9. Week 9 — [Blog 2 on deployment challenges and cost optimization](1.9-Week9/)
-10. Week 10 — [Blog 3 on secure multi-tenant RAG and the group project frontend](1.10-Week10/)
+10. Week 10 — [Blog 3 on secure multi-tenant RAG and the personal project frontend](1.10-Week10/)
 11. Week 11 — [Personal project frontend refinements](1.11-Week11/)
 12. Week 12 — [Worklog review and the final report](1.12-Week12/)

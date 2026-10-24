@@ -52,4 +52,4 @@ Provide one complete sample project covering architecture, cost and testing so l
 Yes. I would like to keep taking part in the community and events, and to continue improving Fitness Assistant.
 
 **Any other comments:**
-I plan to keep improving the project after the program: adding the API Gateway routes that are still missing, putting chat behind HTTPS on a custom domain, adding automated tests, and going deeper into AI on AWS with Amazon Bedrock and AgentCore. Thank you to the FCAJ team and the community for the opportunity to learn.
+I plan to keep improving the project after the program: putting chat behind HTTPS on a custom domain, adding automated tests, and going deeper into AI on AWS with Amazon Bedrock and AgentCore. Thank you to the FCAJ team and the community for the opportunity to learn.
