@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 730" width="900" height="730" font-family="Arial, Helvetica, sans-serif">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#37474F"/></marker></defs>
+<rect width="900" height="730" fill="#FFFFFF"/>
+<text x="450" y="38" text-anchor="middle" font-size="22" font-weight="700" fill="#232F3E">How a request flows: two authorization layers</text>
+<rect x="30" y="215" width="300" height="1" fill="none"/>
+<text x="50" y="244" font-size="12" font-weight="700" letter-spacing="1" fill="#ED7100">LAYER 1 · API ACCESS</text>
+<text x="590" y="244" font-size="12" font-weight="700" letter-spacing="1" fill="#ED7100">LAYER 2 · DOCUMENT ACCESS</text>
+<path d="M230 115 L300 115" fill="none" stroke="#37474F" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M540 115 L610 115" fill="none" stroke="#37474F" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M660 150 L660 205 L175 205 L175 260" fill="none" stroke="#37474F" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M175 330 L175 455 L300 455" fill="none" stroke="#37474F" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M725 150 L725 260" fill="none" stroke="#37474F" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M590 295 L430 295 L430 420" fill="none" stroke="#37474F" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M725 330 L725 420" fill="none" stroke="#37474F" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M725 490 L725 540" fill="none" stroke="#37474F" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#a)"/>
+<path d="M725 610 L725 645" fill="none" stroke="#37474F" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#a)"/>
+<rect x="385.1" y="193" width="69.80000000000001" height="24" rx="12" fill="#FFFFFF" stroke="#B0BEC5"/>
+<text x="420" y="209.5" text-anchor="middle" font-size="13" font-weight="700" fill="#37474F">Layer 1</text>
+<rect x="121.6" y="383" width="106.80000000000001" height="24" rx="12" fill="#FFFFFF" stroke="#B0BEC5"/>
+<text x="175" y="399.5" text-anchor="middle" font-size="13" font-weight="700" fill="#37474F">IsAuthorized</text>
+<rect x="480.1" y="283" width="69.80000000000001" height="24" rx="12" fill="#FFFFFF" stroke="#B0BEC5"/>
+<text x="515" y="299.5" text-anchor="middle" font-size="13" font-weight="700" fill="#37474F">Layer 2</text>
+<rect x="660.5" y="363" width="129" height="24" rx="12" fill="#FFFFFF" stroke="#B0BEC5"/>
+<text x="725" y="379.5" text-anchor="middle" font-size="13" font-weight="700" fill="#37474F">metadata filter</text>
+<rect x="30" y="80" width="200" height="70" rx="10" fill="#EEF1F5" stroke="#6B7B8C" stroke-width="2.4"/>
+<rect x="30" y="80" width="8" height="70" rx="4" fill="#6B7B8C"/>
+<text x="133" y="112" text-anchor="middle" font-size="16" font-weight="700" fill="#232F3E">User</text>
+<text x="133" y="133" text-anchor="middle" font-size="12.5" fill="#455A64">with a Cognito JWT</text>
+<rect x="300" y="80" width="240" height="70" rx="10" fill="#F1E8FF" stroke="#8C4FFF" stroke-width="2.4"/>
+<rect x="300" y="80" width="8" height="70" rx="4" fill="#8C4FFF"/>
+<text x="423" y="112" text-anchor="middle" font-size="16" font-weight="700" fill="#232F3E">CloudFront + AWS WAF</text>
+<text x="423" y="133" text-anchor="middle" font-size="12.5" fill="#455A64">rate limits and rules</text>
+<rect x="610" y="80" width="240" height="70" rx="10" fill="#FDE7F1" stroke="#E7157B" stroke-width="2.4"/>
+<rect x="610" y="80" width="8" height="70" rx="4" fill="#E7157B"/>
+<text x="733" y="112" text-anchor="middle" font-size="16" font-weight="700" fill="#232F3E">API Gateway</text>
+<text x="733" y="133" text-anchor="middle" font-size="12.5" fill="#455A64">one entry point</text>
+<rect x="50" y="260" width="250" height="70" rx="10" fill="#FFF0E0" stroke="#ED7100" stroke-width="2.4"/>
+<rect x="50" y="260" width="8" height="70" rx="4" fill="#ED7100"/>
+<text x="178" y="292" text-anchor="middle" font-size="16" font-weight="700" fill="#232F3E">Lambda authorizer</text>
+<text x="178" y="313" text-anchor="middle" font-size="12.5" fill="#455A64">may this caller use the API?</text>
+<rect x="590" y="260" width="270" height="70" rx="10" fill="#FFF0E0" stroke="#ED7100" stroke-width="2.4"/>
+<rect x="590" y="260" width="8" height="70" rx="4" fill="#ED7100"/>
+<text x="728" y="292" text-anchor="middle" font-size="16" font-weight="700" fill="#232F3E">Middleware Lambda</text>
+<text x="728" y="313" text-anchor="middle" font-size="12.5" fill="#455A64">which departments may be read?</text>
+<rect x="300" y="420" width="260" height="70" rx="10" fill="#FDE8EA" stroke="#DD344C" stroke-width="2.4"/>
+<rect x="300" y="420" width="8" height="70" rx="4" fill="#DD344C"/>
+<text x="433" y="452" text-anchor="middle" font-size="16" font-weight="700" fill="#232F3E">Verified Permissions</text>
+<text x="433" y="473" text-anchor="middle" font-size="12.5" fill="#455A64">Cedar policies, default deny</text>
+<rect x="590" y="420" width="270" height="70" rx="10" fill="#E0F6F1" stroke="#01A88D" stroke-width="2.4"/>
+<rect x="590" y="420" width="8" height="70" rx="4" fill="#01A88D"/>
+<text x="728" y="452" text-anchor="middle" font-size="16" font-weight="700" fill="#232F3E">Bedrock Knowledge Base</text>
+<text x="728" y="473" text-anchor="middle" font-size="12.5" fill="#455A64">vector search</text>
+<rect x="590" y="540" width="270" height="70" rx="10" fill="#E0F6F1" stroke="#01A88D" stroke-width="2.4"/>
+<rect x="590" y="540" width="8" height="70" rx="4" fill="#01A88D"/>
+<text x="728" y="572" text-anchor="middle" font-size="16" font-weight="700" fill="#232F3E">Guardrails for Amazon Bedrock</text>
+<text x="728" y="593" text-anchor="middle" font-size="12.5" fill="#455A64">grounding and content checks</text>
+<rect x="590" y="645" width="270" height="55" rx="10" fill="#E6F4EA" stroke="#2E7D32" stroke-width="2.4"/>
+<rect x="590" y="645" width="8" height="55" rx="4" fill="#2E7D32"/>
+<text x="728" y="669.5" text-anchor="middle" font-size="16" font-weight="700" fill="#232F3E">Grounded answer</text>
+<text x="728" y="690.5" text-anchor="middle" font-size="12.5" fill="#455A64">only authorized documents</text>
+</svg>
