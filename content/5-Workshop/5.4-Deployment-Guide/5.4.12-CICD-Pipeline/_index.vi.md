@@ -1,5 +1,5 @@
 ---
-title: "5.4.12 Kích hoạt pipeline CI/CD"
+title: "Kích hoạt pipeline CI/CD"
 date: 2026-10-16
 weight: 12
 chapter: false

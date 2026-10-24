@@ -1,5 +1,5 @@
 ---
-title: "5.3.1 Tài khoản AWS và quyền truy cập"
+title: "Tài khoản AWS và quyền truy cập"
 date: 2026-07-15
 weight: 1
 chapter: false

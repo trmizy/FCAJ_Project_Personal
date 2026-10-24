@@ -18,15 +18,15 @@ Each weekly log includes the objectives, a task table with dates and references,
 
 ### Weeks
 
-1. [Week 1](1.1-Week1/) — AWS account, Free Tier and the first labs (IAM, VPC, EC2, RDS)
-2. [Week 2](1.2-Week2/) — Report template, core service labs and a first look at the project source
-3. [Week 3](1.3-Week3/) — Migration strategies (7Rs), VM and database migration, production Dockerfiles
-4. [Week 4](1.4-Week4/) — Module 3 and the first deployment: network, Aurora, Auth, frontend and User
-5. [Week 5](1.5-Week5/) — Modules 3–4 (serverless) and the Fitness service
-6. [Week 6](1.6-Week6/) — Module 5 (containers), Gym and Payment, and the plan for Chat
-7. [Week 7](1.7-Week7/) — Module 6 (data and analytics) and the AI service
-8. [Week 8](1.8-Week8/) — Module 7 (AI/ML), Chat on ECS Fargate and data migration
-9. [Week 9](1.9-Week9/) — Blog 2 on deployment challenges and cost optimization
-10. [Week 10](1.10-Week10/) — Blog 3 on secure multi-tenant RAG and the group project frontend
-11. [Week 11](1.11-Week11/) — Group project frontend refinements
-12. [Week 12](1.12-Week12/) — Worklog review and the final report
+1. Week 1 — [AWS account, Free Tier and the first labs (IAM, VPC, EC2, RDS)](1.1-Week1/)
+2. Week 2 — [Report template, core service labs and a first look at the project source](1.2-Week2/)
+3. Week 3 — [Migration strategies (7Rs), VM and database migration, production Dockerfiles](1.3-Week3/)
+4. Week 4 — [Module 3 and the first deployment: network, Aurora, Auth, frontend and User](1.4-Week4/)
+5. Week 5 — [Modules 3–4 (serverless) and the Fitness service](1.5-Week5/)
+6. Week 6 — [Module 5 (containers), Gym and Payment, and the plan for Chat](1.6-Week6/)
+7. Week 7 — [Module 6 (data and analytics) and the AI service](1.7-Week7/)
+8. Week 8 — [Module 7 (AI/ML), Chat on ECS Fargate and data migration](1.8-Week8/)
+9. Week 9 — [Blog 2 on deployment challenges and cost optimization](1.9-Week9/)
+10. Week 10 — [Blog 3 on secure multi-tenant RAG and the group project frontend](1.10-Week10/)
+11. Week 11 — [Personal project frontend refinements](1.11-Week11/)
+12. Week 12 — [Worklog review and the final report](1.12-Week12/)

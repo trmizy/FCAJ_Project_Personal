@@ -1,5 +1,5 @@
 ---
-title: "5.6 Demo"
+title: "Demo"
 date: 2026-07-15
 weight: 6
 chapter: false

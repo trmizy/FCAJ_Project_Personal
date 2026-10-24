@@ -1,5 +1,5 @@
 ---
-title: "5.2.5 Security and IAM"
+title: "Security and IAM"
 date: 2026-07-15
 weight: 5
 chapter: false

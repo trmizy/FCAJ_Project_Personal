@@ -1,5 +1,5 @@
 ---
-title: "5.2.5 Bảo mật và IAM"
+title: "Bảo mật và IAM"
 date: 2026-07-15
 weight: 5
 chapter: false

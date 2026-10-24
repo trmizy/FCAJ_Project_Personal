@@ -1,5 +1,5 @@
 ---
-title: "5.4.14 CloudFront, Aurora reader and CloudWatch alarm"
+title: "CloudFront, Aurora reader and CloudWatch alarm"
 date: 2026-10-23
 weight: 14
 chapter: false

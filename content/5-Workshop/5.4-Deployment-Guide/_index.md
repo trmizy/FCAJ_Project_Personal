@@ -1,5 +1,5 @@
 ---
-title: "5.4 Deployment Guide"
+title: "Deployment Guide"
 date: 2026-07-15
 weight: 4
 chapter: false

@@ -1,5 +1,5 @@
 ---
-title: "5.2.6 Khả năng mở rộng và vận hành"
+title: "Khả năng mở rộng và vận hành"
 date: 2026-07-15
 weight: 6
 chapter: false

@@ -1,5 +1,5 @@
 ---
-title: "5.2.7 Tối ưu chi phí và dọn dẹp"
+title: "Tối ưu chi phí và dọn dẹp"
 date: 2026-07-15
 weight: 7
 chapter: false

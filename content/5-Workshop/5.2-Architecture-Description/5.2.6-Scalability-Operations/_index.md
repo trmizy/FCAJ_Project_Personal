@@ -1,5 +1,5 @@
 ---
-title: "5.2.6 Scalability and Operations"
+title: "Scalability and Operations"
 date: 2026-07-15
 weight: 6
 chapter: false

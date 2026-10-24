@@ -1,5 +1,5 @@
 ---
-title: "5.4.15 Hạ tầng dưới dạng code với CloudFormation"
+title: "Hạ tầng dưới dạng code với CloudFormation"
 date: 2026-10-23
 weight: 15
 chapter: false

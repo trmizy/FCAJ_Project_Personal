@@ -1,5 +1,5 @@
 ---
-title: "5.3 Prerequisite"
+title: "Prerequisite"
 date: 2026-07-15
 weight: 3
 chapter: false

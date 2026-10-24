@@ -1,5 +1,5 @@
 ---
-title: "5.1 Tổng quan"
+title: "Tổng quan"
 date: 2026-07-15
 weight: 1
 chapter: false

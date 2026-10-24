@@ -1,5 +1,5 @@
 ---
-title: "5.4.15 Infrastructure as code with CloudFormation"
+title: "Infrastructure as code with CloudFormation"
 date: 2026-10-23
 weight: 15
 chapter: false

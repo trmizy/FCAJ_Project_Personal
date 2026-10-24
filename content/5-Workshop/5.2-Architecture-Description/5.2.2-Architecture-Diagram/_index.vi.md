@@ -1,5 +1,5 @@
 ---
-title: "5.2.2 Sơ đồ kiến trúc"
+title: "Sơ đồ kiến trúc"
 date: 2026-07-15
 weight: 2
 chapter: false

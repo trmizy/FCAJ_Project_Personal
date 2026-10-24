@@ -1,5 +1,5 @@
 ---
-title: "5.2.1 Tổng quan kiến trúc"
+title: "Tổng quan kiến trúc"
 date: 2026-07-15
 weight: 1
 chapter: false

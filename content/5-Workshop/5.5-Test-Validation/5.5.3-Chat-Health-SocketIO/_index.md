@@ -1,5 +1,5 @@
 ---
-title: "5.5.3 Chat health and Socket.IO"
+title: "Chat health and Socket.IO"
 date: 2026-07-15
 weight: 3
 chapter: false

@@ -1,5 +1,5 @@
 ---
-title: "5.5 Test & validation"
+title: "Test & validation"
 date: 2026-07-15
 weight: 5
 chapter: false

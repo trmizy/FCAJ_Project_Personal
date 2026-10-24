@@ -1,5 +1,5 @@
 ---
-title: "5.2.3 Main Request Flows"
+title: "Main Request Flows"
 date: 2026-07-15
 weight: 3
 chapter: false

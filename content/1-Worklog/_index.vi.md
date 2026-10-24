@@ -18,15 +18,15 @@ Mỗi worklog tuần gồm mục tiêu, bảng công việc kèm ngày và tài 
 
 ### Danh sách các tuần
 
-1. [Tuần 1](1.1-Week1/) — Tài khoản AWS, Free Tier và các lab đầu tiên (IAM, VPC, EC2, RDS)
-2. [Tuần 2](1.2-Week2/) — Template báo cáo, lab các dịch vụ cốt lõi và đọc source code dự án
-3. [Tuần 3](1.3-Week3/) — Chiến lược migration (7Rs), migration VM và database, Dockerfile production
-4. [Tuần 4](1.4-Week4/) — Module 3 và đợt triển khai đầu tiên: mạng, Aurora, Auth, frontend và User
-5. [Tuần 5](1.5-Week5/) — Module 3–4 (serverless) và Fitness service
-6. [Tuần 6](1.6-Week6/) — Module 5 (container), Gym và Payment, kế hoạch cho Chat
-7. [Tuần 7](1.7-Week7/) — Module 6 (dữ liệu và phân tích) và AI service
-8. [Tuần 8](1.8-Week8/) — Module 7 (AI/ML), Chat trên ECS Fargate và migration dữ liệu
-9. [Tuần 9](1.9-Week9/) — Blog 2 về thách thức triển khai và tối ưu chi phí
-10. [Tuần 10](1.10-Week10/) — Blog 3 về RAG multi-tenant an toàn và frontend cho project nhóm
-11. [Tuần 11](1.11-Week11/) — Hoàn thiện frontend project nhóm
-12. [Tuần 12](1.12-Week12/) — Rà soát worklog và hoàn thiện báo cáo
+1. Tuần 1 — [Tài khoản AWS, Free Tier và các lab đầu tiên (IAM, VPC, EC2, RDS)](1.1-Week1/)
+2. Tuần 2 — [Template báo cáo, lab các dịch vụ cốt lõi và đọc source code dự án](1.2-Week2/)
+3. Tuần 3 — [Chiến lược migration (7Rs), migration VM và database, Dockerfile production](1.3-Week3/)
+4. Tuần 4 — [Module 3 và đợt triển khai đầu tiên: mạng, Aurora, Auth, frontend và User](1.4-Week4/)
+5. Tuần 5 — [Module 3–4 (serverless) và Fitness service](1.5-Week5/)
+6. Tuần 6 — [Module 5 (container), Gym và Payment, kế hoạch cho Chat](1.6-Week6/)
+7. Tuần 7 — [Module 6 (dữ liệu và phân tích) và AI service](1.7-Week7/)
+8. Tuần 8 — [Module 7 (AI/ML), Chat trên ECS Fargate và migration dữ liệu](1.8-Week8/)
+9. Tuần 9 — [Blog 2 về thách thức triển khai và tối ưu chi phí](1.9-Week9/)
+10. Tuần 10 — [Blog 3 về RAG multi-tenant an toàn và frontend cho project nhóm](1.10-Week10/)
+11. Tuần 11 — [Hoàn thiện frontend project cá nhân](1.11-Week11/)
+12. Tuần 12 — [Rà soát worklog và hoàn thiện báo cáo](1.12-Week12/)

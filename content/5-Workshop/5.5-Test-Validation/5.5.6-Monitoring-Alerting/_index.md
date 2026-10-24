@@ -1,5 +1,5 @@
 ---
-title: "5.5.5 Monitoring and alerting with Amazon CloudWatch"
+title: "Monitoring and alerting with Amazon CloudWatch"
 date: 2026-10-23
 weight: 6
 chapter: false

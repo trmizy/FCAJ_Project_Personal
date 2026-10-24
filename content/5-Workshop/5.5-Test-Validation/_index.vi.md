@@ -1,5 +1,5 @@
 ---
-title: "5.5 Kiểm thử & xác nhận"
+title: "Kiểm thử & xác nhận"
 date: 2026-07-15
 weight: 5
 chapter: false

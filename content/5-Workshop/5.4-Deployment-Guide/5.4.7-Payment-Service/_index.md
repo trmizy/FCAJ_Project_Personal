@@ -1,5 +1,5 @@
 ---
-title: "5.4.7 Payment Service"
+title: "Payment Service"
 date: 2026-07-15
 weight: 7
 chapter: false

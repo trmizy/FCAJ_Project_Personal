@@ -1,5 +1,5 @@
 ---
-title: "5.3.1 AWS account and permissions"
+title: "AWS account and permissions"
 date: 2026-07-15
 weight: 1
 chapter: false

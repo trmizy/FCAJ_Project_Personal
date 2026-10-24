@@ -1,5 +1,5 @@
 ---
-title: "5.4.5 Fitness Service"
+title: "Fitness Service"
 date: 2026-07-15
 weight: 5
 chapter: false

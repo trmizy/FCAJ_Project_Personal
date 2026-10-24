@@ -1,5 +1,5 @@
 ---
-title: "5.4.10 Chat Service on ECS Fargate"
+title: "Chat Service on ECS Fargate"
 date: 2026-07-15
 weight: 10
 chapter: false

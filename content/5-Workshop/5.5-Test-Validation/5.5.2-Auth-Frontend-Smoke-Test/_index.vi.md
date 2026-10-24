@@ -1,5 +1,5 @@
 ---
-title: "5.5.2 Frontend, API Gateway và Auth"
+title: "Frontend, API Gateway và Auth"
 date: 2026-07-15
 weight: 2
 chapter: false

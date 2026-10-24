@@ -1,5 +1,5 @@
 ---
-title: "5.4.2 Auth Service and API Gateway"
+title: "Auth Service and API Gateway"
 date: 2026-07-15
 weight: 2
 chapter: false

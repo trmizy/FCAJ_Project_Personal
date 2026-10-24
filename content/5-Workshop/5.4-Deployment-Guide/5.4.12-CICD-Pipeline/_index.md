@@ -1,5 +1,5 @@
 ---
-title: "5.4.12 CI/CD pipeline activation"
+title: "CI/CD pipeline activation"
 date: 2026-10-16
 weight: 12
 chapter: false

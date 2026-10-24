@@ -1,5 +1,5 @@
 ---
-title: "5.2.4 Dịch vụ AWS và lý do lựa chọn"
+title: "Dịch vụ AWS và lý do lựa chọn"
 date: 2026-07-15
 weight: 4
 chapter: false

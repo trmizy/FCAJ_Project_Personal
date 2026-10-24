@@ -1,5 +1,5 @@
 ---
-title: "5.2.7 Cost Optimization and Clean-up"
+title: "Cost Optimization and Clean-up"
 date: 2026-07-15
 weight: 7
 chapter: false

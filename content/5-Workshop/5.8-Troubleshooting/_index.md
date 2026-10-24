@@ -1,5 +1,5 @@
 ---
-title: "5.8 Troubleshooting"
+title: "Troubleshooting"
 date: 2026-10-23
 weight: 8
 chapter: false

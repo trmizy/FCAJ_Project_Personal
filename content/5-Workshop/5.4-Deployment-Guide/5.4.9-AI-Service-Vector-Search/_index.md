@@ -1,5 +1,5 @@
 ---
-title: "5.4.9 AI Service — vector search, scheduling and API"
+title: "AI Service — vector search, scheduling and API"
 date: 2026-07-15
 weight: 9
 chapter: false

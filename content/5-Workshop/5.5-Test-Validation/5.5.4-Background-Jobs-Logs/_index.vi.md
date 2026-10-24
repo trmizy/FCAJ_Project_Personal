@@ -1,5 +1,5 @@
 ---
-title: "5.5.4 Background job, queue và log"
+title: "Background job, queue và log"
 date: 2026-07-15
 weight: 4
 chapter: false

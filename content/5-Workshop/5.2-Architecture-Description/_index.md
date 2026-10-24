@@ -1,5 +1,5 @@
 ---
-title: "5.2 Architecture Description"
+title: "Architecture Description"
 date: 2026-07-15
 weight: 2
 chapter: false

@@ -1,5 +1,5 @@
 ---
-title: "5.4.11 Data migration to Aurora"
+title: "Data migration to Aurora"
 date: 2026-07-15
 weight: 11
 chapter: false

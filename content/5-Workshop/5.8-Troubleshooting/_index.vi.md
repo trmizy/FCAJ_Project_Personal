@@ -1,5 +1,5 @@
 ---
-title: "5.8 Xử lý sự cố và hướng phát triển"
+title: "Xử lý sự cố và hướng phát triển"
 date: 2026-10-23
 weight: 8
 chapter: false

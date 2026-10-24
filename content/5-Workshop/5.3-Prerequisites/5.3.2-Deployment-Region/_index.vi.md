@@ -1,5 +1,5 @@
 ---
-title: "5.3.2 Region triển khai"
+title: "Region triển khai"
 date: 2026-07-15
 weight: 2
 chapter: false

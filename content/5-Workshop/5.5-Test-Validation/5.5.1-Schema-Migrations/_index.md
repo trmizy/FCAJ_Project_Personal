@@ -1,5 +1,5 @@
 ---
-title: "5.5.1 Schema migrations"
+title: "Schema migrations"
 date: 2026-07-15
 weight: 1
 chapter: false

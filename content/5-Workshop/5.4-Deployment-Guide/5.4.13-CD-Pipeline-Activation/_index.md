@@ -1,5 +1,5 @@
 ---
-title: "5.4.13 CD pipeline activation"
+title: "CD pipeline activation"
 date: 2026-10-16
 weight: 13
 chapter: false

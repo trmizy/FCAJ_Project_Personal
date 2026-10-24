@@ -1,5 +1,5 @@
 ---
-title: "5.3.3 Local tools"
+title: "Local tools"
 date: 2026-07-15
 weight: 3
 chapter: false

@@ -1,5 +1,5 @@
 ---
-title: "5.4.8 AI Service — database, queue and Bedrock"
+title: "AI Service — database, queue and Bedrock"
 date: 2026-07-15
 weight: 8
 chapter: false

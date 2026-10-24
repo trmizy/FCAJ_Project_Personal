@@ -1,5 +1,5 @@
 ---
-title: "5.2 Mô tả kiến trúc"
+title: "Mô tả kiến trúc"
 date: 2026-07-15
 weight: 2
 chapter: false

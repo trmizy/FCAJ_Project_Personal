@@ -1,5 +1,5 @@
 ---
-title: "5.4.1 Shared network infrastructure"
+title: "Shared network infrastructure"
 date: 2026-07-15
 weight: 1
 chapter: false

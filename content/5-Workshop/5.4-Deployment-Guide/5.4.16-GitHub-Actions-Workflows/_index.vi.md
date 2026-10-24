@@ -1,5 +1,5 @@
 ---
-title: "5.4.16 Workflow GitHub Actions"
+title: "Workflow GitHub Actions"
 date: 2026-10-23
 weight: 16
 chapter: false

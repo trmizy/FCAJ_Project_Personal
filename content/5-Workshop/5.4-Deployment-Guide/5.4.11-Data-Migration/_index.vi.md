@@ -1,5 +1,5 @@
 ---
-title: "5.4.11 Migration dữ liệu lên Aurora"
+title: "Migration dữ liệu lên Aurora"
 date: 2026-07-15
 weight: 11
 chapter: false

@@ -1,5 +1,5 @@
 ---
-title: "5.7 Dọn dẹp tài nguyên"
+title: "Dọn dẹp tài nguyên"
 date: 2026-07-15
 weight: 7
 chapter: false

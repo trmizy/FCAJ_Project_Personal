@@ -1,5 +1,5 @@
 ---
-title: "5.4 Hướng dẫn triển khai"
+title: "Hướng dẫn triển khai"
 date: 2026-07-15
 weight: 4
 chapter: false

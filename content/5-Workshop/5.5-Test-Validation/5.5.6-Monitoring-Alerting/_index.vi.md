@@ -1,5 +1,5 @@
 ---
-title: "5.5.5 Giám sát và cảnh báo với Amazon CloudWatch"
+title: "Giám sát và cảnh báo với Amazon CloudWatch"
 date: 2026-10-23
 weight: 6
 chapter: false

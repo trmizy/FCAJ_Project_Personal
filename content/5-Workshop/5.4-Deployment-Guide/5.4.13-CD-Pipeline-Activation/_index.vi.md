@@ -1,5 +1,5 @@
 ---
-title: "5.4.13 Kích hoạt pipeline CD"
+title: "Kích hoạt pipeline CD"
 date: 2026-10-16
 weight: 13
 chapter: false
