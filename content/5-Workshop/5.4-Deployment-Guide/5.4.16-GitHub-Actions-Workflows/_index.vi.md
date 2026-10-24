@@ -55,6 +55,18 @@ Trong **Actions**, mọi job của lần chạy phải màu xanh. Lần chạy d
 aws lambda get-function-configuration --function-name fitness-assistant-dev-auth --query LastModified
 ```
 
+#### Các màn hình trên GitHub
+
+1. Mở repository, rồi **Actions**. Chọn một workflow ở danh sách bên trái (1); các lần chạy hiện ở bên phải (2).
+
+![Trang Actions với danh sách workflow và các lần chạy gần nhất](/images/workshop/console/gha-1-workflows.jpg)
+*Sáu workflow và các lần chạy gần đây.*
+
+2. Mở một lần chạy. Lần chạy thành công hiện trạng thái **Success** (1), mọi job màu xanh (2) và phần tổng kết job (3) gồm commit, các service, cờ dry-run, kết quả và mã hash code trước đó được giữ làm tham chiếu rollback.
+
+![Một lần chạy DEV Application Deploy thành công cùng phần tổng kết job](/images/workshop/console/gha-2-green-run.jpg)
+*Một lần deploy code Lambda thật, kết thúc với Success.*
+
 #### 5. Yêu cầu cho repository mới
 
 - Các OIDC role từ [5.4.15](../5.4.15-CloudFormation-IaC/) đã tồn tại, với tên GitHub repository đặt trong tham số `GitHubRepository`.

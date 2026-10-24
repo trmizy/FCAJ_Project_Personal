@@ -55,6 +55,18 @@ In **Actions** every job of the run must be green. A deploy run ends with a summ
 aws lambda get-function-configuration --function-name fitness-assistant-dev-auth --query LastModified
 ```
 
+#### Screens of GitHub
+
+1. Open the repository, then **Actions**. Choose a workflow in the left list (1); the runs appear on the right (2).
+
+![The Actions page with the workflow list and the latest runs](/images/workshop/console/gha-1-workflows.jpg)
+*The six workflows and the recent runs.*
+
+2. Open a run. A successful run shows the **Success** status (1), every job green (2) and a job summary (3) with the commit, the services, the dry-run flag, the result and the previous code hash kept as a rollback reference.
+
+![A successful DEV Application Deploy run with its job summary](/images/workshop/console/gha-2-green-run.jpg)
+*A real deploy run of the Lambda code, finished with Success.*
+
 #### 5. Requirements for a new repository
 
 - The OIDC roles from [5.4.15](../5.4.15-CloudFormation-IaC/) exist, with the GitHub repository name set in the `GitHubRepository` parameter.

@@ -56,6 +56,35 @@ Open **CloudFormation → Stacks**. Each stack must be `CREATE_COMPLETE` or `UPD
 
 To compare the live stack with the template, use **Stack actions → Detect drift**. A stack whose status is `IN_SYNC` has no change made outside CloudFormation. The API Gateway stack is checked this way before every infrastructure change ([5.4.13](../5.4.13-CD-Pipeline-Activation/)).
 
+#### Screens of the console
+
+The screens below were captured in the account. The Create stack wizard was opened only to show its first step, then cancelled, so no stack was created.
+
+1. Open **CloudFormation → Stacks** and click the stack name (1).
+
+![CloudFormation stack list with the monitoring stack marked](/images/workshop/console/cfn-1-stack-list.jpg)
+*The account has 5 project stacks, all in CREATE_COMPLETE or UPDATE_COMPLETE.*
+
+2. Open the **Resources** tab (1). Every resource must show **CREATE_COMPLETE** (2).
+
+![Resources tab of the monitoring stack](/images/workshop/console/cfn-2-resources.jpg)
+*The 10 resources of the monitoring stack: 9 alarms and the SNS topic.*
+
+3. Open the **Outputs** tab (1) to read the values the other steps use, including the subscribe command.
+
+![Outputs tab of the monitoring stack](/images/workshop/console/cfn-3-outputs.jpg)
+*Outputs of the monitoring stack (account ID hidden).*
+
+4. To create a stack from a template file, click **Create stack** and choose **With new resources (standard)** (1).
+
+![Create stack menu with the standard option marked](/images/workshop/console/cfn-4-create-menu.jpg)
+*The Create stack menu.*
+
+5. In step 1 choose **Upload a template file** (1), pick the YAML file downloaded above, then **Next** (2) through the parameters, options and review steps. Here the wizard was cancelled with **Cancel** (3) instead of creating the stack.
+
+![Create stack wizard step 1 with upload a template file selected](/images/workshop/console/cfn-5-create-wizard.jpg)
+*Step 1 of the wizard.*
+
 #### 5. Clean-up
 
 Delete a stack with **Delete**, or run `aws cloudformation delete-stack --stack-name <name>`. Delete the on-demand stack first when shutting everything down, because the other stacks do not depend on it. The order for the whole environment is in [5.7](../../5.7-Cleanup/).

@@ -56,6 +56,35 @@ Mở **CloudFormation → Stacks**. Mỗi stack phải ở trạng thái `CREATE
 
 Để so stack đang chạy với template, dùng **Stack actions → Detect drift**. Stack ở trạng thái `IN_SYNC` nghĩa là không có thay đổi nào làm ngoài CloudFormation. Stack API Gateway được kiểm tra như vậy trước mỗi thay đổi hạ tầng ([5.4.13](../5.4.13-CD-Pipeline-Activation/)).
 
+#### Các màn hình trong console
+
+Các màn hình dưới đây được chụp trong tài khoản. Wizard Create stack chỉ được mở để cho thấy bước đầu rồi bấm Cancel, nên không có stack nào được tạo.
+
+1. Mở **CloudFormation → Stacks** và bấm tên stack (1).
+
+![Danh sách stack CloudFormation với stack giám sát được đánh dấu](/images/workshop/console/cfn-1-stack-list.jpg)
+*Tài khoản có 5 stack của dự án, đều ở CREATE_COMPLETE hoặc UPDATE_COMPLETE.*
+
+2. Mở tab **Resources** (1). Mọi resource phải hiện **CREATE_COMPLETE** (2).
+
+![Tab Resources của stack giám sát](/images/workshop/console/cfn-2-resources.jpg)
+*10 resource của stack giám sát: 9 alarm và SNS topic.*
+
+3. Mở tab **Outputs** (1) để đọc các giá trị mà bước khác dùng, gồm cả lệnh đăng ký email.
+
+![Tab Outputs của stack giám sát](/images/workshop/console/cfn-3-outputs.jpg)
+*Outputs của stack giám sát (đã che account ID).*
+
+4. Để tạo stack từ file template, bấm **Create stack** và chọn **With new resources (standard)** (1).
+
+![Menu Create stack với tuỳ chọn standard được đánh dấu](/images/workshop/console/cfn-4-create-menu.jpg)
+*Menu Create stack.*
+
+5. Ở bước 1 chọn **Upload a template file** (1), chọn file YAML đã tải ở trên, rồi **Next** (2) qua các bước tham số, tuỳ chọn và xem lại. Ở đây wizard được dừng bằng **Cancel** (3) thay vì tạo stack.
+
+![Bước 1 của wizard Create stack với Upload a template file được chọn](/images/workshop/console/cfn-5-create-wizard.jpg)
+*Bước 1 của wizard.*
+
 #### 5. Dọn dẹp
 
 Xoá stack bằng **Delete**, hoặc chạy `aws cloudformation delete-stack --stack-name <name>`. Khi tắt toàn bộ, xoá stack on-demand trước, vì các stack khác không phụ thuộc vào nó. Thứ tự cho cả môi trường nằm ở [5.7](../../5.7-Cleanup/).
