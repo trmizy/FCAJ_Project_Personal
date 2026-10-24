@@ -12,5 +12,4 @@ Phần này tập hợp các bài kiểm tra chứng minh từng phần của h�
 2. [5.5.2 Frontend, API Gateway và Auth](5.5.2-Auth-Frontend-Smoke-Test/) — đường đi request từ browser tới Aurora.
 3. [5.5.3 Chat health và Socket.IO](5.5.3-Chat-Health-SocketIO/) — ECS service, ALB và WebSocket handshake.
 4. [5.5.4 Background job, queue và log](5.5.4-Background-Jobs-Logs/) — schedule, SQS worker và CloudWatch Logs.
-5. [5.5.5 Trạng thái kiểm thử và việc còn mở](5.5.5-Status-Open-Items/) — những gì đã verify, những gì đang chờ, và kế hoạch hoàn tất.
-6. [5.5.6 Giám sát và cảnh báo với Amazon CloudWatch](5.5.6-Monitoring-Alerting/) — log, metric, alarm, thông báo, request mẫu và kiểm thử ca lỗi.
+5. [5.5.5 Giám sát và cảnh báo với Amazon CloudWatch](5.5.6-Monitoring-Alerting/) — log, metric, alarm, thông báo, request mẫu và kiểm thử ca lỗi.

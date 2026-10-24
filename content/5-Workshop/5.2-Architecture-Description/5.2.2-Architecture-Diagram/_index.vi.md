@@ -6,7 +6,7 @@ chapter: false
 pre: " <b> 5.2.2. </b> "
 ---
 
-Sơ đồ dưới đây là ảnh kiến trúc được cung cấp cho dự án. Khác với các bản trước của trang này, mọi node ở đây đều đã được đối chiếu trực tiếp với trạng thái AWS thật (không chép lại từ bản nháp cũ) — [5.4 Hướng dẫn triển khai](../../5.4-Deployment-Guide/) và [5.5.5 Trạng thái kiểm thử và việc còn mở](../../5.5-Test-Validation/5.5.5-Status-Open-Items/) có đầy đủ bằng chứng từng bước đằng sau mỗi khẳng định, còn [5.2.1](../5.2.1-Architecture-Overview/) nói về cách quá trình triển khai đi đến trạng thái hiện tại.
+Sơ đồ dưới đây là ảnh kiến trúc được cung cấp cho dự án. Khác với các bản trước của trang này, mọi node ở đây đều đã được đối chiếu trực tiếp với trạng thái AWS thật (không chép lại từ bản nháp cũ) — [5.4 Hướng dẫn triển khai](../../5.4-Deployment-Guide/) có đầy đủ bằng chứng từng bước đằng sau mỗi khẳng định, còn [5.2.1](../5.2.1-Architecture-Overview/) nói về cách quá trình triển khai đi đến trạng thái hiện tại.
 
 ### Sơ đồ thành phần
 
@@ -19,5 +19,4 @@ Thành phần AI là mô hình 2 nhà cung cấp, không phải 1 LLM duy nhất
 
 Về infrastructure-as-code: **CloudFormation, không phải Terraform, mới là thứ thật sự tạo và quản lý hạ tầng AWS thật của dự án này** (API Gateway, các IAM role CI/CD OIDC, stack mạng on-demand, CDN frontend, monitoring) — xác nhận bằng cách liệt kê mọi stack `CREATE_COMPLETE`/`UPDATE_COMPLETE` đang sống trong tài khoản. Repo có chứa 1 module Terraform, nhưng nó chỉ nối với 1 API "hello world" bootstrap riêng biệt, không liên quan, không có `.tfstate` sống nào cho môi trường này — không phải con đường IaC thật của dự án, dù có mặt trong codebase.
 
-[5.5.5](../../5.5-Test-Validation/5.5.5-Status-Open-Items/) là trang để xem đầy đủ, chi tiết từng mục trạng thái xây dựng/xác nhận của mọi thành phần ở đây.
 {{% /notice %}}

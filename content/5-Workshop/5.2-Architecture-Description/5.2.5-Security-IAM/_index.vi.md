@@ -52,15 +52,3 @@ Subscription Marketplace cho Cohere được admin chấp nhận một lần; ro
 
 - Throttling theo route trên API Gateway cho các route AI (1 request/giây, burst 3; 3/6 cho marketplace) giới hạn tốc độ một client có thể tạo lời gọi Bedrock tính phí; frontend hiển thị thông báo "quá nhiều yêu cầu" khi gặp HTTP 429.
 - SQS dead-letter queue (2 lần thử) ngăn một AI job lỗi bị retry mãi mãi.
-
-### Khoảng trống đã biết (mở, không giấu)
-
-- **Internal secret nằm trong cấu hình Lambda** — `INTERNAL_SERVICE_SECRET` và `CHECKIN_TOKEN_SECRET` là environment variable của Lambda (được mã hoá khi lưu, nhưng ai có quyền xem cấu hình function đều đọc được). Chat đã đọc internal secret từ Secrets Manager; chuyển bản trên Lambda sang đó là việc hardening tiếp theo.
-- **HTTPS** — web app và Chat được phục vụ qua HTTPS bằng CloudFront; bản thân Chat ALB chỉ có HTTP phía sau nó. Tên miền riêng và chứng chỉ ACM là bước tiếp theo tuỳ chọn.
-- **Statement public-read cũ trên bucket frontend** — chỉ object (`s3:GetObject`). CloudFront đã đọc bucket qua Origin Access Control, nên có thể gỡ statement này để bucket hoàn toàn private.
-- **WAF** — tuỳ chọn và chưa triển khai; CloudFront đã có nên có thể gắn web ACL khi cần.
-- **12 seed account còn lại** — hoãn lại, bắt buộc phải xử lý trước khi release rộng hơn.
-
-### Screenshot bằng chứng từng chứa secret
-
-Một số screenshot console trong runbook triển khai (màn hình "Store a new secret" của Secrets Manager và "Environment variables" của Lambda) ban đầu có hiện giá trị secret thật. Mỗi ảnh đã được che ở mức pixel — chính giá trị bị bôi đen trong dữ liệu ảnh, không phải crop hay blur — trước khi đưa vào báo cáo; các ô đen trong [5.4](../../5.4-Deployment-Guide/) là có chủ đích. Toàn bộ screenshot đã được rà soát lại trước khi đăng.

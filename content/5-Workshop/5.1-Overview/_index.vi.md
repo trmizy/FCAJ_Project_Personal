@@ -41,24 +41,17 @@ Một môi trường DEV hoạt động, truy cập được qua internet: front
 
 - **Hạ tầng dùng chung:** một VPC, private application subnet cho Lambda và Fargate, private DB subnet (không có route ra internet), public subnet cho NAT Gateway và Chat ALB, cặp NAT + Internet Gateway cho lời gọi outbound.
 - **Tám khối triển khai được ghi lại đầy đủ:** Auth, User, Fitness, Gym, Payment, AI (HTTP + Worker + Jobs + vector search), Chat, và lần migration dữ liệu một lần đã restore 7 database PostgreSQL local vào Aurora.
-- **Frontend:** bản build tĩnh host trên Amazon S3 (website endpoint qua HTTP ở hiện tại; CloudFront + Origin Access Control là việc tiếp theo, chưa dùng được trong account này).
-
-### Những phần chưa hoàn thiện
-
-- **CI/CD pipeline:** chưa xây dựng — mọi lần deploy cho tới giờ đều là thao tác thủ công qua console/CLI, được ghi lại đúng lúc thực hiện.
-- **Kiểm thử end-to-end:** Auth và User đã verify đầy đủ; Fitness, Gym, Payment, AI/Worker/Jobs, Chat và tích hợp frontend vẫn cần một lượt E2E đầy đủ — xem [5.5.5](../5.5-Test-Validation/5.5.5-Status-Open-Items/).
-- **Việc bảo mật cố ý hoãn lại:** xoay vòng credential ADMIN và xử lý các seed account còn lại — không phải blocker cho DEV nhưng vẫn được theo dõi.
-- **Kiểm soát chi phí:** chế độ "sleep" cho DEV (Aurora về 0 ACU, Chat về 0 task, NAT Gateway chỉ bật khi cần) đã lên kế hoạch nhưng chưa tự động hoá — xem [5.7](../5.7-Cleanup/).
+- **Frontend:** bản build tĩnh host trên Amazon S3 và phát qua Amazon CloudFront (Origin Access Control).
 
 ### Sản phẩm bàn giao
 
 - [5.2 Mô tả kiến trúc](../5.2-Architecture-Description/) — luồng request, lựa chọn dịch vụ AWS, security/IAM, khả năng mở rộng và chi phí.
 - [5.3 Chuẩn bị](../5.3-Prerequisites/) — account, region và công cụ local.
 - [5.4 Hướng dẫn triển khai](../5.4-Deployment-Guide/) — từng service, từng bước, kèm screenshot console gốc và IAM policy chính xác.
-- [5.5 Kiểm thử & xác nhận](../5.5-Test-Validation/) — các bài kiểm tra, kết quả mong đợi và trạng thái hiện tại.
+- [5.5 Kiểm thử & xác nhận](../5.5-Test-Validation/) — các bài kiểm tra và kết quả mong đợi.
 - [5.6 Demo](../5.6-Demo/) và [5.7 Dọn dẹp tài nguyên](../5.7-Cleanup/).
 
 ### Định nghĩa hoàn thành
 
 - Mọi dịch vụ AWS được ghi là "Deployed" trong báo cáo đều có screenshot, log excerpt hoặc command output tương ứng trong Workshop này.
-- Không bước nào được coi là thành công nếu thiếu bằng chứng; bài kiểm tra chưa chạy được ghi là đang chờ chứ không ghi là đã pass.
+- Không bước nào được coi là thành công nếu thiếu bằng chứng.

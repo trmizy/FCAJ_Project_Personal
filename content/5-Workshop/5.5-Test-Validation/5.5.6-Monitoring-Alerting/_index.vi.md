@@ -1,9 +1,9 @@
 ---
-title: "5.5.6 Giám sát và cảnh báo với Amazon CloudWatch"
+title: "5.5.5 Giám sát và cảnh báo với Amazon CloudWatch"
 date: 2026-10-23
 weight: 6
 chapter: false
-pre: " <b> 5.5.6. </b> "
+pre: " <b> 5.5.5. </b> "
 ---
 
 Trang này cho thấy môi trường DEV được theo dõi bằng **log, metric và alarm** như thế nào, một cảnh báo đến tay con người ra sao, và cách kiểm thử từng lớp. Mọi giá trị bên dưới đều được đọc từ tài khoản thật.
@@ -132,15 +132,3 @@ aws cloudwatch set-alarm-state \
 Alarm sẽ đánh giá lại metric thật ở chu kỳ kế tiếp và tự trở về OK.
 
 **6.5 Kiểm tra ca lỗi.** Các test âm tính ở trên (sai mật khẩu, body sai định dạng, thiếu token, token giả, route không tồn tại) xác nhận lỗi bị từ chối đúng tầng với đúng mã trạng thái, và không test nào làm các alarm lỗi function nổ.
-
-#### 7. Phạm vi và khoảng trống
-
-| Đã bao phủ | Chưa bao phủ |
-|---|---|
-| Lỗi của sáu Lambda API | Lỗi của worker và các Lambda jobs theo lịch |
-| API Gateway 5xx, CPU và capacity Aurora, sức khoẻ NAT | Throttle và duration của Lambda |
-| Thông báo email cho ALARM và OK | Độ sâu dead-letter queue và sức khoẻ target của Chat |
-| X-Ray tracing trên các Lambda API | Dashboard cho ứng dụng (hiện chỉ có dashboard VPC) |
-| Budget chi phí hàng tháng | Thời gian lưu cho các log group của Lambda (đang không hết hạn) |
-
-Bước tiếp theo: thêm alarm cho worker, các job, throttle và dead-letter queue, đặt thời gian lưu cho các log group của Lambda để giới hạn chi phí lưu trữ, và dựng một dashboard gom độ trễ API, lỗi, độ sâu queue và capacity Aurora trên một màn hình.

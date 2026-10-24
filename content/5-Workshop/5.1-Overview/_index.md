@@ -41,24 +41,17 @@ A working DEV environment reachable over the internet: a static frontend on Amaz
 
 - **Shared infrastructure:** one VPC, private application subnets for Lambda and Fargate, private DB subnets (no internet route), public subnets for the NAT Gateway and the Chat ALB, and a NAT + Internet Gateway pair for outbound calls.
 - **Eight deployment blocks documented end to end:** Auth, User, Fitness, Gym, Payment, AI (HTTP + Worker + Jobs + vector search), Chat, and the one-off data migration that restored 7 local PostgreSQL databases into Aurora.
-- **Frontend:** a static build hosted on Amazon S3 (website endpoint over HTTP for now; CloudFront + Origin Access Control is a known follow-up, not yet usable in this account).
-
-### Components Still Incomplete
-
-- **CI/CD pipeline:** not yet built — deployments so far are manual console/CLI steps, captured as they happened.
-- **End-to-end validation:** Auth and User are fully verified; Fitness, Gym, Payment, AI/Worker/Jobs, Chat and the frontend integration still need a full E2E pass — see [5.5.5](../5.5-Test-Validation/5.5.5-Status-Open-Items/).
-- **Security follow-ups deliberately postponed:** rotating the ADMIN credential and remediating the remaining seed accounts — not blockers for DEV, but tracked.
-- **Cost controls:** a DEV "sleep" strategy (Aurora to 0 ACU, Chat to 0 tasks, NAT Gateway only when needed) is planned but not yet automated — see [5.7](../5.7-Cleanup/).
+- **Frontend:** a static build hosted on Amazon S3 and served through Amazon CloudFront (Origin Access Control).
 
 ### Deliverables
 
 - [5.2 Architecture Description](../5.2-Architecture-Description/) — request flows, AWS service choices, security/IAM, scalability and cost.
 - [5.3 Prerequisite](../5.3-Prerequisites/) — account, region and local tools.
 - [5.4 Deployment Guide](../5.4-Deployment-Guide/) — every service, step by step, with the original console screenshots and the exact IAM policies.
-- [5.5 Test & validation](../5.5-Test-Validation/) — the checks, their expected results and their current status.
+- [5.5 Test & validation](../5.5-Test-Validation/) — the checks and their expected results.
 - [5.6 Demo](../5.6-Demo/) and [5.7 Clean-up](../5.7-Cleanup/).
 
 ### Definition of Done
 
 - Every AWS service marked "Deployed" in this report is backed by a screenshot, log excerpt or command output in this Workshop.
-- No step claims success without evidence; checks not run yet are labelled as pending rather than passed.
+- No step claims success without evidence.

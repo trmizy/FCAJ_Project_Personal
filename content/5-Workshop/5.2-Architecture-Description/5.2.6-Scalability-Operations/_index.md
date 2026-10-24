@@ -27,11 +27,7 @@ Scheduled work runs from EventBridge Scheduler into dedicated jobs functions, so
 - **Logs** for every function and task are in CloudWatch Logs (`/aws/lambda/…`, `/ecs/…`); [5.5.4](../../5.5-Test-Validation/5.5.4-Background-Jobs-Logs/) lists what to look for.
 - **Changing a secret** (for example a rotated Aurora password) requires recycling the Lambda execution environments, because functions cache the secret while warm — the Auth deployment did this by editing a harmless `DEPLOY_REVISION` variable.
 
-### Operations and remaining gaps
+### CI/CD and monitoring
 
 - **CI/CD is in place** — GitHub Actions validates every PR and deploys Lambda code, the Chat image and the API Gateway stack through reviewer-gated workflows.
 - **Monitoring is in place** — 12 CloudWatch alarms (Lambda errors for the six API services, API Gateway 5xx, Aurora CPU and capacity, NAT Gateway health) notify an SNS topic with a confirmed e-mail subscription; a monthly AWS Budget alerts on cost; active X-Ray tracing is on the six API Lambdas.
-- **End-to-end validation incomplete** — Auth and User are verified; the remaining services are deployed but pending ([5.5.5](../../5.5-Test-Validation/5.5.5-Status-Open-Items/)).
-- **Chat is a single task** — acceptable for DEV, revisited before any real multi-user load.
-
-A serverless architecture that scales its compute automatically is not "production-ready" by itself; the remaining test coverage above are exactly what a purely architectural description could hide, so they are named here.

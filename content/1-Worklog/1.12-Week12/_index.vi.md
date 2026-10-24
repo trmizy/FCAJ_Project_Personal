@@ -63,4 +63,3 @@ Trong final week này, primary operational focus của mình là review, refine,
 - Hướng dẫn triển khai từng bước kèm screenshot console ([Workshop 5.4](../../5-Workshop/5.4-Deployment-Guide/))
 - Kế hoạch và kết quả kiểm thử ([5.5](../../5-Workshop/5.5-Test-Validation/)): Auth và User đã kiểm thử end-to-end; Fitness, Gym, Payment, AI, Chat và frontend đã deploy, đang chờ lượt kiểm thử end-to-end cuối
 - Ước tính chi phí kèm "chế độ ngủ" khi idle ([Proposal mục 8](../../2-Proposal/#budget)) và thứ tự dọn dẹp đầy đủ ([5.7](../../5-Workshop/5.7-Cleanup/))
-- Còn mở: CI/CD pipeline, CloudWatch alarm, HTTPS với CloudFront

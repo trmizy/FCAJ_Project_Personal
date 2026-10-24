@@ -12,7 +12,7 @@ Phần lớn tài nguyên ở các bước trước lúc đầu được tạo t
 
 | Stack trong tài khoản | Template (tải về) | Tạo ra gì |
 |---|---|---|
-| `fitness-assistant-dev-app-monitoring` | [app-monitoring.yaml](../../../../files/cloudformation/app-monitoring.yaml) | 9 CloudWatch alarm và SNS topic `fitness-assistant-dev-app-alerts` ([5.5.6](../../5.5-Test-Validation/5.5.6-Monitoring-Alerting/)) |
+| `fitness-assistant-dev-app-monitoring` | [app-monitoring.yaml](../../../../files/cloudformation/app-monitoring.yaml) | 9 CloudWatch alarm và SNS topic `fitness-assistant-dev-app-alerts` ([5.5.5](../../5.5-Test-Validation/5.5.6-Monitoring-Alerting/)) |
 | `fitness-assistant-dev-frontend-cdn` | [frontend-cdn.yaml](../../../../files/cloudformation/frontend-cdn.yaml) | CloudFront distribution và Origin Access Control cho bucket frontend |
 | `gymini-dev-on-demand` | [dev-on-demand.yaml](../../../../files/cloudformation/dev-on-demand.yaml) | Các phần tính tiền theo giờ, bật tắt theo từng phiên: NAT Gateway, load balancer của Chat, listener, target group và VPC endpoint |
 | `fitness-assistant-dev-cicd-iam` | [ci-cd-oidc.yaml](../../../../files/cloudformation/ci-cd-oidc.yaml) | Năm IAM role đặc quyền tối thiểu mà GitHub Actions assume qua OIDC |
@@ -58,7 +58,7 @@ Mở **CloudFormation → Stacks**. Mỗi stack phải ở trạng thái `CREATE
 
 #### Các màn hình trong console
 
-Các màn hình dưới đây được chụp trong tài khoản. Wizard Create stack chỉ được mở để cho thấy bước đầu rồi bấm Cancel, nên không có stack nào được tạo.
+Các màn hình dưới đây được chụp trong tài khoản. Wizard Create stack được đi qua đến bước xem lại cuối cùng rồi bấm Cancel, nên không có stack nào được tạo.
 
 1. Mở **CloudFormation → Stacks** và bấm tên stack (1).
 
@@ -80,10 +80,30 @@ Các màn hình dưới đây được chụp trong tài khoản. Wizard Create 
 ![Menu Create stack với tuỳ chọn standard được đánh dấu](/images/workshop/console/cfn-4-create-menu.jpg)
 *Menu Create stack.*
 
-5. Ở bước 1 chọn **Upload a template file** (1), chọn file YAML đã tải ở trên, rồi **Next** (2) qua các bước tham số, tuỳ chọn và xem lại. Ở đây wizard được dừng bằng **Cancel** (3) thay vì tạo stack.
+5. Ở bước 1 chọn **Upload a template file** (1) và chọn file YAML đã tải ở trên (2). Console upload file và hiện địa chỉ của nó. Bấm **Next** (3).
 
-![Bước 1 của wizard Create stack với Upload a template file được chọn](/images/workshop/console/cfn-5-create-wizard.jpg)
-*Bước 1 của wizard.*
+![Bước 1 của wizard với file template đã được upload](/images/workshop/console/cfn-6-upload.jpg)
+*Bước 1: file template đã được upload.*
+
+6. Ở bước 2 nhập **Stack name** (1). Các tham số của template hiện cùng giá trị mặc định (2); giữ nguyên hoặc đổi. Bấm **Next** (3).
+
+![Bước 2 của wizard với tên stack và hai tham số](/images/workshop/console/cfn-7-details.jpg)
+*Bước 2: tên stack và tham số.*
+
+7. Bước 3 gồm các tuỳ chọn không bắt buộc (tag, service role, cách rollback, thông báo). Giữ **Roll back all resources** (1) và bấm **Next** ở cuối trang.
+
+![Bước 3 của wizard với các tuỳ chọn stack](/images/workshop/console/cfn-8-options.jpg)
+*Bước 3: tuỳ chọn stack.*
+
+8. Bước 4 là phần tổng kết: template (1), tên stack và tham số (2). Đọc kỹ trước khi gửi.
+
+![Bước xem lại với template và tên stack](/images/workshop/console/cfn-9-review.jpg)
+*Bước 4: xem lại.*
+
+9. Ở cuối trang, **Submit** tạo stack còn **Cancel** thoát mà không tạo gì. Các ảnh ở đây kết thúc bằng **Cancel** (1) vì stack monitoring đã có sẵn trong tài khoản; để tạo thật, bấm **Submit** (2) rồi theo dõi tab **Events** đến khi trạng thái là **CREATE_COMPLETE**.
+
+![Cuối bước xem lại với nút Cancel và Submit](/images/workshop/console/cfn-10-submit.jpg)
+*Nút Submit và Cancel.*
 
 #### 5. Dọn dẹp
 

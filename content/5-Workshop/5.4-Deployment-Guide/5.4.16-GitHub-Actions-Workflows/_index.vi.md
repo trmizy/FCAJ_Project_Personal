@@ -67,6 +67,16 @@ aws lambda get-function-configuration --function-name fitness-assistant-dev-auth
 ![Một lần chạy DEV Application Deploy thành công cùng phần tổng kết job](/images/workshop/console/gha-2-green-run.jpg)
 *Một lần deploy code Lambda thật, kết thúc với Success.*
 
+3. Để bắt đầu một lần deploy, mở workflow và bấm **Run workflow**. Chọn nhánh **aws-deploy** (1), nhập run ID của bản build (2) và các service (3), giữ **dry_run** được tick (4) ở lần chạy đầu. Sau đó bấm **Run workflow** trong form.
+
+![Form Run workflow của workflow deploy](/images/workshop/console/gha-3-run-workflow-form.jpg)
+*Các input của workflow deploy.*
+
+4. Cổng phê duyệt là một GitHub environment. Trong **Settings → Environments → dev**, **Required reviewers** được tick với người duyệt (1), administrator không bỏ qua được các quy tắc (2), và chỉ nhánh **aws-deploy** được phép deploy (3).
+
+![Environment dev với người duyệt bắt buộc và quy tắc nhánh](/images/workshop/console/gha-4-environment-dev.jpg)
+*Các quy tắc bảo vệ của environment dev.*
+
 #### 5. Yêu cầu cho repository mới
 
 - Các OIDC role từ [5.4.15](../5.4.15-CloudFormation-IaC/) đã tồn tại, với tên GitHub repository đặt trong tham số `GitHubRepository`.

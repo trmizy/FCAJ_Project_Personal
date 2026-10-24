@@ -27,11 +27,7 @@ Việc theo lịch chạy từ EventBridge Scheduler vào function jobs riêng, 
 - **Log** của mọi function và task nằm trong CloudWatch Logs (`/aws/lambda/…`, `/ecs/…`); [5.5.4](../../5.5-Test-Validation/5.5.4-Background-Jobs-Logs/) liệt kê những gì cần tìm.
 - **Đổi secret** (ví dụ mật khẩu Aurora được xoay vòng) cần làm mới execution environment của Lambda, vì function cache secret khi còn warm — lúc deploy Auth đã làm việc này bằng cách sửa một biến vô hại `DEPLOY_REVISION`.
 
-### Khoảng trống vận hành, theo dõi công khai
+### CI/CD và giám sát
 
 - **CI/CD đã có** — GitHub Actions kiểm tra mọi PR và deploy code Lambda, image Chat và stack API Gateway qua các workflow có cổng người duyệt.
 - **Giám sát đã có** — 12 CloudWatch alarm (lỗi Lambda của sáu service API, API Gateway 5xx, CPU và capacity của Aurora, sức khoẻ NAT Gateway) gửi tới một SNS topic có subscription e-mail đã xác nhận; một AWS Budget hàng tháng cảnh báo chi phí; X-Ray tracing bật trên sáu Lambda API.
-- **Kiểm thử end-to-end chưa xong** — Auth và User đã verify; các service còn lại đã deploy nhưng đang chờ ([5.5.5](../../5.5-Test-Validation/5.5.5-Status-Open-Items/)).
-- **Chat chỉ có một task** — chấp nhận được cho DEV, sẽ xem lại trước khi có tải nhiều người dùng thật.
-
-Một kiến trúc serverless tự scale compute không tự động "sẵn sàng production"; những khoảng trống về độ phủ kiểm thử còn lại ở trên chính là thứ một mô tả thuần kiến trúc có thể che đi, nên chúng được nêu rõ ở đây.

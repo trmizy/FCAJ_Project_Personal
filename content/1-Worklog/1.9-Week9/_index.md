@@ -33,7 +33,7 @@ This week was dedicated to reviewing the AWS deployment experience so far, writi
 
 **Hands-on Labs Completed:**
 
-- Wrote Blog 2 as a case study, pulling concrete evidence from the Workshop pages already written (5.2.6, 5.2.7, 5.4.10, 5.5.5) instead of writing generic advice, and published it to the AWS Study Group VN Facebook group
+- Wrote Blog 2 as a case study, pulling concrete evidence from the Workshop pages already written (5.2.6, 5.2.7, 5.4.10) instead of writing generic advice, and published it to the AWS Study Group VN Facebook group
 
 **Application to Fitness Assistant:**
 

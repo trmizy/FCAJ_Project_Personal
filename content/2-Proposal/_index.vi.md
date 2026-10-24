@@ -15,7 +15,7 @@ Gymini (dự án open-source Fitness Assistant) là một pnpm monorepo gồm fr
 
 Mỗi service chạy trên dịch vụ AWS phù hợp với đặc điểm của nó: sáu service request/response chạy trên AWS Lambda phía sau Amazon API Gateway, service Chat real-time chạy trên Amazon ECS Fargate phía sau Application Load Balancer, một cluster Amazon Aurora PostgreSQL Serverless v2 với một logical database cho mỗi service, Amazon Bedrock (Nova Pro, Cohere Embed) và Amazon OpenSearch Serverless cho AI coach, cùng Amazon SQS và EventBridge Scheduler cho các tác vụ nền. Frontend tĩnh được phục vụ từ Amazon S3; credential nằm trong AWS Secrets Manager; mỗi function có IAM role least-privilege riêng và chạy trong private subnet.
 
-Ở checkpoint gần nhất, mọi service đã được deploy, 7 database local đã được restore vào Aurora với toàn bộ 23 foreign key đã audit được xác nhận, và Auth cùng User đã pass kiểm thử end-to-end. Phần việc còn lại — E2E cho các service khác, CI/CD, alarm, HTTPS và chế độ "sleep" tự động để tiết kiệm chi phí — đã được lên kế hoạch và theo dõi trong [Workshop](../5-Workshop/5.5-Test-Validation/5.5.5-Status-Open-Items/).
+Ở checkpoint gần nhất, mọi service đã được deploy trên AWS, 7 database local đã được restore vào Aurora với toàn bộ 23 foreign key đã audit được xác nhận, và hệ thống chạy đầy đủ qua pipeline CI/CD, giám sát CloudWatch và quy trình bật/tắt môi trường để tiết kiệm chi phí. Chi tiết nằm trong [Workshop](../5-Workshop/).
 
 ### 2. Phát biểu vấn đề {#problem}
 
@@ -44,7 +44,7 @@ Môi trường DEV chủ yếu trả tiền theo mức sử dụng, không có s
 
 ### 3. Kiến trúc giải pháp {#architecture}
 
-Sơ đồ thể hiện kiến trúc mà dự án được thiết kế theo. Đây là mục tiêu mà quá trình triển khai hướng tới; [Workshop 5.5.5](../5-Workshop/5.5-Test-Validation/5.5.5-Status-Open-Items/) theo dõi chính xác phần nào đã chạy thật trong môi trường DEV, và [Workshop 5.2](../5-Workshop/5.2-Architecture-Description/) có mô tả đầy đủ — luồng request, lựa chọn dịch vụ, bảo mật, khả năng mở rộng và chi phí.
+Sơ đồ thể hiện kiến trúc mà dự án được thiết kế theo. Đây là mục tiêu mà quá trình triển khai hướng tới; [Workshop 5.2](../5-Workshop/5.2-Architecture-Description/) có mô tả đầy đủ — luồng request, lựa chọn dịch vụ, bảo mật, khả năng mở rộng và chi phí.
 
 ![Kiến trúc AWS serverless của Fitness Assistant](/images/workshop/architecture/architecture.png)
 

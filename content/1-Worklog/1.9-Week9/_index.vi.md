@@ -33,7 +33,7 @@ Tuần này dành để nhìn lại quá trình triển khai AWS từ đầu đ�
 
 **Hands-on labs đã thực hiện:**
 
-- Viết Blog 2 dưới dạng case study, lấy bằng chứng cụ thể từ các trang Workshop đã có sẵn (5.2.6, 5.2.7, 5.4.10, 5.5.5) thay vì viết lời khuyên chung chung, và đăng lên AWS Study Group VN Facebook group
+- Viết Blog 2 dưới dạng case study, lấy bằng chứng cụ thể từ các trang Workshop đã có sẵn (5.2.6, 5.2.7, 5.4.10) thay vì viết lời khuyên chung chung, và đăng lên AWS Study Group VN Facebook group
 
 **Áp dụng vào Fitness Assistant:**
 

@@ -1,9 +1,9 @@
 ---
-title: "5.5.6 Monitoring and alerting with Amazon CloudWatch"
+title: "5.5.5 Monitoring and alerting with Amazon CloudWatch"
 date: 2026-10-23
 weight: 6
 chapter: false
-pre: " <b> 5.5.6. </b> "
+pre: " <b> 5.5.5. </b> "
 ---
 
 This page shows how the DEV environment is observed through **logs, metrics and alarms**, how an alert reaches a person, and how to test each layer. All values below were read from the live account.
@@ -132,15 +132,3 @@ aws cloudwatch set-alarm-state \
 The alarm evaluates its real metric again at the next period and goes back to OK by itself.
 
 **6.5 Error-case checks.** The negative tests above (wrong password, malformed body, missing token, fake token, unknown route) confirm that failures are rejected at the right layer with the right status code, and that none of them raises the function-error alarms.
-
-#### 7. Coverage and gaps
-
-| Covered | Not covered yet |
-|---|---|
-| Errors on the six API Lambdas | Errors on the worker and the scheduled jobs Lambdas |
-| API Gateway 5xx, Aurora CPU and capacity, NAT health | Lambda throttles and duration |
-| E-mail notification for ALARM and OK | Dead-letter queue depth, and the Chat target health |
-| X-Ray tracing on the API Lambdas | An application dashboard (only a VPC dashboard exists) |
-| Monthly cost budget | Retention for the Lambda log groups (they never expire) |
-
-Next steps: add alarms for the worker, the jobs, throttles and the dead-letter queue, set a retention period on the Lambda log groups to limit storage cost, and build one dashboard that puts API latency, errors, queue depth and Aurora capacity on a single screen.

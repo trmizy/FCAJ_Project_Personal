@@ -12,7 +12,7 @@ Most of the resources in the earlier steps were first created by hand in the con
 
 | Stack in the account | Template (download) | What it creates |
 |---|---|---|
-| `fitness-assistant-dev-app-monitoring` | [app-monitoring.yaml](../../../files/cloudformation/app-monitoring.yaml) | 9 CloudWatch alarms and the SNS topic `fitness-assistant-dev-app-alerts` ([5.5.6](../../5.5-Test-Validation/5.5.6-Monitoring-Alerting/)) |
+| `fitness-assistant-dev-app-monitoring` | [app-monitoring.yaml](../../../files/cloudformation/app-monitoring.yaml) | 9 CloudWatch alarms and the SNS topic `fitness-assistant-dev-app-alerts` ([5.5.5](../../5.5-Test-Validation/5.5.6-Monitoring-Alerting/)) |
 | `fitness-assistant-dev-frontend-cdn` | [frontend-cdn.yaml](../../../files/cloudformation/frontend-cdn.yaml) | The CloudFront distribution and its Origin Access Control for the frontend bucket |
 | `gymini-dev-on-demand` | [dev-on-demand.yaml](../../../files/cloudformation/dev-on-demand.yaml) | The hourly-billed parts that are switched on and off per session: NAT Gateway, Chat load balancer, listener, target group and VPC endpoints |
 | `fitness-assistant-dev-cicd-iam` | [ci-cd-oidc.yaml](../../../files/cloudformation/ci-cd-oidc.yaml) | The five least-privilege IAM roles that GitHub Actions assumes through OIDC |
@@ -58,7 +58,7 @@ To compare the live stack with the template, use **Stack actions → Detect drif
 
 #### Screens of the console
 
-The screens below were captured in the account. The Create stack wizard was opened only to show its first step, then cancelled, so no stack was created.
+The screens below were captured in the account. The Create stack wizard was walked through up to the final review and then cancelled, so no stack was created.
 
 1. Open **CloudFormation → Stacks** and click the stack name (1).
 
@@ -80,10 +80,30 @@ The screens below were captured in the account. The Create stack wizard was open
 ![Create stack menu with the standard option marked](/images/workshop/console/cfn-4-create-menu.jpg)
 *The Create stack menu.*
 
-5. In step 1 choose **Upload a template file** (1), pick the YAML file downloaded above, then **Next** (2) through the parameters, options and review steps. Here the wizard was cancelled with **Cancel** (3) instead of creating the stack.
+5. In step 1 choose **Upload a template file** (1) and pick the YAML file downloaded above (2). The console uploads it and shows its address. Click **Next** (3).
 
-![Create stack wizard step 1 with upload a template file selected](/images/workshop/console/cfn-5-create-wizard.jpg)
-*Step 1 of the wizard.*
+![Step 1 of the wizard with the template file uploaded](/images/workshop/console/cfn-6-upload.jpg)
+*Step 1: the template file is uploaded.*
+
+6. In step 2 type the **Stack name** (1). The template parameters appear with their default values (2); keep them or change them. Click **Next** (3).
+
+![Step 2 of the wizard with the stack name and the two parameters](/images/workshop/console/cfn-7-details.jpg)
+*Step 2: stack name and parameters.*
+
+7. Step 3 holds the optional settings (tags, service role, rollback behavior, notifications). Keep **Roll back all resources** (1) and click **Next** at the bottom of the page.
+
+![Step 3 of the wizard with the stack options](/images/workshop/console/cfn-8-options.jpg)
+*Step 3: stack options.*
+
+8. Step 4 shows a summary: the template (1) and the stack name and parameters (2). Read it before submitting.
+
+![Review step with the template and the stack name](/images/workshop/console/cfn-9-review.jpg)
+*Step 4: review.*
+
+9. At the bottom, **Submit** creates the stack and **Cancel** leaves without creating anything. The screenshots here end with **Cancel** (1) because the monitoring stack already exists in the account; to create it for real, click **Submit** (2) and watch the **Events** tab until the status is **CREATE_COMPLETE**.
+
+![End of the review step with the Cancel and Submit buttons](/images/workshop/console/cfn-10-submit.jpg)
+*The Submit and Cancel buttons.*
 
 #### 5. Clean-up
 

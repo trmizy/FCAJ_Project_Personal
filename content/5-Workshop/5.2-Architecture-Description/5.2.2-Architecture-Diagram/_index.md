@@ -6,7 +6,7 @@ chapter: false
 pre: " <b> 5.2.2. </b> "
 ---
 
-The diagram below is the architecture image supplied for this project. Unlike earlier revisions of this page, every node here is checked directly against live AWS state (not copied from an older draft) — [5.4 Deployment Guide](../../5.4-Deployment-Guide/) and [5.5.5 Validation status and open items](../../5.5-Test-Validation/5.5.5-Status-Open-Items/) carry the step-by-step evidence behind each claim, and [5.2.1](../5.2.1-Architecture-Overview/) covers how the deployment arrived at its current state.
+The diagram below is the architecture image supplied for this project. Unlike earlier revisions of this page, every node here is checked directly against live AWS state (not copied from an older draft) — [5.4 Deployment Guide](../../5.4-Deployment-Guide/) carry the step-by-step evidence behind each claim, and [5.2.1](../5.2.1-Architecture-Overview/) covers how the deployment arrived at its current state.
 
 ### Component diagram
 
@@ -19,5 +19,4 @@ The AI component is a dual-provider setup, not a single LLM: **Ollama running a 
 
 On infrastructure-as-code: **CloudFormation, not Terraform, is what actually provisions and manages this project's real AWS resources** (API Gateway, the CI/CD OIDC IAM roles, the on-demand network stack, the frontend CDN, monitoring) — confirmed by listing every live `CREATE_COMPLETE`/`UPDATE_COMPLETE` stack in the account. The repository does contain a Terraform module, but it is wired up only to a separate, unrelated "hello world" bootstrap API with no live `.tfstate` for this environment — it is not this project's real IaC path, despite being present in the codebase.
 
-[5.5.5](../../5.5-Test-Validation/5.5.5-Status-Open-Items/) is the page to check for the full, itemized build/confirmed status of every piece here.
 {{% /notice %}}

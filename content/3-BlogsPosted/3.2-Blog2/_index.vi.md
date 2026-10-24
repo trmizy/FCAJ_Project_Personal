@@ -110,7 +110,7 @@ graph LR
 
 ### 7. Tách môi trường Dev / Staging / Production
 
-Hiện tại dự án chỉ có **một** môi trường DEV duy nhất ([5.5.5](../../5-Workshop/5.5-Test-Validation/5.5.5-Status-Open-Items/)), nên phần này là đề xuất, chưa phải hiện trạng.
+Hiện tại dự án chỉ có **một** môi trường DEV duy nhất, nên phần này là đề xuất, chưa phải hiện trạng.
 
 - **Development** — hạ tầng tối thiểu khi kỹ thuật cho phép, cấu hình tiết kiệm chi phí, resource tạm thời và được dọn dẹp có kiểm soát.
 - **Staging** — kiểm thử tích hợp, xác nhận quy trình deploy, cấu hình gần giống production khi cần, nhưng vẫn kiểm soát để tránh phát sinh chi phí không cần thiết.

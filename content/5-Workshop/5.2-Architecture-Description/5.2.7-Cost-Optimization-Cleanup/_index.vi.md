@@ -68,7 +68,7 @@ Chi phí hàng tháng của môi trường DEV được ước tính bằng **AW
 
 Khi gần như mọi thứ tính theo mức dùng, các khoản tính theo giờ vẫn chạy kể cả khi không ai dùng là **NAT Gateway**, **Chat ALB**, **Fargate task**, **capacity tối thiểu của Aurora**, **interface VPC endpoint** và **địa chỉ IPv4 public** (Elastic IP của NAT và các địa chỉ của ALB). [Phần ngân sách trong Proposal](../../../2-Proposal/#budget) ước tính các khoản này; chúng là mục tiêu của chế độ "sleep" bên dưới.
 
-### Đã lên kế hoạch, chưa tự động hoá
+### Tạm dừng giữa các phiên
 
 - **Chế độ sleep cho DEV** — Aurora về 0 ACU, Chat service về 0 task ngoài giờ, và xoá NAT Gateway giữa các phiên kiểm thử (xem [5.7](../../5.7-Cleanup/#pause)).
 

@@ -63,4 +63,3 @@ In this final week, my primary operational focus was to review, refine, and aggr
 - Step-by-step deployment guide with console screenshots ([Workshop 5.4](../../5-Workshop/5.4-Deployment-Guide/))
 - Test plan and results ([5.5](../../5-Workshop/5.5-Test-Validation/)): Auth and User verified end to end; Fitness, Gym, Payment, AI, Chat and the frontend are deployed and waiting for the final end-to-end pass
 - Cost estimate with a "sleep mode" for idle time ([Proposal §8](../../2-Proposal/#budget)) and a complete clean-up order ([5.7](../../5-Workshop/5.7-Cleanup/))
-- Still open: CI/CD pipeline, CloudWatch alarms, HTTPS with CloudFront

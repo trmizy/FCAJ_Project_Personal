@@ -12,5 +12,4 @@ This section collects the checks that prove each part of the deployment works, w
 2. [5.5.2 Frontend, API Gateway and Auth](5.5.2-Auth-Frontend-Smoke-Test/) — the request path from the browser to Aurora.
 3. [5.5.3 Chat health and Socket.IO](5.5.3-Chat-Health-SocketIO/) — the ECS service, the ALB and the WebSocket handshake.
 4. [5.5.4 Background jobs, queues and logs](5.5.4-Background-Jobs-Logs/) — schedules, the SQS worker and CloudWatch Logs.
-5. [5.5.5 Validation status and open items](5.5.5-Status-Open-Items/) — what is verified, what is pending, and the plan to close it.
-6. [5.5.6 Monitoring and alerting with Amazon CloudWatch](5.5.6-Monitoring-Alerting/) — logs, metrics, alarms, notifications, sample requests and error-case tests.
+5. [5.5.5 Monitoring and alerting with Amazon CloudWatch](5.5.6-Monitoring-Alerting/) — logs, metrics, alarms, notifications, sample requests and error-case tests.

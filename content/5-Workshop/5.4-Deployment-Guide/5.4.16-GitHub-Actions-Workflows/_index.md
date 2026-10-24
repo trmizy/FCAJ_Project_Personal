@@ -67,6 +67,16 @@ aws lambda get-function-configuration --function-name fitness-assistant-dev-auth
 ![A successful DEV Application Deploy run with its job summary](/images/workshop/console/gha-2-green-run.jpg)
 *A real deploy run of the Lambda code, finished with Success.*
 
+3. To start a deploy, open the workflow and click **Run workflow**. Choose the branch **aws-deploy** (1), enter the run ID of the build (2) and the services (3), and leave **dry_run** ticked (4) for the first run. Then click **Run workflow** in the form.
+
+![The Run workflow form of the deploy workflow](/images/workshop/console/gha-3-run-workflow-form.jpg)
+*The inputs of the deploy workflow.*
+
+4. The approval gate is a GitHub environment. In **Settings → Environments → dev**, **Required reviewers** is ticked with the reviewer (1), administrators cannot bypass the rules (2), and only the **aws-deploy** branch may deploy (3).
+
+![The dev environment with its required reviewer and branch rule](/images/workshop/console/gha-4-environment-dev.jpg)
+*The protection rules of the dev environment.*
+
 #### 5. Requirements for a new repository
 
 - The OIDC roles from [5.4.15](../5.4.15-CloudFormation-IaC/) exist, with the GitHub repository name set in the `GitHubRepository` parameter.

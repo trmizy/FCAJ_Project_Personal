@@ -18,10 +18,8 @@ Trang này liệt kê các vấn đề thật gặp phải khi triển khai và 
 | 6 | Hạn mức mô hình Bedrock bằng 0 ở tài khoản chính | Bedrock | Đã sửa bằng role chéo tài khoản |
 | 7 | Gọi Bedrock vẫn bị từ chối (Converse, mô hình marketplace) | IAM | Đã sửa |
 | 8 | Link đặt lại mật khẩu không xuất hiện | Auth Lambda, SMTP | Đã xử lý tạm, có kiểm soát |
-| 9 | Một số route có trong code nhưng thiếu trên API Gateway | API Gateway | Khoảng trống đã biết |
-| 10 | Cổng CI/CD lỗi hoặc không chạy được | GitHub Actions, CloudFormation | Đã sửa |
-| 11 | Change set CloudFormation đã cũ | CloudFormation | Đã tránh |
-| 12 | Fitness service không gọi được AI service | Mạng Lambda | Còn mở |
+| 9 | Cổng CI/CD lỗi hoặc không chạy được | GitHub Actions, CloudFormation | Đã sửa |
+| 10 | Change set CloudFormation đã cũ | CloudFormation | Đã tránh |
 
 ### 1. Đăng nhập bị chặn bởi CORS
 
@@ -77,14 +75,7 @@ Trang này liệt kê các vấn đề thật gặp phải khi triển khai và 
 - **Cách xử lý tạm có kiểm soát:** trong vài phút, chuyển `NODE_ENV` sang development và chỉ xoá trống `SMTP_HOST` trên auth Lambda, yêu cầu đặt lại, hoàn tất bằng cách gọi Lambda trực tiếp, rồi khôi phục môi trường gốc từ bản đã lưu và đọc lại để xác nhận (`NODE_ENV=production`, `SMTP_HOST` được khôi phục, đủ các biến).
 - **Lần sau:** cách sửa thật là có luồng đặt lại dùng được cho người dùng thật (xem vấn đề 9).
 
-### 9. Một số route có trong code nhưng thiếu trên API Gateway
-
-- **Triệu chứng:** kiểm tra route parity giữa source code và API đang chạy báo 10 route chỉ có trong source: đặt lại mật khẩu và yêu cầu đặt lại, onboarding đối tác, một webhook chữ ký, và hai link dựa trên token.
-- **Nguyên nhân:** mọi route `/auth/*` được cho phép từng cái một và các route này chưa bao giờ được thêm, nên không truy cập được trên API đã deploy.
-- **Cách xử lý:** bước kiểm tra sau-apply của workflow hạ tầng vẫn fail với mọi route lệch, nhưng chấp nhận 10 route chỉ-có-trong-source đã biết để một lần deploy đúng không bị báo lỗi.
-- **Bước tiếp theo:** thêm các route vào định nghĩa API. Đây là lý do chính khiến người dùng chưa tự đặt lại mật khẩu được trên app đã deploy.
-
-### 10. Cổng CI/CD lỗi hoặc không chạy được
+### 9. Cổng CI/CD lỗi hoặc không chạy được
 
 | Triệu chứng | Nguyên nhân | Cách sửa |
 |---|---|---|
@@ -94,28 +85,8 @@ Trang này liệt kê các vấn đề thật gặp phải khi triển khai và 
 | Bước kiểm tra sau-apply fail với mọi lần apply đúng | Nó coi 10 route chỉ-có-trong-source đã biết là lỗi | Thêm công tắc tuỳ chọn `-AllowKnownSourceOnly`, chỉ dùng ở bước đó; route lệch vẫn fail |
 | Một pull request hiện 104 commit và 1.215 file | Branch được cắt từ đầu local có nhiều commit chưa push | Cắt branch mới từ đầu remote thật và cherry-pick đúng một commit |
 
-### 11. Change set CloudFormation đã cũ
+### 10. Change set CloudFormation đã cũ
 
 - **Triệu chứng:** một change set cũ không có thay đổi trông như an toàn để apply.
 - **Nguyên nhân:** nó mang tên DNS load balancer từ ngày được tạo, mà load balancer đó không còn tồn tại. Bước kiểm tra digest chỉ chứng minh **template** không đổi, không chứng minh giá trị tham số đã gắn vẫn còn mới.
 - **Cách sửa:** không apply nó. Tạo plan mới, có giá trị tham số hiện tại, rồi apply cái đó.
-
-### 12. Fitness service không gọi được AI service (còn mở)
-
-- **Triệu chứng:** tạo lộ trình kết thúc bằng bản nháp dự phòng và màn hình báo AI service không khả dụng. Log của Fitness Lambda có `getaddrinfo ENOTFOUND ai-service`.
-- **Nguyên nhân:** client mặc định dùng tên máy container `ai-service`, chỉ tồn tại trong mạng Docker local, và Lambda không có thiết lập nào cho địa chỉ AI service.
-- **Cách sửa dự kiến:** gọi thẳng AI Lambda, giống cách Fitness service đã gọi auth và user service. AI coach và việc tạo kế hoạch qua SQS không bị ảnh hưởng.
-
-### Ghi chú về công cụ
-
-- **AWS CLI lỗi codec `charmap`** khi in log CloudWatch có tiếng Việt. Ghi output ra file không giúp được; đọc log event qua một script nhỏ chuyển văn bản về ASCII thì được.
-- **Git Bash tự đổi tham số** có dấu hai chấm hoặc bắt đầu bằng dấu gạch chéo (ví dụ `branch:path`). Đặt `MSYS_NO_PATHCONV=1` trước các lệnh như vậy.
-
-### Hạn chế đã biết và bước tiếp theo
-
-- Thêm các route còn thiếu vào API Gateway, để đặt lại mật khẩu tự phục vụ và onboarding đối tác chạy được trên app đã deploy.
-- Sửa kết nối từ Fitness service tới AI service (vấn đề 12).
-- Đưa chat lên HTTPS với tên miền riêng và chứng chỉ riêng.
-- Thêm kiểm thử tự động và kiểm tra route parity vào pipeline pull request.
-- Đổi mật khẩu của 12 tài khoản seed còn lại trước khi phát hành rộng hơn.
-- Tìm hiểu sâu hơn về AI trên AWS với Amazon Bedrock và AgentCore.

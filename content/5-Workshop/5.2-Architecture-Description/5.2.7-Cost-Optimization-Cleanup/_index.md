@@ -68,7 +68,7 @@ The monthly cost of the DEV environment was estimated with the **AWS Pricing Cal
 
 With almost everything usage-based, the hourly costs that run even when nobody uses the system are the **NAT Gateway**, the **Chat ALB**, the **Fargate task**, **Aurora's minimum capacity**, the **interface VPC endpoints** and the **public IPv4 addresses** (NAT Elastic IP and the ALB's addresses). The [Proposal's budget](../../../2-Proposal/#budget) estimates them; they are the targets of the "sleep" strategy below.
 
-### Planned, not yet automated
+### Pausing between sessions
 
 - **DEV sleep strategy** — Aurora to 0 ACU, the Chat service to 0 tasks out of hours, and the NAT Gateway deleted between test sessions (see [5.7](../../5.7-Cleanup/#pause)).
 

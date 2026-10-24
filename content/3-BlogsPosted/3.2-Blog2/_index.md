@@ -110,7 +110,7 @@ graph LR
 
 ### 7. Separating Dev, Staging and Production
 
-Today the project has only **one** DEV environment ([5.5.5](../../5-Workshop/5.5-Test-Validation/5.5.5-Status-Open-Items/)), so this section is a proposal, not the current state.
+Today the project has only **one** DEV environment, so this section is a proposal, not the current state.
 
 - **Development** — minimal infrastructure where technically feasible, cost-conscious configuration, temporary resources with controlled cleanup.
 - **Staging** — integration testing, deployment validation, production-like configuration where it matters, kept controlled enough to avoid unnecessary spend.

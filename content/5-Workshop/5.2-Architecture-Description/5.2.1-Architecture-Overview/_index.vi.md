@@ -6,26 +6,6 @@ chapter: false
 pre: " <b> 5.2.1. </b> "
 ---
 
-### Tóm tắt trạng thái triển khai
-
-Snapshot trạng thái AWS deployment, migration và kiểm thử end-to-end (E2E) hiện tại, ghi trong runbook triển khai. Trạng thái chỉ phản ánh những gì có bằng chứng ở đó.
-
-| Thành phần | AWS Deployment | Migration | E2E | Trạng thái |
-|---|---|---|---|---|
-| Hạ tầng dùng chung (VPC/Subnet/SG/NAT/IGW) | Complete | N/A | N/A | **COMPLETE** |
-| Aurora PostgreSQL | Complete | Complete — 7/7 database đã restore | Verified | **COMPLETE** |
-| Auth Service | Deployed | Complete | Passed (kèm fix transaction-atomicity) | **COMPLETE** |
-| User Service | Deployed | Complete | Passed | **COMPLETE** |
-| Fitness Service | Deployed | Complete | Chờ full E2E | NEEDS VERIFICATION |
-| Gym Service | Deployed | Complete | Chờ full E2E | NEEDS VERIFICATION |
-| Payment Service | Deployed | Complete | Chờ full E2E | NEEDS VERIFICATION |
-| AI / Worker / Jobs | Deployed | Complete | Chờ E2E | NEEDS VERIFICATION |
-| Chat Service (REST + Socket.IO) | Deployed | Complete | Chờ full E2E | NEEDS VERIFICATION |
-| Frontend (S3) | Deployed | N/A | Chờ full integration E2E | NEEDS VERIFICATION |
-| CI/CD | Incomplete | N/A | N/A | **INCOMPLETE** |
-
-Verification migration database: 23/23 foreign key đã audit được áp dụng và xác nhận. Việc xoay vòng credential ADMIN và xử lý nốt seed account được cố ý hoãn lại (không phải blocker hiện tại nhưng vẫn được theo dõi).
-
 ### Các thành phần
 
 **Hạ tầng dùng chung**
@@ -56,7 +36,7 @@ Lambda (hoặc Chat Fargate task) của mỗi service chỉ đọc/ghi database 
 
 **AI managed:** Amazon Bedrock (Nova Pro cho chat và vision, Cohere Embed Multilingual v3 cho embedding 1024 chiều) và một vector collection Amazon OpenSearch Serverless (`fitness-assistant-dev-ai-vectors`, NextGen, scale trong khoảng 0–2 OCU), truy cập private qua VPC endpoint.
 
-**Một frontend tĩnh** trên Amazon S3 (website hosting, hiện tại qua HTTP — xem [5.2.7](../5.2.7-Cost-Optimization-Cleanup/) để biết vì sao CloudFront chưa đứng trước nó).
+**Một frontend tĩnh** trên Amazon S3 phát qua Amazon CloudFront (Origin Access Control).
 
 ### Khác biệt so với kế hoạch MVP ban đầu
 

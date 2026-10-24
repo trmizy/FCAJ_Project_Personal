@@ -15,7 +15,7 @@ Gymini (the open-source Fitness Assistant project) is a pnpm monorepo with a Rea
 
 Each service runs on the AWS service that fits its runtime shape: six request/response services on AWS Lambda behind Amazon API Gateway, the real-time Chat service on Amazon ECS Fargate behind an Application Load Balancer, one Amazon Aurora PostgreSQL Serverless v2 cluster with a logical database per service, Amazon Bedrock (Nova Pro, Cohere Embed) and Amazon OpenSearch Serverless for the AI coach, and Amazon SQS plus EventBridge Scheduler for background work. The static frontend is served from Amazon S3; credentials live in AWS Secrets Manager; every function has its own least-privilege IAM role inside private subnets.
 
-At the latest checkpoint every service is deployed, the 7 local databases have been restored into Aurora with all 23 audited foreign keys validated, and Auth and User pass end-to-end tests. Remaining work — end-to-end tests of the other services, CI/CD, alarms, HTTPS and an automated "sleep" mode for cost — is planned and tracked in the [Workshop](../5-Workshop/5.5-Test-Validation/5.5.5-Status-Open-Items/).
+At the latest checkpoint every service is deployed on AWS, the 7 local databases have been restored into Aurora with all 23 audited foreign keys validated, and the system runs with a CI/CD pipeline, CloudWatch monitoring and an on/off routine that keeps cost low. The details are in the [Workshop](../5-Workshop/).
 
 ### 2. Problem Statement {#problem}
 
@@ -44,7 +44,7 @@ The DEV environment pays mostly for what it uses, there are no servers to patch 
 
 ### 3. Solution Architecture {#architecture}
 
-The diagram shows the architecture this project is designed around. It is the target the deployment works toward; [Workshop 5.5.5](../5-Workshop/5.5-Test-Validation/5.5.5-Status-Open-Items/) tracks exactly which pieces are confirmed running in the DEV environment today, and [Workshop 5.2](../5-Workshop/5.2-Architecture-Description/) has the full description — request flows, service selection, security, scalability and cost.
+The diagram shows the architecture this project is designed around. It is the target the deployment works toward; [Workshop 5.2](../5-Workshop/5.2-Architecture-Description/) has the full description — request flows, service selection, security, scalability and cost.
 
 ![AWS serverless architecture of Fitness Assistant](/images/workshop/architecture/architecture.png)
 

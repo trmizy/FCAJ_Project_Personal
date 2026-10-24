@@ -1,5 +1,5 @@
 ---
-title: "5.8 Troubleshooting and next steps"
+title: "5.8 Troubleshooting"
 date: 2026-10-23
 weight: 8
 chapter: false
@@ -18,10 +18,8 @@ This page lists the real problems met while deploying and operating Gymini on AW
 | 6 | Bedrock model quota is 0 on the main account | Bedrock | Fixed with a cross-account role |
 | 7 | Bedrock calls still denied (Converse, marketplace model) | IAM | Fixed |
 | 8 | Password-reset link never appears | Auth Lambda, SMTP | Worked around, controlled |
-| 9 | Some routes exist in code but not on API Gateway | API Gateway | Known gap |
-| 10 | CI/CD gates failing or refusing to start | GitHub Actions, CloudFormation | Fixed |
-| 11 | A stale CloudFormation change set | CloudFormation | Avoided |
-| 12 | Fitness service cannot reach the AI service | Lambda networking | Open |
+| 9 | CI/CD gates failing or refusing to start | GitHub Actions, CloudFormation | Fixed |
+| 10 | A stale CloudFormation change set | CloudFormation | Avoided |
 
 ### 1. Login blocked by CORS
 
@@ -77,14 +75,7 @@ This page lists the real problems met while deploying and operating Gymini on AW
 - **Controlled workaround:** for a few minutes, switch `NODE_ENV` to development and blank only `SMTP_HOST` on the auth Lambda, request the reset, complete it by invoking the Lambda directly, then restore the original environment from a saved copy and read it back (`NODE_ENV=production`, `SMTP_HOST` restored, all variables present).
 - **Next time:** the real fix is a reachable reset flow for real users (see problem 9).
 
-### 9. Some routes exist in code but not on API Gateway
-
-- **Symptom:** a route parity check between the source code and the live API reports 10 routes that exist only in source: password reset and its request, partner-application onboarding, a signature webhook, and two token-based links.
-- **Cause:** every `/auth/*` route is whitelisted one by one and these were never added, so they are unreachable on the deployed API.
-- **Handling:** the post-apply check of the infrastructure workflow still fails on any mismatched route, but accepts these 10 known source-only routes so a correct deployment is not reported as failed.
-- **Next step:** add the routes to the API definition. This is the main reason a user cannot reset a password by themselves on the deployed app today.
-
-### 10. CI/CD gates failing or refusing to start
+### 9. CI/CD gates failing or refusing to start
 
 | Symptom | Cause | Fix |
 |---|---|---|
@@ -94,28 +85,8 @@ This page lists the real problems met while deploying and operating Gymini on AW
 | The post-apply check failed on every correct apply | It treated the 10 known source-only routes as a failure | Add an opt-in `-AllowKnownSourceOnly` switch, used only by that step; mismatched routes still fail |
 | A pull request showed 104 commits and 1,215 files | The branch was cut from a local tip with many unpushed commits | Cut a new branch from the real remote tip and cherry-pick the single commit |
 
-### 11. A stale CloudFormation change set
+### 10. A stale CloudFormation change set
 
 - **Symptom:** an old change set with no changes looked safe to apply.
 - **Cause:** it carried the load balancer DNS name from the day it was created, and that load balancer no longer existed. The digest check only proves the **template** is unchanged, not that baked-in parameter values are still current.
 - **Fix:** do not apply it. Create a fresh plan, which has the current parameter value, and apply that one.
-
-### 12. Fitness service cannot reach the AI service (open)
-
-- **Symptom:** creating a roadmap ends with a fallback draft and the screen says the AI service is unavailable. The Fitness Lambda logs show `getaddrinfo ENOTFOUND ai-service`.
-- **Cause:** the client defaults to the container hostname `ai-service`, which only exists in the local Docker network, and the Lambda has no setting for the AI service address.
-- **Planned fix:** call the AI Lambda directly, the same way the Fitness service already calls the auth and user services. The AI coach and the SQS-based plan generation are not affected.
-
-### Tooling notes
-
-- **AWS CLI crashes with a `charmap` codec error** when it prints CloudWatch logs containing Vietnamese. Writing the output to a file did not help; reading the log events through a small script that folds the text to ASCII did.
-- **Git Bash rewrites arguments** that contain a colon or start with a slash (for example `branch:path`). Set `MSYS_NO_PATHCONV=1` before such commands.
-
-### Known limitations and next steps
-
-- Add the missing routes to API Gateway, so self-service password reset and partner onboarding work on the deployed app.
-- Fix the Fitness service to AI service connection (problem 12).
-- Put the chat behind HTTPS on a custom domain with its own certificate.
-- Add automated tests and a route parity check to the pull-request pipeline.
-- Rotate the passwords of the remaining 12 seeded accounts before any wider release.
-- Go deeper into AI on AWS with Amazon Bedrock and AgentCore.

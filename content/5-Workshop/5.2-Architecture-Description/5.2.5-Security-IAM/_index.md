@@ -52,15 +52,3 @@ The Cohere Marketplace subscription was accepted once by an administrator; runti
 
 - API Gateway route throttling on the AI routes (1 request/s with a burst of 3; 3/6 for the marketplace) caps how fast any client can trigger billable Bedrock calls; the frontend shows a "too many requests" message on HTTP 429.
 - SQS dead-letter queue (2 attempts) prevents a failing AI job from being retried forever.
-
-### Known gaps (open, not hidden)
-
-- **Internal secrets in Lambda configuration** — `INTERNAL_SERVICE_SECRET` and `CHECKIN_TOKEN_SECRET` are Lambda environment variables (encrypted at rest, but readable by anyone allowed to view the function configuration). Chat already reads the internal secret from Secrets Manager; moving the Lambda copies there is a hardening follow-up.
-- **HTTPS** — the web app and Chat are served over HTTPS through CloudFront; the Chat ALB itself is HTTP-only behind it. A custom domain and ACM certificate are an optional next step.
-- **Legacy public-read statement on the frontend bucket** — objects only (`s3:GetObject`). CloudFront already reads the bucket through Origin Access Control, so this statement can be removed to make the bucket fully private.
-- **WAF** — optional and not deployed; CloudFront is in place, so a web ACL can be attached when needed.
-- **12 remaining seed accounts** — postponed, required before any wider release.
-
-### Screenshot evidence that contained secrets
-
-A few console screenshots in the deployment runbook (Secrets Manager "Store a new secret" screens and Lambda "Environment variables" screens) originally showed real secret values. Each was redacted at pixel level — the value itself blacked out in the image data, not cropped or blurred — before being included in this report; the black boxes in [5.4](../../5.4-Deployment-Guide/) are intentional. All screenshots were reviewed again before publication.
