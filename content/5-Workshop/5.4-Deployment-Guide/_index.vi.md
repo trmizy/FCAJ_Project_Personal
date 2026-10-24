@@ -21,6 +21,9 @@ Các service được triển khai lần lượt theo thứ tự phụ thuộc: 
 11. [5.4.11 Migration dữ liệu lên Aurora](5.4.11-Data-Migration/) — restore 7 database local bằng một Fargate task chạy một lần.
 12. [5.4.12 Kích hoạt pipeline CI/CD](5.4.12-CICD-Pipeline/) — validate PR bằng GitHub Actions qua OIDC, cùng bằng chứng liên kết OIDC → STS thật.
 13. [5.4.13 Kích hoạt pipeline CD](5.4.13-CD-Pipeline-Activation/) — kích hoạt từng gate một các workflow deploy thật lên AWS, bắt đầu từ cổng duyệt-bởi-con-người ở GitHub Environment.
+14. [5.4.14 CloudFront, Aurora reader và CloudWatch alarm](5.4.14-Edge-Database-Monitoring/) — cửa vào HTTPS, reader của database và một alarm có thông báo email, mỗi phần kèm form tạo.
+15. [5.4.15 Hạ tầng dưới dạng code với CloudFormation](5.4.15-CloudFormation-IaC/) — các stack, file template để tải và cách deploy một stack.
+16. [5.4.16 Workflow GitHub Actions](5.4.16-GitHub-Actions-Workflows/) — sáu workflow kèm file để tải, các cổng phê duyệt và cách chạy.
 
 #### Khuôn mẫu chung cho mọi service chạy trên Lambda {#common-pattern}
 

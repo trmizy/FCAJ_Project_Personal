@@ -21,6 +21,9 @@ The services were deployed one at a time, in dependency order: each service only
 11. [5.4.11 Data migration to Aurora](5.4.11-Data-Migration/) — restoring 7 local databases with a one-shot Fargate task.
 12. [5.4.12 CI/CD pipeline activation](5.4.12-CICD-Pipeline/) — GitHub Actions PR validation via OIDC, and real OIDC → STS federation evidence.
 13. [5.4.13 CD pipeline activation](5.4.13-CD-Pipeline-Activation/) — gate-by-gate activation of the actual deploy-to-AWS workflows, starting with the GitHub Environment human-approval gates.
+14. [5.4.14 CloudFront, Aurora reader and CloudWatch alarm](5.4.14-Edge-Database-Monitoring/) — the HTTPS front door, the database reader and an alarm with an e-mail notification, each with the creation form.
+15. [5.4.15 Infrastructure as code with CloudFormation](5.4.15-CloudFormation-IaC/) — the stacks, the template files to download and how to deploy one.
+16. [5.4.16 GitHub Actions workflows](5.4.16-GitHub-Actions-Workflows/) — the six workflows with the files to download, the approval gates and how to run them.
 
 #### The pattern every Lambda-based service follows {#common-pattern}
 

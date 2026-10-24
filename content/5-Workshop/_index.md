@@ -20,3 +20,4 @@ This workshop documents how the Fitness Assistant application (branded **Gymini*
 5. [5.5 Test & Validation](5.5-Test-Validation/)
 6. [5.6 Demo](5.6-Demo/)
 7. [5.7 Clean-up](5.7-Cleanup/)
+8. [5.8 Troubleshooting and next steps](5.8-Troubleshooting/)

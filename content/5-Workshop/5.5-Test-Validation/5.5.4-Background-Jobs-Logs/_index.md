@@ -56,5 +56,5 @@ Every Lambda writes to `/aws/lambda/<function-name>` and the Chat task to `/ecs/
 | `Task timed out after …` | Work that should be queued (AI) or a function timeout set too low |
 
 {{% notice note %}}
-No CloudWatch alarms are configured yet, so these checks are manual. Alarms on Lambda errors/throttles, the DLQ depth, Aurora capacity and the Chat target health are part of the open items in [5.5.5](../5.5.5-Status-Open-Items/).
+CloudWatch alarms already watch the API Lambdas, API Gateway 5xx, Aurora and the NAT Gateway (see [5.5.6](../5.5.6-Monitoring-Alerting/)). Alarms for the worker, the jobs, throttles and the DLQ depth are still open, so those checks remain manual.
 {{% /notice %}}

@@ -56,5 +56,5 @@ Mỗi Lambda ghi vào `/aws/lambda/<function-name>` và Chat task ghi vào `/ecs
 | `Task timed out after …` | Việc lẽ ra phải đưa vào hàng đợi (AI) hoặc timeout của function đặt quá thấp |
 
 {{% notice note %}}
-Chưa cấu hình CloudWatch alarm nào, nên các kiểm tra này đang làm thủ công. Alarm cho lỗi/throttle của Lambda, độ sâu DLQ, capacity của Aurora và health của Chat target nằm trong danh sách việc còn mở ở [5.5.5](../5.5.5-Status-Open-Items/).
+Các CloudWatch alarm đã theo dõi các Lambda API, API Gateway 5xx, Aurora và NAT Gateway (xem [5.5.6](../5.5.6-Monitoring-Alerting/)). Alarm cho worker, các job, throttle và độ sâu DLQ vẫn còn mở, nên các kiểm tra đó vẫn làm thủ công.
 {{% /notice %}}

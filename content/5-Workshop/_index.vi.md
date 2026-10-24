@@ -20,3 +20,4 @@ Workshop này ghi lại cách ứng dụng Fitness Assistant (tên sản phẩm 
 5. [5.5 Kiểm thử & xác nhận](5.5-Test-Validation/)
 6. [5.6 Demo](5.6-Demo/)
 7. [5.7 Dọn dẹp tài nguyên](5.7-Cleanup/)
+8. [5.8 Xử lý sự cố và hướng phát triển](5.8-Troubleshooting/)
